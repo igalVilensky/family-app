@@ -170,7 +170,9 @@ const handleRegister = async () => {
     await authStore.initAuth();
     router.push("/family-setup");
   } catch (err) {
-    error.value = err.message || "Failed to register";
+    error.value = err.message.includes("permission")
+      ? "Permission denied. Please try again or contact support."
+      : err.message || "Failed to register";
   } finally {
     loading.value = false;
   }

@@ -1,3 +1,4 @@
+// utils/firebase.js
 import { useNuxtApp } from "#app";
 import {
   createUserWithEmailAndPassword,
@@ -8,7 +9,7 @@ import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 export const registerUser = async (email, password, familyName) => {
   const nuxtApp = useNuxtApp();
   const auth = nuxtApp.$auth;
-  const db = nuxtApp.$firestore; // Use provided firestore
+  const db = nuxtApp.$firestore;
 
   if (!auth || !db) {
     console.error("Auth or Firestore unavailable");
@@ -19,6 +20,7 @@ export const registerUser = async (email, password, familyName) => {
   }
 
   try {
+    // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -26,26 +28,27 @@ export const registerUser = async (email, password, familyName) => {
     );
     const user = userCredential.user;
 
+    // Create user document first
     await setDoc(doc(db, "users", user.uid), {
       email,
       createdAt: new Date(),
-      familyId: null,
-      familyName: familyName || null,
+      familyId: null, // Initially null, will update later if family is created
       role: familyName ? "admin" : "member",
     });
 
+    let familyId = null;
     if (familyName) {
+      // Create family document
       const familyRef = await addDoc(collection(db, "families"), {
         name: familyName,
         adminId: user.uid,
         members: [{ userId: user.uid, role: "admin", email }],
         createdAt: new Date(),
       });
-      await setDoc(
-        doc(db, "users", user.uid),
-        { familyId: familyRef.id },
-        { merge: true }
-      );
+      familyId = familyRef.id;
+
+      // Update user document with familyId
+      await setDoc(doc(db, "users", user.uid), { familyId }, { merge: true });
     }
 
     return { success: true, user };

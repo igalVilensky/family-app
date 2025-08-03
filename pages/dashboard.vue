@@ -25,6 +25,7 @@
       </div>
       <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
         <NuxtLink
+          v-if="authStore.familyId"
           :to="`/family/${authStore.familyId}`"
           class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
         >
@@ -69,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { getAuth, signOut } from "firebase/auth";
@@ -83,7 +84,7 @@ import {
 } from "firebase/firestore";
 import { useNuxtApp } from "#app";
 
-const { $firestore: db } = useNuxtApp(); // Access Firestore via Nuxt plugin
+const { $firestore: db } = useNuxtApp();
 const router = useRouter();
 const authStore = useAuthStore();
 const joinRequests = ref([]);
