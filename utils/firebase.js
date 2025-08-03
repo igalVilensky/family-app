@@ -1,17 +1,16 @@
-// utils/firebase.js
 import { useNuxtApp } from "#app";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 
 export const registerUser = async (email, password, familyName) => {
   const nuxtApp = useNuxtApp();
   const auth = nuxtApp.$auth;
-  const firestore = nuxtApp.$firestore;
+  const db = nuxtApp.$firestore; // Use provided firestore
 
-  if (!auth || !firestore) {
+  if (!auth || !db) {
     console.error("Auth or Firestore unavailable");
     return {
       success: false,
@@ -27,11 +26,27 @@ export const registerUser = async (email, password, familyName) => {
     );
     const user = userCredential.user;
 
-    await setDoc(doc(firestore, "users", user.uid), {
-      familyName,
+    await setDoc(doc(db, "users", user.uid), {
       email,
       createdAt: new Date(),
+      familyId: null,
+      familyName: familyName || null,
+      role: familyName ? "admin" : "member",
     });
+
+    if (familyName) {
+      const familyRef = await addDoc(collection(db, "families"), {
+        name: familyName,
+        adminId: user.uid,
+        members: [{ userId: user.uid, role: "admin", email }],
+        createdAt: new Date(),
+      });
+      await setDoc(
+        doc(db, "users", user.uid),
+        { familyId: familyRef.id },
+        { merge: true }
+      );
+    }
 
     return { success: true, user };
   } catch (error) {

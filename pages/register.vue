@@ -1,65 +1,3 @@
-<script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import { useAuthStore } from "~/stores/auth";
-import { registerUser } from "~/utils/firebase";
-
-const authStore = useAuthStore();
-const router = useRouter();
-const familyName = ref("");
-const email = ref("");
-const password = ref("");
-const error = ref("");
-const loading = ref(false);
-
-const isFormValid = computed(() => {
-  return (
-    familyName.value.trim() !== "" &&
-    email.value.trim() !== "" &&
-    password.value.trim() !== "" &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) &&
-    password.value.length >= 6
-  );
-});
-
-const handleRegister = async () => {
-  if (!isFormValid.value) {
-    error.value = "Please fill all fields correctly";
-    return;
-  }
-
-  loading.value = true;
-  error.value = "";
-
-  try {
-    const response = await registerUser(
-      email.value,
-      password.value,
-      familyName.value
-    );
-    if (!response.success) {
-      throw new Error(response.message || "Registration failed");
-    }
-    await authStore.initAuth(); // Ensure auth state is updated
-    router.push("/dashboard");
-  } catch (err) {
-    error.value = err.message || "Failed to register";
-  } finally {
-    loading.value = false;
-  }
-};
-
-useHead({
-  title: "FamilySpace - Register",
-  meta: [
-    {
-      name: "description",
-      content: "Join FamilySpace to create your family’s private digital home.",
-    },
-  ],
-});
-</script>
-
 <template>
   <div
     class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20"
@@ -92,22 +30,6 @@ useHead({
         >
           <div class="mb-4">
             <label
-              for="familyName"
-              class="block text-sm font-medium text-gray-200 mb-2"
-            >
-              Family Group Name
-            </label>
-            <input
-              type="text"
-              id="familyName"
-              v-model="familyName"
-              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
-              placeholder="Enter your family group name"
-              required
-            />
-          </div>
-          <div class="mb-4">
-            <label
               for="email"
               class="block text-sm font-medium text-gray-200 mb-2"
             >
@@ -138,8 +60,37 @@ useHead({
               required
             />
           </div>
-          <div v-if="error" class="mb-4 text-red-400 text-sm text-center">
-            {{ error }}
+          <div class="mb-4">
+            <label
+              for="createFamily"
+              class="block text-sm font-medium text-gray-200 mb-2"
+            >
+              Create a Family?
+            </label>
+            <select
+              id="createFamily"
+              v-model="createFamily"
+              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+            >
+              <option value="yes">Yes, create a new family</option>
+              <option value="no">No, I’ll join a family later</option>
+            </select>
+          </div>
+          <div v-if="createFamily === 'yes'" class="mb-4">
+            <label
+              for="familyName"
+              class="block text-sm font-medium text-gray-200 mb-2"
+            >
+              Family Group Name
+            </label>
+            <input
+              type="text"
+              id="familyName"
+              v-model="familyName"
+              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+              placeholder="Enter your family group name"
+              required
+            />
           </div>
           <button
             type="submit"
@@ -171,6 +122,71 @@ useHead({
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "~/stores/auth";
+import { registerUser } from "~/utils/firebase";
+
+const authStore = useAuthStore();
+const router = useRouter();
+const familyName = ref("");
+const email = ref("");
+const password = ref("");
+const createFamily = ref("yes");
+const error = ref("");
+const loading = ref(false);
+
+const isFormValid = computed(() => {
+  return (
+    email.value.trim() !== "" &&
+    password.value.trim() !== "" &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) &&
+    password.value.length >= 6 &&
+    (createFamily.value === "no" ||
+      (createFamily.value === "yes" && familyName.value.trim() !== ""))
+  );
+});
+
+const handleRegister = async () => {
+  if (!isFormValid.value) {
+    error.value = "Please fill all fields correctly";
+    return;
+  }
+
+  loading.value = true;
+  error.value = "";
+
+  try {
+    const response = await registerUser(
+      email.value,
+      password.value,
+      createFamily.value === "yes" ? familyName.value : null
+    );
+    if (!response.success) {
+      throw new Error(response.message || "Registration failed");
+    }
+    await authStore.initAuth();
+    router.push("/family-setup");
+  } catch (err) {
+    error.value = err.message || "Failed to register";
+  } finally {
+    loading.value = false;
+  }
+};
+
+useHead({
+  title: "FamilySpace - Register",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Join FamilySpace to create or join your family’s private digital home.",
+    },
+  ],
+});
+</script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=block");
