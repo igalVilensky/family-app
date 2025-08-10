@@ -17,7 +17,6 @@
         @click="signUpWithGoogle"
         class="w-full flex items-center justify-center gap-3 px-4 py-3 mb-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
       >
-        <!-- <img src="/google-icon.svg" alt="Google" class="w-5 h-5" /> -->
         <span class="text-gray-700 font-medium">Sign up with Google</span>
       </button>
 
@@ -76,21 +75,35 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-
-const auth = getAuth();
-const router = useRouter();
 
 const email = ref("");
 const password = ref("");
+const router = useRouter();
+
+let auth;
+let createUserWithEmailAndPassword;
+let GoogleAuthProvider;
+let signInWithPopup;
+
+onMounted(async () => {
+  if (process.client) {
+    // Import Firebase auth functions dynamically only on client
+    const firebaseAuth = await import("firebase/auth");
+    auth = firebaseAuth.getAuth();
+    createUserWithEmailAndPassword =
+      firebaseAuth.createUserWithEmailAndPassword;
+    GoogleAuthProvider = firebaseAuth.GoogleAuthProvider;
+    signInWithPopup = firebaseAuth.signInWithPopup;
+  }
+});
 
 const registerWithEmail = async () => {
+  if (!auth || !createUserWithEmailAndPassword) {
+    alert("Auth is not ready yet, please try again.");
+    return;
+  }
   try {
     await createUserWithEmailAndPassword(auth, email.value, password.value);
     router.push("/dashboard");
@@ -101,6 +114,10 @@ const registerWithEmail = async () => {
 };
 
 const signUpWithGoogle = async () => {
+  if (!auth || !signInWithPopup || !GoogleAuthProvider) {
+    alert("Auth is not ready yet, please try again.");
+    return;
+  }
   try {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
