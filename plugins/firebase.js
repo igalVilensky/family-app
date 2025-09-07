@@ -1,5 +1,4 @@
-// plugins/firebase.js
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   getAuth,
   setPersistence,
@@ -22,7 +21,9 @@ const firebaseConfig = {
   measurementId: "G-ZEHDH2MK9T",
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase app only if it doesn't already exist
+const app =
+  getApps().length === 0 ? initializeApp(firebaseConfig) : getApp("[DEFAULT]");
 const auth = getAuth(app);
 const firestore = getFirestore(app);
 

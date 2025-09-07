@@ -1,4 +1,3 @@
-// utils/firebase.js
 import { useNuxtApp } from "#app";
 import {
   createUserWithEmailAndPassword,
@@ -20,7 +19,6 @@ export const registerUser = async (email, password, familyName) => {
   }
 
   try {
-    // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -28,17 +26,15 @@ export const registerUser = async (email, password, familyName) => {
     );
     const user = userCredential.user;
 
-    // Create user document first
     await setDoc(doc(db, "users", user.uid), {
       email,
       createdAt: new Date(),
-      familyId: null, // Initially null, will update later if family is created
+      familyId: null,
       role: familyName ? "admin" : "member",
     });
 
     let familyId = null;
     if (familyName) {
-      // Create family document
       const familyRef = await addDoc(collection(db, "families"), {
         name: familyName,
         adminId: user.uid,
@@ -46,8 +42,6 @@ export const registerUser = async (email, password, familyName) => {
         createdAt: new Date(),
       });
       familyId = familyRef.id;
-
-      // Update user document with familyId
       await setDoc(doc(db, "users", user.uid), { familyId }, { merge: true });
     }
 
@@ -77,5 +71,28 @@ export const loginUser = async (email, password) => {
   } catch (error) {
     console.error("Login error:", error);
     return { success: false, message: error.message || "Login failed" };
+  }
+};
+
+export const createProfile = async (userId, profileData) => {
+  const nuxtApp = useNuxtApp();
+  const db = nuxtApp.$firestore;
+
+  if (!db) {
+    console.error("Firestore unavailable");
+    throw new Error("Database unavailable");
+  }
+
+  try {
+    console.log("createProfile: Updating user document", {
+      userId,
+      profileData,
+    });
+    await setDoc(doc(db, "users", userId), profileData, { merge: true });
+    console.log("createProfile: User document updated successfully");
+    return { success: true };
+  } catch (error) {
+    console.error("createProfile error:", error);
+    throw new Error(error.message || "Failed to create profile");
   }
 };

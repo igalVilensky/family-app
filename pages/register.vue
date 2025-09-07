@@ -1,37 +1,29 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20"
+    class="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-12"
   >
-    <div class="absolute inset-0 bg-white bg-opacity-5 backdrop-blur-sm"></div>
-    <div class="relative z-10 max-w-md w-full">
-      <div class="mb-8 text-center">
-        <div
-          class="w-16 h-16 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl shadow-2xl flex items-center justify-center transform hover:scale-110 transition-all duration-300 animate-pulse"
-        >
-          <svg
-            class="w-8 h-8 text-white"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mt-4">
-          Join FamilySpace
-        </h2>
+    <div class="max-w-md w-full">
+      <!-- Header -->
+      <div class="mb-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-900">Join FamilySpace</h2>
+        <p class="text-gray-600 text-sm mt-2">
+          Create an account to start or join your family space.
+        </p>
       </div>
+
+      <!-- Registration Form or Logged-in State -->
       <div v-if="!authStore.userId">
-        <div v-if="error" class="text-center text-red-400 mb-4">
+        <div v-if="error" class="text-center text-red-600 mb-4">
           {{ error }}
         </div>
         <form
-          class="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white border-opacity-20"
+          class="bg-white border border-gray-200 rounded-lg p-6"
           @submit.prevent="handleRegister"
         >
           <div class="mb-4">
             <label
               for="email"
-              class="block text-sm font-medium text-gray-200 mb-2"
+              class="block text-sm font-medium text-gray-700 mb-1"
             >
               Email
             </label>
@@ -39,15 +31,15 @@
               type="email"
               id="email"
               v-model="email"
-              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Enter your email"
               required
             />
           </div>
-          <div class="mb-6">
+          <div class="mb-4">
             <label
               for="password"
-              class="block text-sm font-medium text-gray-200 mb-2"
+              class="block text-sm font-medium text-gray-700 mb-1"
             >
               Password
             </label>
@@ -55,7 +47,7 @@
               type="password"
               id="password"
               v-model="password"
-              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Enter your password"
               required
             />
@@ -63,14 +55,14 @@
           <div class="mb-4">
             <label
               for="createFamily"
-              class="block text-sm font-medium text-gray-200 mb-2"
+              class="block text-sm font-medium text-gray-700 mb-1"
             >
               Create a Family?
             </label>
             <select
               id="createFamily"
               v-model="createFamily"
-              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="yes">Yes, create a new family</option>
               <option value="no">No, I’ll join a family later</option>
@@ -79,7 +71,7 @@
           <div v-if="createFamily === 'yes'" class="mb-4">
             <label
               for="familyName"
-              class="block text-sm font-medium text-gray-200 mb-2"
+              class="block text-sm font-medium text-gray-700 mb-1"
             >
               Family Group Name
             </label>
@@ -87,35 +79,32 @@
               type="text"
               id="familyName"
               v-model="familyName"
-              class="w-full px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg border border-white border-opacity-30 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Enter your family group name"
               required
             />
           </div>
           <button
             type="submit"
-            class="w-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
+            class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
             :disabled="loading || !isFormValid"
           >
             {{ loading ? "Creating Account..." : "Create Account" }}
           </button>
         </form>
       </div>
-      <div v-else class="text-center text-white">
+      <div v-else class="text-center text-gray-700">
         <p>You are already logged in.</p>
-        <NuxtLink
-          to="/dashboard"
-          class="text-emerald-400 hover:text-emerald-300"
-        >
+        <NuxtLink to="/dashboard" class="text-blue-600 hover:underline">
           Go to Dashboard
         </NuxtLink>
       </div>
       <p
         v-if="!authStore.userId"
-        class="mt-4 text-center text-gray-300 text-sm"
+        class="mt-4 text-center text-gray-600 text-sm"
       >
         Already have an account?
-        <NuxtLink to="/login" class="text-emerald-400 hover:text-emerald-300">
+        <NuxtLink to="/login" class="text-blue-600 hover:underline">
           Sign in here
         </NuxtLink>
       </p>
@@ -129,12 +118,16 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { registerUser } from "~/utils/firebase";
 
+definePageMeta({
+  middleware: "auth",
+});
+
 const authStore = useAuthStore();
 const router = useRouter();
 const familyName = ref("");
 const email = ref("");
 const password = ref("");
-const createFamily = ref("yes");
+const createFamily = ref("no");
 const error = ref("");
 const loading = ref(false);
 
@@ -191,7 +184,7 @@ useHead({
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=block");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=block");
 
 * {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
