@@ -17,7 +17,7 @@
           class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
           :disabled="joining"
         >
-          {{ joining ? "Joining..." : "Accept Invitation" }}
+          {{ joining ? "Requesting..." : "Request to Join" }}
         </button>
       </div>
       <div v-else>
@@ -34,13 +34,13 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
-import { doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, addDoc } from "firebase/firestore";
 import { useNuxtApp } from "#app";
-const { $firestore: db } = useNuxtApp();
 
+const { $firestore: db } = useNuxtApp();
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
@@ -68,32 +68,44 @@ const fetchInvite = async () => {
 };
 
 const acceptInvite = async () => {
+  if (!authStore.userId) {
+    router.push("/login");
+    return;
+  }
   joining.value = true;
   try {
-    await updateDoc(doc(db, "families", invite.value.familyId), {
-      members: arrayUnion({
-        userId: authStore.userId,
-        role: "member",
-        email: authStore.email,
-      }),
+    console.log("acceptInvite: Sending join request", {
+      familyId: invite.value.familyId,
+      userId: authStore.userId,
+      email: authStore.email,
     });
-    await setDoc(
-      doc(db, "users", authStore.userId),
-      { familyId: invite.value.familyId, role: "member" },
-      { merge: true }
-    );
-    await authStore.initAuth();
+    await addDoc(collection(db, `families/${invite.value.familyId}/requests`), {
+      userId: authStore.userId,
+      email: authStore.email,
+      requestedAt: new Date(),
+    });
+    alert("Join request sent! Waiting for parent approval.");
     router.push("/dashboard");
   } catch (error) {
-    console.error("Error accepting invite:", error);
-    alert("Failed to join family");
+    console.error("Error sending join request:", error);
+    alert("Failed to send join request: " + error.message);
   } finally {
     joining.value = false;
   }
 };
 
 onMounted(fetchInvite);
+
 useHead({
   title: "FamilySpace - Accept Invitation",
 });
 </script>
+
+<style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=block");
+
+* {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
+</style>

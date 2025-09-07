@@ -30,7 +30,7 @@ export const registerUser = async (email, password, familyName) => {
       email,
       createdAt: new Date(),
       familyId: null,
-      role: familyName ? "admin" : "member",
+      role: familyName ? "parent" : "member", // Changed from 'admin' to 'parent'
     });
 
     let familyId = null;
@@ -38,7 +38,7 @@ export const registerUser = async (email, password, familyName) => {
       const familyRef = await addDoc(collection(db, "families"), {
         name: familyName,
         adminId: user.uid,
-        members: [{ userId: user.uid, role: "admin", email }],
+        members: [{ userId: user.uid, role: "parent", email }], // Changed from 'admin' to 'parent'
         createdAt: new Date(),
       });
       familyId = familyRef.id;
@@ -94,5 +94,36 @@ export const createProfile = async (userId, profileData) => {
   } catch (error) {
     console.error("createProfile error:", error);
     throw new Error(error.message || "Failed to create profile");
+  }
+};
+
+export const generateInvite = async (familyId, familyName, createdBy) => {
+  const nuxtApp = useNuxtApp();
+  const db = nuxtApp.$firestore;
+  const auth = nuxtApp.$auth;
+
+  if (!db || !auth) {
+    console.error("Firestore or Auth unavailable");
+    throw new Error("Database or authentication unavailable");
+  }
+
+  try {
+    console.log("generateInvite: Creating invite", {
+      familyId,
+      familyName,
+      createdBy,
+      uid: auth.currentUser?.uid,
+    });
+    const inviteRef = await addDoc(collection(db, "invites"), {
+      familyId,
+      familyName,
+      createdBy,
+      createdAt: new Date(),
+    });
+    console.log("generateInvite: Invite created with ID", inviteRef.id);
+    return inviteRef.id;
+  } catch (error) {
+    console.error("generateInvite error:", error);
+    throw new Error(error.message || "Failed to generate invite");
   }
 };

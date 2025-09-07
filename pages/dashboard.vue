@@ -39,7 +39,32 @@
         </button>
       </div>
       <div
-        v-if="authStore.role === 'admin' && joinRequests.length"
+        v-if="authStore.role === 'parent' && authStore.familyId"
+        class="mt-8"
+      >
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+          Manage Invitations
+        </h2>
+        <button
+          @click="generateInviteLink"
+          class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
+          :disabled="generatingInvite || authStore.role !== 'parent'"
+        >
+          {{ generatingInvite ? "Generating..." : "Generate Invite Link" }}
+        </button>
+        <div v-if="inviteLink" class="mt-4">
+          <p class="text-gray-600">Share this link to invite members:</p>
+          <input
+            type="text"
+            :value="inviteLink"
+            readonly
+            class="w-full px-4 py-2 mt-2 border rounded-lg bg-gray-50 text-gray-800"
+            @click="$event.target.select()"
+          />
+        </div>
+      </div>
+      <div
+        v-if="authStore.role === 'parent' && joinRequests.length"
         class="mt-8"
       >
         <h2 class="text-2xl font-semibold text-gray-800 mb-4">Join Requests</h2>
@@ -83,11 +108,14 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { useNuxtApp } from "#app";
+import { generateInvite } from "~/utils/firebase";
 
 const { $firestore: db } = useNuxtApp();
 const router = useRouter();
 const authStore = useAuthStore();
 const joinRequests = ref([]);
+const inviteLink = ref("");
+const generatingInvite = ref(false);
 
 const handleLogout = async () => {
   try {
@@ -102,7 +130,7 @@ const handleLogout = async () => {
 };
 
 const fetchJoinRequests = async () => {
-  if (authStore.role === "admin" && authStore.familyId) {
+  if (authStore.role === "parent" && authStore.familyId) {
     try {
       const querySnapshot = await getDocs(
         collection(db, `families/${authStore.familyId}/requests`)
@@ -122,11 +150,10 @@ const approveRequest = async (requestId, userId, email) => {
     await updateDoc(doc(db, "families", authStore.familyId), {
       members: arrayUnion({ userId, role: "member", email }),
     });
-    await setDoc(
-      doc(db, "users", userId),
-      { familyId: authStore.familyId, role: "member" },
-      { merge: true }
-    );
+    await updateDoc(doc(db, "users", userId), {
+      familyId: authStore.familyId,
+      role: "member",
+    });
     await deleteDoc(
       doc(db, `families/${authStore.familyId}/requests`, requestId)
     );
@@ -146,6 +173,37 @@ const denyRequest = async (requestId) => {
   } catch (error) {
     console.error("Error denying request:", error);
     alert("Failed to deny request");
+  }
+};
+
+const generateInviteLink = async () => {
+  if (authStore.role !== "parent") {
+    console.error("generateInviteLink: User is not a parent", {
+      role: authStore.role,
+      userId: authStore.userId,
+    });
+    alert("Only parents can generate invite links");
+    return;
+  }
+  generatingInvite.value = true;
+  try {
+    const baseUrl = "https://family-app.netlify.app";
+    console.log("generateInviteLink: Calling generateInvite", {
+      familyId: authStore.familyId,
+      familyName: authStore.familyName,
+      userId: authStore.userId,
+    });
+    const inviteId = await generateInvite(
+      authStore.familyId,
+      authStore.familyName,
+      authStore.userId
+    );
+    inviteLink.value = `${baseUrl}/join/${inviteId}`;
+  } catch (error) {
+    console.error("Error generating invite link:", error);
+    alert("Failed to generate invite link: " + error.message);
+  } finally {
+    generatingInvite.value = false;
   }
 };
 
