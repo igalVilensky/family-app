@@ -37,7 +37,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
-import { doc, getDoc, addDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection } from "firebase/firestore"; // Add collection
 import { useNuxtApp } from "#app";
 
 const { $firestore: db } = useNuxtApp();
@@ -50,18 +50,35 @@ const joining = ref(false);
 
 const fetchInvite = async () => {
   try {
+    console.log(
+      "fetchInvite: Attempting to fetch invite with ID:",
+      route.params.inviteId
+    );
     const inviteDoc = await getDoc(doc(db, "invites", route.params.inviteId));
     if (inviteDoc.exists()) {
-      const familyDoc = await getDoc(
-        doc(db, "families", inviteDoc.data().familyId)
-      );
+      const inviteData = inviteDoc.data();
+      console.log("fetchInvite: Invite data:", inviteData);
+      const now = new Date();
+      if (inviteData.expiresAt.toDate() < now) {
+        console.error("Invite has expired:", route.params.inviteId);
+        invite.value = null;
+        return;
+      }
       invite.value = {
-        familyId: inviteDoc.data().familyId,
-        familyName: familyDoc.data().name,
+        familyId: inviteData.familyId,
+        familyName: inviteData.familyName,
       };
+    } else {
+      console.error("Invite does not exist:", route.params.inviteId);
+      invite.value = null;
     }
   } catch (error) {
-    console.error("Error fetching invite:", error);
+    console.error("Error fetching invite:", error, {
+      inviteId: route.params.inviteId,
+      errorCode: error.code,
+      errorMessage: error.message,
+    });
+    invite.value = null;
   } finally {
     loading.value = false;
   }
@@ -69,6 +86,7 @@ const fetchInvite = async () => {
 
 const acceptInvite = async () => {
   if (!authStore.userId) {
+    console.log("acceptInvite: User not authenticated, redirecting to /login");
     router.push("/login");
     return;
   }
@@ -79,15 +97,24 @@ const acceptInvite = async () => {
       userId: authStore.userId,
       email: authStore.email,
     });
-    await addDoc(collection(db, `families/${invite.value.familyId}/requests`), {
-      userId: authStore.userId,
-      email: authStore.email,
-      requestedAt: new Date(),
-    });
+    const requestRef = await addDoc(
+      collection(db, `families/${invite.value.familyId}/requests`),
+      {
+        userId: authStore.userId,
+        email: authStore.email,
+        requestedAt: new Date(),
+      }
+    );
+    console.log("acceptInvite: Join request created with ID:", requestRef.id);
     alert("Join request sent! Waiting for parent approval.");
     router.push("/dashboard");
   } catch (error) {
-    console.error("Error sending join request:", error);
+    console.error("Error sending join request:", {
+      errorCode: error.code,
+      errorMessage: error.message,
+      familyId: invite.value.familyId,
+      userId: authStore.userId,
+    });
     alert("Failed to send join request: " + error.message);
   } finally {
     joining.value = false;

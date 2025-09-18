@@ -67,7 +67,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthStore } from "~/stores/auth";
@@ -85,27 +85,43 @@ const fetchFamilyData = async () => {
   try {
     loading.value = true;
     const familyId = route.params.id;
+    console.log("fetchFamilyData: Fetching family data", { familyId });
     if (!familyId || familyId === "null") {
       error.value = "No family assigned. Please set up or join a family.";
+      console.log("fetchFamilyData: Invalid familyId", { familyId });
       return;
     }
     const docRef = doc(firestore, "families", familyId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       familyData.value = docSnap.data();
+      console.log("fetchFamilyData: Family data loaded", familyData.value);
     } else {
       error.value = "Family not found";
+      console.log("fetchFamilyData: Family not found", { familyId });
     }
   } catch (err) {
     error.value = "Failed to load family data: " + err.message;
+    console.error("fetchFamilyData: Error", {
+      errorCode: err.code,
+      errorMessage: err.message,
+      familyId: route.params.id,
+    });
   } finally {
     loading.value = false;
   }
 };
 
 onMounted(async () => {
-  await authStore.initAuth(); // Ensure auth state is loaded
+  await authStore.initAuth();
+  console.log("onMounted: authStore state", {
+    userId: authStore.userId,
+    familyId: authStore.familyId,
+    role: authStore.role,
+    routeFamilyId: route.params.id,
+  });
   if (!authStore.familyId) {
+    console.log("onMounted: No familyId, redirecting to /family-setup");
     router.push("/family-setup");
   } else {
     await fetchFamilyData();

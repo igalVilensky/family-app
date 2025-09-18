@@ -83,6 +83,11 @@ export const createProfile = async (userId, profileData) => {
     throw new Error("Database unavailable");
   }
 
+  if (!userId || !profileData || typeof profileData !== "object") {
+    console.error("Invalid profile data:", { userId, profileData });
+    throw new Error("Invalid profile data");
+  }
+
   try {
     console.log("createProfile: Updating user document", {
       userId,
@@ -119,6 +124,7 @@ export const generateInvite = async (familyId, familyName, createdBy) => {
       familyName,
       createdBy,
       createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7-day expiration
     });
     console.log("generateInvite: Invite created with ID", inviteRef.id);
     return inviteRef.id;

@@ -147,20 +147,42 @@ const fetchJoinRequests = async () => {
 
 const approveRequest = async (requestId, userId, email) => {
   try {
+    const auth = getAuth();
+    console.log("approveRequest: Approving request", {
+      requestId,
+      userId,
+      email,
+      familyId: authStore.familyId,
+      currentUserId: auth.currentUser?.uid,
+    });
     await updateDoc(doc(db, "families", authStore.familyId), {
       members: arrayUnion({ userId, role: "member", email }),
+    });
+    console.log("approveRequest: Family members updated");
+    console.log("approveRequest: Updating user document", {
+      userId,
+      data: { familyId: authStore.familyId, role: "member" },
     });
     await updateDoc(doc(db, "users", userId), {
       familyId: authStore.familyId,
       role: "member",
     });
+    console.log("approveRequest: User document updated");
     await deleteDoc(
       doc(db, `families/${authStore.familyId}/requests`, requestId)
     );
+    console.log("approveRequest: Join request deleted");
     fetchJoinRequests();
+    alert("Request approved successfully");
   } catch (error) {
-    console.error("Error approving request:", error);
-    alert("Failed to approve request");
+    console.error("Error approving request:", {
+      errorCode: error.code,
+      errorMessage: error.message,
+      requestId,
+      userId,
+      familyId: authStore.familyId,
+    });
+    alert("Failed to approve request: " + error.message);
   }
 };
 
