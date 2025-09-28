@@ -1,149 +1,252 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12"
-  >
-    <div class="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg">
-      <!-- User Info Section -->
-      <div class="text-center">
-        <NuxtLink to="/profile" class="inline-block group">
-          <avatar
-            :avatar-url="authStore.avatarUrl"
-            :user-initial="userInitial"
-            :size="100"
-            :no-upload="true"
-            class="hover:ring-emerald-500/50 transition-all duration-300"
-          />
-        </NuxtLink>
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mt-4">
-          Welcome, {{ authStore.name || "User" }}
-        </h1>
-        <p class="text-lg text-gray-600 mt-2">
-          {{
-            authStore.role === "parent"
-              ? "Parent"
-              : authStore.role === "pending"
-              ? "Pending Member"
-              : authStore.role
-          }}
-          of
-          {{ authStore.familyName || "Your Family" }}
-        </p>
-        <NuxtLink
-          to="/profile"
-          class="mt-4 inline-block px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
-        >
-          Edit Profile
-        </NuxtLink>
-      </div>
-
-      <!-- Family Status and Actions -->
-      <div class="mt-8 text-center">
-        <p v-if="!authStore.familyId" class="text-lg text-gray-600 mb-6">
-          You haven’t joined a family yet. Create one or join an existing
-          family!
-        </p>
-        <div
-          v-else-if="authStore.status !== 'active'"
-          class="text-lg text-gray-600 mb-6"
-        >
-          <p>Your join request is pending approval.</p>
-          <button
-            @click="checkApprovalStatus"
-            class="mt-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
-            :disabled="checkingStatus"
-          >
-            {{ checkingStatus ? "Checking..." : "Check Approval Status" }}
-          </button>
-        </div>
-        <p v-else class="text-lg text-gray-600 mb-6">
-          Manage your family’s memories, events, and more.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <NuxtLink
-            v-if="!authStore.familyId"
-            to="/family-setup"
-            class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
-          >
-            Set Up Family
-          </NuxtLink>
-          <NuxtLink
-            v-if="authStore.familyId"
-            :to="`/family/${authStore.familyId}`"
-            class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
-          >
-            View Family Profile
-          </NuxtLink>
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-gray-900">FamilySpace</h1>
           <button
             @click="handleLogout"
-            class="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-red-500/25 transform hover:scale-105 transition-all duration-300"
+            class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
           >
+            <i class="fas fa-sign-out-alt text-sm"></i>
             Logout
           </button>
         </div>
       </div>
+    </header>
 
-      <!-- Manage Invitations (Parents Only) -->
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- User Profile Card -->
       <div
-        v-if="authStore.role === 'parent' && authStore.familyId"
-        class="mt-8"
+        class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8"
       >
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-          Manage Invitations
-        </h2>
-        <button
-          @click="generateInviteLink"
-          class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
-          :disabled="generatingInvite"
-        >
-          {{ generatingInvite ? "Generating..." : "Generate Invite Link" }}
-        </button>
-        <div v-if="inviteLink" class="mt-4 flex items-center gap-2">
-          <p class="text-gray-600">Share this link to invite members:</p>
-          <input
-            type="text"
-            :value="inviteLink"
-            readonly
-            class="w-full px-4 py-2 border rounded-lg bg-gray-50 text-gray-800"
-            @click="$event.target.select()"
-          />
-          <button
-            @click="copyInviteLink"
-            class="px-4 py-2 bg-teal-600 text-white font-semibold rounded-lg shadow hover:shadow-teal-600/25 transition-all duration-300"
+        <div class="text-center">
+          <NuxtLink to="/profile" class="inline-block group">
+            <avatar
+              :avatar-url="authStore.avatarUrl"
+              :user-initial="userInitial"
+              :size="80"
+              :no-upload="true"
+              class="hover:ring-4 hover:ring-blue-100 transition-all duration-200"
+            />
+          </NuxtLink>
+          <h2 class="text-3xl font-bold text-gray-900 mt-4">
+            Welcome, {{ authStore.name || "User" }}
+          </h2>
+          <div
+            class="flex items-center justify-center gap-2 mt-2 text-gray-600"
           >
-            {{ copyButtonText }}
-          </button>
+            <i class="fas fa-users text-sm"></i>
+            <span class="text-lg">
+              {{
+                authStore.role === "parent"
+                  ? "Parent"
+                  : authStore.role === "pending"
+                  ? "Pending Member"
+                  : authStore.role
+              }}
+              of {{ authStore.familyName || "Your Family" }}
+            </span>
+          </div>
+          <NuxtLink
+            to="/profile"
+            class="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <i class="fas fa-user-edit text-sm"></i>
+            Edit Profile
+          </NuxtLink>
         </div>
       </div>
 
-      <!-- Join Requests (Parents Only) -->
+      <!-- Family Status Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Status Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-blue-100 rounded-lg">
+              <i class="fas fa-info-circle text-blue-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900">Family Status</h3>
+          </div>
+
+          <div v-if="!authStore.familyId" class="text-gray-600 mb-6">
+            <p class="mb-4">You haven't joined a family yet.</p>
+            <p class="text-sm text-gray-500">
+              Create one or join an existing family to get started.
+            </p>
+          </div>
+
+          <div
+            v-else-if="authStore.status !== 'active'"
+            class="text-gray-600 mb-6"
+          >
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+              <span class="font-medium text-amber-700">Pending Approval</span>
+            </div>
+            <p class="mb-4">
+              Your join request is waiting for approval from a parent.
+            </p>
+            <button
+              @click="checkApprovalStatus"
+              class="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+              :disabled="checkingStatus"
+            >
+              <i
+                class="fas fa-sync-alt text-sm"
+                :class="{ 'animate-spin': checkingStatus }"
+              ></i>
+              {{ checkingStatus ? "Checking..." : "Check Status" }}
+            </button>
+          </div>
+
+          <div v-else class="text-gray-600 mb-6">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span class="font-medium text-green-700">Active Member</span>
+            </div>
+            <p>You're all set! Manage your family's memories and events.</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-green-100 rounded-lg">
+              <i class="fas fa-bolt text-green-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900">Quick Actions</h3>
+          </div>
+
+          <div class="space-y-3">
+            <NuxtLink
+              v-if="!authStore.familyId"
+              to="/family-setup"
+              class="flex items-center gap-3 w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <i class="fas fa-plus-circle"></i>
+              <span class="font-medium">Set Up Family</span>
+            </NuxtLink>
+
+            <NuxtLink
+              v-if="authStore.familyId"
+              :to="`/family/${authStore.familyId}`"
+              class="flex items-center gap-3 w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <i class="fas fa-home"></i>
+              <span class="font-medium">View Family Profile</span>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parent Only Sections -->
       <div
-        v-if="
-          authStore.role === 'parent' &&
-          joinRequests.length &&
-          authStore.familyId
-        "
-        class="mt-8"
+        v-if="authStore.role === 'parent' && authStore.familyId"
+        class="space-y-6"
       >
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Join Requests</h2>
+        <!-- Invite Management -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-purple-100 rounded-lg">
+              <i class="fas fa-user-plus text-purple-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900">
+              Invite Family Members
+            </h3>
+          </div>
+
+          <button
+            @click="generateInviteLink"
+            class="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors mb-4"
+            :disabled="generatingInvite"
+          >
+            <i class="fas fa-link text-sm"></i>
+            {{ generatingInvite ? "Generating..." : "Generate Invite Link" }}
+          </button>
+
+          <div
+            v-if="inviteLink"
+            class="bg-gray-50 rounded-lg p-4 border border-gray-200"
+          >
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Share this link to invite members:
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                :value="inviteLink"
+                readonly
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                @click="$event.target.select()"
+              />
+              <button
+                @click="copyInviteLink"
+                class="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <i class="fas fa-copy text-sm"></i>
+                {{ copyButtonText }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Join Requests -->
         <div
-          v-for="request in joinRequests"
-          :key="request.id"
-          class="bg-gray-50 p-4 rounded-lg shadow mb-4"
+          v-if="joinRequests.length"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
         >
-          <p>{{ request.email }} wants to join your family</p>
-          <div class="flex gap-2 mt-2">
-            <button
-              @click="approveRequest(request.id, request.userId, request.email)"
-              class="px-4 py-2 bg-teal-600 text-white rounded-lg"
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-amber-100 rounded-lg">
+              <i class="fas fa-user-clock text-amber-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900">
+              Pending Join Requests
+              <span
+                class="ml-2 px-2 py-1 bg-amber-100 text-amber-800 text-sm rounded-full"
+              >
+                {{ joinRequests.length }}
+              </span>
+            </h3>
+          </div>
+
+          <div class="space-y-4">
+            <div
+              v-for="request in joinRequests"
+              :key="request.id"
+              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
             >
-              Approve
-            </button>
-            <button
-              @click="denyRequest(request.id)"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg"
-            >
-              Deny
-            </button>
+              <div class="flex items-center gap-3">
+                <div class="p-2 bg-gray-200 rounded-full">
+                  <i class="fas fa-user text-gray-600"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">{{ request.email }}</p>
+                  <p class="text-sm text-gray-500">wants to join your family</p>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  @click="
+                    approveRequest(request.id, request.userId, request.email)
+                  "
+                  class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <i class="fas fa-check text-sm"></i>
+                  Approve
+                </button>
+                <button
+                  @click="denyRequest(request.id)"
+                  class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  <i class="fas fa-times text-sm"></i>
+                  Deny
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -151,12 +254,29 @@
       <!-- Toast Notification -->
       <div
         v-if="showToastMessage"
-        class="absolute top-0 left-0 right-0 mt-[-4rem] bg-green-500 text-white text-center py-2 rounded-lg shadow-lg"
-        :class="{ 'bg-red-500': toastType === 'error' }"
+        class="fixed top-4 right-4 z-50 max-w-sm w-full"
       >
-        {{ toastMessage }}
+        <div
+          class="p-4 rounded-lg shadow-lg border"
+          :class="{
+            'bg-green-50 text-green-800 border-green-200':
+              toastType === 'success',
+            'bg-red-50 text-red-800 border-red-200': toastType === 'error',
+          }"
+        >
+          <div class="flex items-center gap-3">
+            <i
+              class="text-sm"
+              :class="{
+                'fas fa-check-circle text-green-500': toastType === 'success',
+                'fas fa-exclamation-circle text-red-500': toastType === 'error',
+              }"
+            ></i>
+            <p class="font-medium">{{ toastMessage }}</p>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -363,10 +483,16 @@ definePageMeta({
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=block");
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
 
-* {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
