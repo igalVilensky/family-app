@@ -52,15 +52,21 @@
         >
           {{ generatingInvite ? "Generating..." : "Generate Invite Link" }}
         </button>
-        <div v-if="inviteLink" class="mt-4">
+        <div v-if="inviteLink" class="mt-4 flex items-center gap-2">
           <p class="text-gray-600">Share this link to invite members:</p>
           <input
             type="text"
             :value="inviteLink"
             readonly
-            class="w-full px-4 py-2 mt-2 border rounded-lg bg-gray-50 text-gray-800"
+            class="w-full px-4 py-2 border rounded-lg bg-gray-50 text-gray-800"
             @click="$event.target.select()"
           />
+          <button
+            @click="copyInviteLink"
+            class="px-4 py-2 bg-teal-600 text-white font-semibold rounded-lg shadow hover:shadow-teal-600/25 transition-all duration-300"
+          >
+            {{ copyButtonText }}
+          </button>
         </div>
       </div>
       <div
@@ -90,6 +96,12 @@
           </div>
         </div>
       </div>
+      <div
+        v-if="showToastMessage"
+        class="absolute top-0 left-0 right-0 mt-[-4rem] bg-green-500 text-white text-center py-2 rounded-lg shadow-lg"
+      >
+        {{ toastMessage }}
+      </div>
     </div>
   </div>
 </template>
@@ -116,6 +128,18 @@ const authStore = useAuthStore();
 const joinRequests = ref([]);
 const inviteLink = ref("");
 const generatingInvite = ref(false);
+const copyButtonText = ref("Copy");
+const toastMessage = ref("");
+const showToastMessage = ref(false);
+
+const showToast = (message, type = "success") => {
+  toastMessage.value = message;
+  showToastMessage.value = true;
+  setTimeout(() => {
+    showToastMessage.value = false;
+    toastMessage.value = "";
+  }, 3000);
+};
 
 const handleLogout = async () => {
   try {
@@ -125,7 +149,7 @@ const handleLogout = async () => {
     router.push("/");
   } catch (error) {
     console.error("Logout error:", error);
-    alert("Failed to log out");
+    showToast("Failed to log out", "error");
   }
 };
 
@@ -141,6 +165,7 @@ const fetchJoinRequests = async () => {
       }));
     } catch (error) {
       console.error("Error fetching join requests:", error);
+      showToast("Failed to fetch join requests", "error");
     }
   }
 };
@@ -148,32 +173,22 @@ const fetchJoinRequests = async () => {
 const approveRequest = async (requestId, userId, email) => {
   try {
     const auth = getAuth();
-    console.log("approveRequest: Approving request", {
-      requestId,
-      userId,
-      email,
-      familyId: authStore.familyId,
-      currentUserId: auth.currentUser?.uid,
-    });
+    // console.log("approveRequest: Approving request", {
+    //   requestId,
+    //   userId,
+    //   email,
+    //   familyId: authStore.familyId,
+    //   currentUserId: auth.currentUser?.uid,
+    // });
     await updateDoc(doc(db, "families", authStore.familyId), {
       members: arrayUnion({ userId, role: "member", email }),
     });
-    console.log("approveRequest: Family members updated");
-    console.log("approveRequest: Updating user document", {
-      userId,
-      data: { familyId: authStore.familyId, role: "member" },
-    });
-    await updateDoc(doc(db, "users", userId), {
-      familyId: authStore.familyId,
-      role: "member",
-    });
-    console.log("approveRequest: User document updated");
     await deleteDoc(
       doc(db, `families/${authStore.familyId}/requests`, requestId)
     );
-    console.log("approveRequest: Join request deleted");
+    // console.log("approveRequest: Join request deleted");
     fetchJoinRequests();
-    alert("Request approved successfully");
+    showToast("Request approved successfully", "success");
   } catch (error) {
     console.error("Error approving request:", {
       errorCode: error.code,
@@ -182,7 +197,7 @@ const approveRequest = async (requestId, userId, email) => {
       userId,
       familyId: authStore.familyId,
     });
-    alert("Failed to approve request: " + error.message);
+    showToast("Failed to approve request: " + error.message, "error");
   }
 };
 
@@ -192,9 +207,10 @@ const denyRequest = async (requestId) => {
       doc(db, `families/${authStore.familyId}/requests`, requestId)
     );
     fetchJoinRequests();
+    showToast("Request denied successfully", "success");
   } catch (error) {
     console.error("Error denying request:", error);
-    alert("Failed to deny request");
+    showToast("Failed to deny request", "error");
   }
 };
 
@@ -204,17 +220,17 @@ const generateInviteLink = async () => {
       role: authStore.role,
       userId: authStore.userId,
     });
-    alert("Only parents can generate invite links");
+    showToast("Only parents can generate invite links", "error");
     return;
   }
   generatingInvite.value = true;
   try {
-    const baseUrl = "https://family-app.netlify.app";
-    console.log("generateInviteLink: Calling generateInvite", {
-      familyId: authStore.familyId,
-      familyName: authStore.familyName,
-      userId: authStore.userId,
-    });
+    const baseUrl = "https://my-nest.netlify.app";
+    // console.log("generateInviteLink: Calling generateInvite", {
+    //   familyId: authStore.familyId,
+    //   familyName: authStore.familyName,
+    //   userId: authStore.userId,
+    // });
     const inviteId = await generateInvite(
       authStore.familyId,
       authStore.familyName,
@@ -223,9 +239,22 @@ const generateInviteLink = async () => {
     inviteLink.value = `${baseUrl}/join/${inviteId}`;
   } catch (error) {
     console.error("Error generating invite link:", error);
-    alert("Failed to generate invite link: " + error.message);
+    showToast("Failed to generate invite link: " + error.message, "error");
   } finally {
     generatingInvite.value = false;
+  }
+};
+
+const copyInviteLink = async () => {
+  try {
+    await navigator.clipboard.writeText(inviteLink.value);
+    copyButtonText.value = "Copied";
+    setTimeout(() => {
+      copyButtonText.value = "Copy";
+    }, 1000);
+  } catch (error) {
+    console.error("Error copying invite link:", error);
+    showToast("Failed to copy invite link", "error");
   }
 };
 

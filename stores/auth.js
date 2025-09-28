@@ -10,12 +10,13 @@ export const useAuthStore = defineStore("auth", {
     familyName: null,
     role: null,
     email: null,
-    name: null, // Added for profile completion
+    name: null,
+    status: null,
     isInitialized: false,
   }),
   getters: {
     isProfileComplete: (state) => {
-      return !!state.name && !!state.role;
+      return !!state.name && !!state.role && state.status === "active";
     },
   },
   actions: {
@@ -35,8 +36,9 @@ export const useAuthStore = defineStore("auth", {
                   const data = userDoc.data();
                   this.familyId = data.familyId || null;
                   this.role = data.role || "member";
+                  this.status = data.status || null;
                   this.name = data.name || null;
-                  if (data.familyId) {
+                  if (data.familyId && data.status === "active") {
                     const familyDoc = await getDoc(
                       doc(db, "families", data.familyId)
                     );
@@ -70,6 +72,7 @@ export const useAuthStore = defineStore("auth", {
       this.role = null;
       this.email = null;
       this.name = null;
+      this.status = null;
       this.isInitialized = true;
     },
   },
