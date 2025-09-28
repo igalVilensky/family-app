@@ -26,23 +26,34 @@ export const registerUser = async (email, password, familyName) => {
     );
     const user = userCredential.user;
 
-    await setDoc(doc(db, "users", user.uid), {
+    const userDoc = {
       email,
+      name: null,
+      role: familyName ? "parent" : "member",
+      status: familyName ? "active" : null, // Ensure status is set for family creators
+      birthday: null,
+      bio: null,
+      avatarUrl: null,
       createdAt: new Date(),
       familyId: null,
-      role: familyName ? "parent" : "member", // Changed from 'admin' to 'parent'
-    });
+    };
+
+    await setDoc(doc(db, "users", user.uid), userDoc);
 
     let familyId = null;
     if (familyName) {
       const familyRef = await addDoc(collection(db, "families"), {
         name: familyName,
         adminId: user.uid,
-        members: [{ userId: user.uid, role: "parent", email }], // Changed from 'admin' to 'parent'
+        members: [{ userId: user.uid, role: "parent", email }],
         createdAt: new Date(),
       });
       familyId = familyRef.id;
-      await setDoc(doc(db, "users", user.uid), { familyId }, { merge: true });
+      await setDoc(
+        doc(db, "users", user.uid),
+        { familyId, status: "active" }, // Ensure status is updated
+        { merge: true }
+      );
     }
 
     return { success: true, user };
@@ -124,7 +135,7 @@ export const generateInvite = async (familyId, familyName, createdBy) => {
       familyName,
       createdBy,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7-day expiration
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
     console.log("generateInvite: Invite created with ID", inviteRef.id);
     return inviteRef.id;

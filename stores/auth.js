@@ -12,6 +12,9 @@ export const useAuthStore = defineStore("auth", {
     email: null,
     name: null,
     status: null,
+    birthday: null,
+    bio: null,
+    avatarUrl: null,
     isInitialized: false,
   }),
   getters: {
@@ -38,7 +41,10 @@ export const useAuthStore = defineStore("auth", {
                   this.role = data.role || "member";
                   this.status = data.status || null;
                   this.name = data.name || null;
-                  if (data.familyId && data.status === "active") {
+                  this.birthday = data.birthday || null;
+                  this.bio = data.bio || null;
+                  this.avatarUrl = data.avatarUrl || null;
+                  if (data.familyId) {
                     const familyDoc = await getDoc(
                       doc(db, "families", data.familyId)
                     );
@@ -73,6 +79,9 @@ export const useAuthStore = defineStore("auth", {
       this.email = null;
       this.name = null;
       this.status = null;
+      this.birthday = null;
+      this.bio = null;
+      this.avatarUrl = null;
       this.isInitialized = true;
     },
   },
