@@ -40,16 +40,25 @@
         class="flex flex-col sm:flex-row gap-3 justify-center items-center mb-12"
       >
         <NuxtLink
+          v-if="!authStore.userId"
           to="/register"
           class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700"
         >
           Start Your Family Journey
         </NuxtLink>
         <NuxtLink
+          v-if="!authStore.userId"
           to="/login"
           class="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200"
         >
           Welcome Back
+        </NuxtLink>
+        <NuxtLink
+          v-if="authStore.userId"
+          to="/dashboard"
+          class="w-full sm:w-auto px-6 py-3 bg-green-600 text-white text-base font-medium rounded-lg hover:bg-green-700"
+        >
+          Go to Dashboard
         </NuxtLink>
       </div>
 
@@ -120,7 +129,20 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "~/stores/auth";
 import { useHead } from "#imports";
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+onMounted(async () => {
+  await authStore.initAuth();
+  if (authStore.userId && authStore.isInitialized) {
+    router.push("/dashboard");
+  }
+});
 
 // SEO Meta
 useHead({

@@ -1,15 +1,17 @@
-import { useNuxtApp } from "#app";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { auth, db } from "~/plugins/firebase"; // Import directly from your firebase plugin
 
 export const registerUser = async (email, password, familyName) => {
-  const nuxtApp = useNuxtApp();
-  const auth = nuxtApp.$auth;
-  const db = nuxtApp.$firestore;
-
   if (!auth || !db) {
     console.error("Auth or Firestore unavailable");
     return {
@@ -30,7 +32,7 @@ export const registerUser = async (email, password, familyName) => {
       email,
       name: null,
       role: familyName ? "parent" : "member",
-      status: familyName ? "active" : null, // Ensure status is set for family creators
+      status: familyName ? "active" : null,
       birthday: null,
       bio: null,
       avatarUrl: null,
@@ -51,7 +53,7 @@ export const registerUser = async (email, password, familyName) => {
       familyId = familyRef.id;
       await setDoc(
         doc(db, "users", user.uid),
-        { familyId, status: "active" }, // Ensure status is updated
+        { familyId, status: "active" },
         { merge: true }
       );
     }
@@ -64,9 +66,6 @@ export const registerUser = async (email, password, familyName) => {
 };
 
 export const loginUser = async (email, password) => {
-  const nuxtApp = useNuxtApp();
-  const auth = nuxtApp.$auth;
-
   if (!auth) {
     console.error("Auth unavailable");
     return { success: false, message: "Authentication service unavailable" };
@@ -85,39 +84,65 @@ export const loginUser = async (email, password) => {
   }
 };
 
-export const createProfile = async (userId, profileData) => {
-  const nuxtApp = useNuxtApp();
-  const db = nuxtApp.$firestore;
-
-  if (!db) {
-    console.error("Firestore unavailable");
-    throw new Error("Database unavailable");
-  }
-
-  if (!userId || !profileData || typeof profileData !== "object") {
-    console.error("Invalid profile data:", { userId, profileData });
-    throw new Error("Invalid profile data");
-  }
-
+export async function createProfile(userId, profileData) {
   try {
-    console.log("createProfile: Updating user document", {
+    const userRef = doc(db, "users", userId);
+    const userDoc = {
       userId,
-      profileData,
-    });
-    await setDoc(doc(db, "users", userId), profileData, { merge: true });
-    console.log("createProfile: User document updated successfully");
+      email: profileData.email || "",
+      name: profileData.name || "",
+      birthday: profileData.birthday || null,
+      familyRole: profileData.familyRole || "other",
+      permissions: {
+        role: profileData.permissions?.role || "member",
+        minor: profileData.permissions?.minor || false,
+        privateMode: profileData.permissions?.privateMode || false,
+      },
+      familyId: profileData.familyId || null,
+      familyName: profileData.familyName || null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      status: "active",
+    };
+
+    await setDoc(userRef, userDoc);
+
+    if (profileData.familyName && profileData.permissions.role === "admin") {
+      const familyRef = await addDoc(collection(db, "families"), {
+        name: profileData.familyName,
+        creatorId: userId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        members: [
+          {
+            userId,
+            email: profileData.email || "",
+            name: profileData.name || "",
+            familyRole: profileData.familyRole || "other",
+            role: profileData.permissions?.role || "admin",
+          },
+        ],
+      });
+
+      await setDoc(
+        userRef,
+        {
+          familyId: familyRef.id,
+          familyName: profileData.familyName,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+    }
+
     return { success: true };
   } catch (error) {
-    console.error("createProfile error:", error);
-    throw new Error(error.message || "Failed to create profile");
+    console.error("Error creating profile:", error);
+    return { success: false, message: error.message };
   }
-};
+}
 
 export const generateInvite = async (familyId, familyName, createdBy) => {
-  const nuxtApp = useNuxtApp();
-  const db = nuxtApp.$firestore;
-  const auth = nuxtApp.$auth;
-
   if (!db || !auth) {
     console.error("Firestore or Auth unavailable");
     throw new Error("Database or authentication unavailable");

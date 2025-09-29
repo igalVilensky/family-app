@@ -15,7 +15,6 @@
           </div>
           <h1 class="text-2xl font-bold text-gray-900">Profile Settings</h1>
           <div class="w-32"></div>
-          <!-- Spacer for centering -->
         </div>
       </div>
     </header>
@@ -61,9 +60,16 @@
               class="flex items-center justify-center sm:justify-start gap-2 text-gray-600"
             >
               <i class="fas fa-users text-sm"></i>
-              <span class="capitalize">{{ authStore.role || "Member" }}</span>
+              <span class="capitalize">{{
+                authStore.familyRole || "Member"
+              }}</span>
               <span class="text-gray-400">•</span>
               <span>{{ authStore.familyName || "No Family" }}</span>
+              <span
+                v-if="authStore.permissions.minor"
+                class="ml-2 text-sm text-gray-500"
+                >(Minor)</span
+              >
             </div>
           </div>
         </div>
@@ -120,6 +126,43 @@
 
             <div>
               <label
+                for="birthday"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                id="birthday"
+                v-model="profileForm.birthday"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="familyRole"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Role in Family
+              </label>
+              <select
+                id="familyRole"
+                v-model="profileForm.familyRole"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                required
+              >
+                <option value="parent">Parent</option>
+                <option value="child">Child</option>
+                <option value="grandparent">Grandparent</option>
+                <option value="sibling">Sibling</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label
                 for="phone"
                 class="block text-sm font-medium text-gray-700 mb-2"
               >
@@ -156,7 +199,7 @@
             <button
               type="submit"
               class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              :disabled="saving"
+              :disabled="saving || !isProfileFormValid"
             >
               <i class="fas fa-save text-sm"></i>
               {{ saving ? "Saving..." : "Save Changes" }}
@@ -190,85 +233,119 @@
                   class="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                 >
                   <i class="fas fa-key text-sm"></i>
-                  Change
+                  {{ showPasswordForm ? "Cancel" : "Change" }}
                 </button>
               </div>
 
-              <div v-if="showPasswordForm" class="mt-4 space-y-3">
-                <input
-                  type="password"
-                  v-model="passwordForm.current"
-                  placeholder="Current password"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-                <input
-                  type="password"
-                  v-model="passwordForm.new"
-                  placeholder="New password"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-                <input
-                  type="password"
-                  v-model="passwordForm.confirm"
-                  placeholder="Confirm new password"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
+              <form
+                v-if="showPasswordForm"
+                @submit.prevent="updatePassword"
+                class="mt-4 space-y-3"
+              >
+                <div>
+                  <label
+                    for="current-password"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    id="current-password"
+                    v-model="passwordForm.current"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Enter current password"
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    for="new-password"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="new-password"
+                    v-model="passwordForm.new"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Enter new password"
+                    required
+                  />
+                  <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                </div>
+                <div>
+                  <label
+                    for="confirm-password"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirm-password"
+                    v-model="passwordForm.confirm"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Confirm new password"
+                    required
+                  />
+                </div>
                 <div class="flex gap-2">
                   <button
-                    @click="updatePassword"
+                    type="submit"
                     class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
-                    :disabled="updatingPassword"
+                    :disabled="updatingPassword || !isPasswordFormValid"
                   >
                     <i class="fas fa-check text-sm"></i>
-                    {{ updatingPassword ? "Updating..." : "Update" }}
+                    {{ updatingPassword ? "Updating..." : "Update Password" }}
                   </button>
                   <button
+                    type="button"
                     @click="cancelPasswordUpdate"
                     class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
 
-            <!-- Two-Factor Authentication -->
+            <!-- Private Mode -->
             <div class="border border-gray-200 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <h4 class="font-medium text-gray-900">
-                    Two-Factor Authentication
-                  </h4>
+                  <h4 class="font-medium text-gray-900">Profile Privacy</h4>
                   <p class="text-sm text-gray-600">
-                    Add an extra layer of security
+                    Make your profile visible only to family members
+                  </p>
+                </div>
+                <label class="flex items-center gap-2 text-sm text-gray-600">
+                  <input
+                    type="checkbox"
+                    v-model="profileForm.permissions.privateMode"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  Private Mode
+                </label>
+              </div>
+            </div>
+
+            <!-- Account Role -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="font-medium text-gray-900">Account Role</h4>
+                  <p class="text-sm text-gray-600">
+                    Your administrative role: {{ authStore.permissions.role }}
                   </p>
                 </div>
                 <button
-                  class="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                  class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg cursor-not-allowed"
                   disabled
                 >
-                  <i class="fas fa-mobile-alt text-sm"></i>
-                  Coming Soon
+                  {{ authStore.permissions.role }}
                 </button>
-              </div>
-            </div>
-
-            <!-- Account Visibility -->
-            <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="font-medium text-gray-900">Profile Visibility</h4>
-                  <p class="text-sm text-gray-600">
-                    Who can see your profile information
-                  </p>
-                </div>
-                <select
-                  v-model="profileForm.visibility"
-                  class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-sm"
-                >
-                  <option value="family">Family Only</option>
-                  <option value="private">Private</option>
-                </select>
               </div>
             </div>
           </div>
@@ -356,6 +433,7 @@ import {
   updatePassword as firebaseUpdatePassword,
   EmailAuthProvider,
   reauthenticateWithCredential,
+  getAuth,
 } from "firebase/auth";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useNuxtApp } from "#app";
@@ -369,9 +447,13 @@ const authStore = useAuthStore();
 const profileForm = ref({
   name: "",
   email: "",
+  birthday: "",
+  familyRole: "",
+  permissions: {
+    privateMode: false,
+  },
   phone: "",
   bio: "",
-  visibility: "family",
 });
 
 const passwordForm = ref({
@@ -394,6 +476,47 @@ const userInitial = computed(() =>
   authStore.name ? authStore.name.charAt(0).toUpperCase() : "?"
 );
 
+const isProfileFormValid = computed(() => {
+  const nameTrimmed = profileForm.value.name.trim();
+  const isValidName = nameTrimmed !== "" && !nameTrimmed.includes("@");
+  const isValidBirthday =
+    profileForm.value.birthday &&
+    !isNaN(new Date(profileForm.value.birthday).getTime());
+  const isValidFamilyRole = [
+    "parent",
+    "child",
+    "grandparent",
+    "sibling",
+    "other",
+  ].includes(profileForm.value.familyRole);
+  return isValidName && isValidBirthday && isValidFamilyRole;
+});
+
+const isPasswordFormValid = computed(() => {
+  return (
+    passwordForm.value.current.trim() !== "" &&
+    passwordForm.value.new.trim() !== "" &&
+    passwordForm.value.confirm.trim() !== "" &&
+    passwordForm.value.new.length >= 6 &&
+    passwordForm.value.new === passwordForm.value.confirm
+  );
+});
+
+const calculateMinor = (birthday) => {
+  if (!birthday) return false;
+  const birthDate = new Date(birthday);
+  const currentDate = new Date();
+  const age = currentDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())
+  ) {
+    return age - 1 < 18;
+  }
+  return age < 18;
+};
+
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
   toastType.value = type;
@@ -408,28 +531,51 @@ const initializeForm = () => {
   profileForm.value = {
     name: authStore.name || "",
     email: authStore.email || "",
+    birthday: authStore.birthday || "",
+    familyRole: authStore.familyRole || "other",
+    permissions: {
+      privateMode: authStore.permissions.privateMode || false,
+    },
     phone: authStore.phone || "",
     bio: authStore.bio || "",
-    visibility: authStore.visibility || "family",
   };
 };
 
 const updateProfile = async () => {
+  if (!isProfileFormValid.value) {
+    showToast("Please fill all required fields correctly", "error");
+    return;
+  }
+
   saving.value = true;
   try {
-    await updateDoc(doc(db, "users", authStore.userId), {
+    const userDoc = {
       name: profileForm.value.name,
+      birthday: profileForm.value.birthday,
+      familyRole: profileForm.value.familyRole,
+      permissions: {
+        role: authStore.permissions.role, // Preserve existing role
+        minor: calculateMinor(profileForm.value.birthday),
+        privateMode: profileForm.value.permissions.privateMode,
+      },
       phone: profileForm.value.phone,
-      bio: profileForm.value.bio.substring(0, 200), // Limit bio length
-      visibility: profileForm.value.visibility,
+      bio: profileForm.value.bio.substring(0, 200),
       updatedAt: new Date(),
-    });
+    };
+
+    await updateDoc(doc(db, "users", authStore.userId), userDoc);
 
     // Update auth store
     authStore.name = profileForm.value.name;
+    authStore.birthday = profileForm.value.birthday;
+    authStore.familyRole = profileForm.value.familyRole;
+    authStore.permissions = {
+      ...authStore.permissions,
+      minor: userDoc.permissions.minor,
+      privateMode: userDoc.permissions.privateMode,
+    };
     authStore.phone = profileForm.value.phone;
     authStore.bio = profileForm.value.bio;
-    authStore.visibility = profileForm.value.visibility;
 
     showToast("Profile updated successfully", "success");
   } catch (error) {
@@ -441,32 +587,52 @@ const updateProfile = async () => {
 };
 
 const updatePassword = async () => {
-  if (passwordForm.value.new !== passwordForm.value.confirm) {
-    showToast("New passwords don't match", "error");
-    return;
-  }
-
-  if (passwordForm.value.new.length < 6) {
-    showToast("Password must be at least 6 characters", "error");
+  if (!isPasswordFormValid.value) {
+    if (passwordForm.value.new !== passwordForm.value.confirm) {
+      showToast("New passwords don't match", "error");
+      return;
+    }
+    if (passwordForm.value.new.length < 6) {
+      showToast("New password must be at least 6 characters", "error");
+      return;
+    }
+    showToast("Please fill all password fields", "error");
     return;
   }
 
   updatingPassword.value = true;
   try {
-    const user = authStore.user;
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("No authenticated user found");
+    }
+
+    // Reauthenticate user
     const credential = EmailAuthProvider.credential(
       user.email,
       passwordForm.value.current
     );
-
     await reauthenticateWithCredential(user, credential);
+
+    // Update password
     await firebaseUpdatePassword(user, passwordForm.value.new);
 
+    // Clear form and hide it
     cancelPasswordUpdate();
     showToast("Password updated successfully", "success");
   } catch (error) {
-    console.error("Error updating password:", error);
-    showToast("Failed to update password: " + error.message, "error");
+    console.error("Error updating password:", {
+      code: error.code,
+      message: error.message,
+    });
+    if (error.code === "auth/wrong-password") {
+      showToast("Current password is incorrect", "error");
+    } else if (error.code === "auth/too-many-requests") {
+      showToast("Too many attempts. Please try again later.", "error");
+    } else {
+      showToast("Failed to update password: " + error.message, "error");
+    }
   } finally {
     updatingPassword.value = false;
   }
@@ -483,8 +649,7 @@ const handleAvatarUpdate = (newAvatarUrl) => {
 };
 
 const triggerAvatarUpload = () => {
-  // This would trigger the avatar upload functionality
-  // Implementation depends on your Avatar component
+  // Implementation depends on Avatar component
   console.log("Trigger avatar upload");
 };
 
@@ -499,18 +664,17 @@ const leaveFamily = async () => {
 
   leaving.value = true;
   try {
-    // Implementation depends on your family structure
     await updateDoc(doc(db, "users", authStore.userId), {
       familyId: null,
       familyName: null,
-      role: null,
+      familyRole: null,
       status: null,
       updatedAt: new Date(),
     });
 
     authStore.familyId = null;
     authStore.familyName = null;
-    authStore.role = null;
+    authStore.familyRole = null;
     authStore.status = null;
 
     showToast("Successfully left family", "success");

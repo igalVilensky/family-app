@@ -5,7 +5,7 @@ import {
   browserLocalPersistence,
   onAuthStateChanged,
 } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { ref } from "vue";
 
@@ -24,6 +24,7 @@ const firebaseConfig = {
 // Initialize Firebase app only if it doesn't already exist
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApp("[DEFAULT]");
+const db = getFirestore(app);
 const auth = getAuth(app);
 const firestore = getFirestore(app);
 
@@ -35,6 +36,39 @@ let analytics = null;
 if (typeof window !== "undefined" && isSupported()) {
   analytics = getAnalytics(app);
 }
+
+// Export the instances for direct use in utilities
+export { auth, db, firestore };
+
+// Export the createProfile function with access to db
+export const createProfile = async (userData) => {
+  try {
+    console.log("Creating profile:", userData);
+    const userDocRef = doc(db, "users", userData.userId);
+    await setDoc(userDocRef, {
+      name: userData.name,
+      email: userData.email,
+      birthday: userData.birthday,
+      familyRole: userData.familyRole,
+      status: userData.status || "active",
+      phone: userData.phone || null,
+      bio: userData.bio || null,
+      avatarUrl: userData.avatarUrl || null,
+      familyId: userData.familyId || null,
+      permissions: {
+        role: userData.familyRole === "parent" ? "admin" : "member",
+        minor: userData.familyRole === "child",
+        privateMode: false,
+      },
+      createdAt: new Date(),
+    });
+    console.log("Profile created successfully");
+    return true;
+  } catch (error) {
+    console.error("Error creating profile:", error);
+    throw error;
+  }
+};
 
 export const useFirestore = () => firestore;
 
@@ -48,6 +82,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.provide("auth", auth);
   nuxtApp.provide("firestore", firestore);
   nuxtApp.provide("userId", () => userId.value);
+  nuxtApp.provide("createProfile", createProfile);
   if (analytics) {
     nuxtApp.provide("analytics", analytics);
   }

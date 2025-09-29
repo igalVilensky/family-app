@@ -38,14 +38,29 @@
           </div>
           <div class="mb-4">
             <label
-              for="role"
+              for="birthday"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              id="birthday"
+              v-model="birthday"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="familyRole"
               class="block text-sm font-medium text-gray-700 mb-1"
             >
               Role in Family
             </label>
             <select
-              id="role"
-              v-model="role"
+              id="familyRole"
+              v-model="familyRole"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="parent">Parent</option>
@@ -54,6 +69,38 @@
               <option value="sibling">Sibling</option>
               <option value="other">Other</option>
             </select>
+          </div>
+          <div class="mb-4">
+            <label
+              for="createFamily"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Create a Family?
+            </label>
+            <select
+              id="createFamily"
+              v-model="createFamily"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="yes">Yes, create a new family</option>
+              <option value="no">No, I’ll join a family later</option>
+            </select>
+          </div>
+          <div v-if="createFamily === 'yes'" class="mb-4">
+            <label
+              for="familyName"
+              class="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Family Group Name
+            </label>
+            <input
+              type="text"
+              id="familyName"
+              v-model="familyName"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Enter your family group name"
+              required
+            />
           </div>
           <button
             type="submit"
@@ -96,22 +143,47 @@ definePageMeta({
 const authStore = useAuthStore();
 const router = useRouter();
 const name = ref("");
-const role = ref("parent");
+const birthday = ref("");
+const familyRole = ref("parent");
+const createFamily = ref("no");
+const familyName = ref("");
 const error = ref("");
 const loading = ref(false);
 
 const isFormValid = computed(() => {
   const nameTrimmed = name.value.trim();
-  // Ensure name is not empty and does not look like an email
   const isValidName = nameTrimmed !== "" && !nameTrimmed.includes("@");
-  return isValidName && role.value !== "";
+  const isValidBirthday =
+    birthday.value && !isNaN(new Date(birthday.value).getTime());
+  return (
+    isValidName &&
+    isValidBirthday &&
+    familyRole.value !== "" &&
+    (createFamily.value === "no" ||
+      (createFamily.value === "yes" && familyName.value.trim() !== ""))
+  );
 });
+
+const calculateMinor = (birthday) => {
+  if (!birthday) return false;
+  const birthDate = new Date(birthday);
+  const currentDate = new Date();
+  const age = currentDate.getFullYear() - birthDate.getFullYear();
+  const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())
+  ) {
+    return age - 1 < 18;
+  }
+  return age < 18;
+};
 
 const handleProfileSetup = async () => {
   if (!isFormValid.value) {
     error.value = name.value.includes("@")
       ? "Name should not contain '@'. Please enter a valid full name."
-      : "Please fill all required fields";
+      : "Please fill all required fields correctly";
     return;
   }
 
@@ -122,13 +194,33 @@ const handleProfileSetup = async () => {
     console.log("Submitting profile:", {
       userId: authStore.userId,
       name: name.value,
-      role: role.value,
+      birthday: birthday.value,
+      familyRole: familyRole.value,
+      createFamily: createFamily.value,
+      familyName: familyName.value,
+      permissions: {
+        role: createFamily.value === "yes" ? "admin" : "member",
+        minor: calculateMinor(birthday.value),
+        privateMode: false,
+      },
     });
+
     await createProfile(authStore.userId, {
       name: name.value,
-      role: role.value,
+      birthday: birthday.value,
+      familyRole: familyRole.value,
+      permissions: {
+        role: createFamily.value === "yes" ? "admin" : "member",
+        minor: calculateMinor(birthday.value),
+        privateMode: false,
+      },
+      familyId: createFamily.value === "yes" ? null : authStore.familyId,
+      familyName:
+        createFamily.value === "yes" ? familyName.value : authStore.familyName,
     });
+
     console.log("Profile saved successfully, redirecting to /dashboard");
+    await authStore.initAuth();
     router.push("/dashboard");
   } catch (err) {
     console.error("Profile setup error:", err);
@@ -150,12 +242,3 @@ useHead({
   ],
 });
 </script>
-
-<style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=block");
-
-* {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
-}
-</style>

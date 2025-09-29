@@ -41,11 +41,11 @@
             <i class="fas fa-users text-sm"></i>
             <span class="text-lg">
               {{
-                authStore.role === "parent"
+                authStore.familyRole === "parent"
                   ? "Parent"
-                  : authStore.role === "pending"
+                  : authStore.permissions.role === "pending"
                   ? "Pending Member"
-                  : authStore.role
+                  : authStore.permissions.role
               }}
               of {{ authStore.familyName || "Your Family" }}
             </span>
@@ -144,7 +144,7 @@
 
       <!-- Parent Only Sections -->
       <div
-        v-if="authStore.role === 'parent' && authStore.familyId"
+        v-if="authStore.permissions.role === 'admin' && authStore.familyId"
         class="space-y-6"
       >
         <!-- Invite Management -->
@@ -340,7 +340,7 @@ const checkApprovalStatus = async () => {
           role: "member",
           status: "active",
         });
-        authStore.role = "member";
+        authStore.permissions.role = "member";
         authStore.status = "active";
         showToast(
           "Your request has been approved! Welcome to the family.",
@@ -373,7 +373,7 @@ const handleLogout = async () => {
 };
 
 const fetchJoinRequests = async () => {
-  if (authStore.role === "parent" && authStore.familyId) {
+  if (authStore.permissions.role === "admin" && authStore.familyId) {
     try {
       const querySnapshot = await getDocs(
         collection(db, `families/${authStore.familyId}/requests`)
@@ -426,12 +426,12 @@ const denyRequest = async (requestId) => {
 };
 
 const generateInviteLink = async () => {
-  if (authStore.role !== "parent") {
-    console.error("generateInviteLink: User is not a parent", {
-      role: authStore.role,
+  if (authStore.permissions.role !== "admin") {
+    console.error("generateInviteLink: User is not a admin", {
+      role: authStore.permissions.role,
       userId: authStore.userId,
     });
-    showToast("Only parents can generate invite links", "error");
+    showToast("Only admins can generate invite links", "error");
     return;
   }
   generatingInvite.value = true;
