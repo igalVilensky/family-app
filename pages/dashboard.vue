@@ -1,5 +1,26 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Loading State -->
+    <div
+      v-if="isLoading"
+      class="fixed inset-0 bg-white z-50 flex items-center justify-center"
+    >
+      <div class="text-center">
+        <div class="relative w-20 h-20 mx-auto mb-4">
+          <div
+            class="absolute inset-0 border-4 border-blue-200 rounded-full"
+          ></div>
+          <div
+            class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
+          ></div>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+          Loading your dashboard...
+        </h2>
+        <p class="text-gray-600">Please wait a moment</p>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -24,13 +45,15 @@
       >
         <div class="text-center">
           <NuxtLink to="/profile" class="inline-block group">
-            <avatar
-              :avatar-url="authStore.avatarUrl"
-              :user-initial="userInitial"
-              :size="80"
-              :no-upload="true"
-              class="hover:ring-4 hover:ring-blue-100 transition-all duration-200"
-            />
+            <div class="relative inline-block">
+              <avatar
+                :avatar-url="authStore.avatarUrl"
+                :user-initial="userInitial"
+                :size="80"
+                :no-upload="true"
+                class="hover:ring-4 hover:ring-blue-100 transition-all duration-200 rounded-full"
+              />
+            </div>
           </NuxtLink>
           <h2 class="text-3xl font-bold text-gray-900 mt-4">
             Welcome, {{ authStore.name || "User" }}
@@ -52,7 +75,7 @@
           </div>
           <NuxtLink
             to="/profile"
-            class="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            class="inline-flex items-center justify-center gap-2 mt-6 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors min-w-[160px]"
           >
             <i class="fas fa-user-edit text-sm"></i>
             Edit Profile
@@ -91,7 +114,7 @@
             </p>
             <button
               @click="checkApprovalStatus"
-              class="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+              class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="checkingStatus"
             >
               <i
@@ -124,19 +147,19 @@
             <NuxtLink
               v-if="!authStore.familyId"
               to="/family-setup"
-              class="flex items-center gap-3 w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              class="flex items-center justify-center gap-3 w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
             >
               <i class="fas fa-plus-circle"></i>
-              <span class="font-medium">Set Up Family</span>
+              <span>Set Up Family</span>
             </NuxtLink>
 
             <NuxtLink
               v-if="authStore.familyId"
               :to="`/family/${authStore.familyId}`"
-              class="flex items-center gap-3 w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              class="flex items-center justify-center gap-3 w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               <i class="fas fa-home"></i>
-              <span class="font-medium">View Family Profile</span>
+              <span>View Family Profile</span>
             </NuxtLink>
           </div>
         </div>
@@ -160,10 +183,13 @@
 
           <button
             @click="generateInviteLink"
-            class="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors mb-4"
+            class="flex items-center justify-center gap-2 w-full px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="generatingInvite"
           >
-            <i class="fas fa-link text-sm"></i>
+            <i
+              class="fas fa-link text-sm"
+              :class="{ 'animate-spin': generatingInvite }"
+            ></i>
             {{ generatingInvite ? "Generating..." : "Generate Invite Link" }}
           </button>
 
@@ -174,7 +200,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Share this link to invite members:
             </label>
-            <div class="flex gap-2">
+            <div class="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 :value="inviteLink"
@@ -184,7 +210,7 @@
               />
               <button
                 @click="copyInviteLink"
-                class="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors whitespace-nowrap"
               >
                 <i class="fas fa-copy text-sm"></i>
                 {{ copyButtonText }}
@@ -216,10 +242,10 @@
             <div
               v-for="request in joinRequests"
               :key="request.id"
-              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+              class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
             >
               <div class="flex items-center gap-3">
-                <div class="p-2 bg-gray-200 rounded-full">
+                <div class="p-2 bg-gray-200 rounded-full flex-shrink-0">
                   <i class="fas fa-user text-gray-600"></i>
                 </div>
                 <div>
@@ -228,19 +254,19 @@
                 </div>
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex gap-2 w-full sm:w-auto">
                 <button
                   @click="
                     approveRequest(request.id, request.userId, request.email)
                   "
-                  class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  class="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <i class="fas fa-check text-sm"></i>
                   Approve
                 </button>
                 <button
                   @click="denyRequest(request.id)"
-                  class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  class="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   <i class="fas fa-times text-sm"></i>
                   Deny
@@ -254,10 +280,10 @@
       <!-- Toast Notification -->
       <div
         v-if="showToastMessage"
-        class="fixed top-4 right-4 z-50 max-w-sm w-full"
+        class="fixed top-4 right-4 z-50 max-w-sm w-full px-4"
       >
         <div
-          class="p-4 rounded-lg shadow-lg border"
+          class="p-4 rounded-lg shadow-lg border animate-slideIn"
           :class="{
             'bg-green-50 text-green-800 border-green-200':
               toastType === 'success',
@@ -266,7 +292,7 @@
         >
           <div class="flex items-center gap-3">
             <i
-              class="text-sm"
+              class="text-sm flex-shrink-0"
               :class="{
                 'fas fa-check-circle text-green-500': toastType === 'success',
                 'fas fa-exclamation-circle text-red-500': toastType === 'error',
@@ -309,6 +335,7 @@ const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
 const checkingStatus = ref(false);
+const isLoading = ref(true);
 
 const userInitial = computed(() =>
   authStore.name ? authStore.name.charAt(0).toUpperCase() : "?"
@@ -333,7 +360,6 @@ const checkApprovalStatus = async () => {
       const isMember = familyData.members.some(
         (member) => member.userId === authStore.userId
       );
-      console.log("checkApprovalStatus: isMember =", isMember);
 
       if (isMember) {
         await updateDoc(doc(db, "users", authStore.userId), {
@@ -391,14 +417,13 @@ const fetchJoinRequests = async () => {
 
 const approveRequest = async (requestId, userId, email) => {
   try {
-    const auth = getAuth();
     await updateDoc(doc(db, "families", authStore.familyId), {
       members: arrayUnion({ userId, role: "member", email }),
     });
     await deleteDoc(
       doc(db, `families/${authStore.familyId}/requests`, requestId)
     );
-    fetchJoinRequests();
+    await fetchJoinRequests();
     showToast("Request approved successfully", "success");
   } catch (error) {
     console.error("Error approving request:", {
@@ -417,7 +442,7 @@ const denyRequest = async (requestId) => {
     await deleteDoc(
       doc(db, `families/${authStore.familyId}/requests`, requestId)
     );
-    fetchJoinRequests();
+    await fetchJoinRequests();
     showToast("Request denied successfully", "success");
   } catch (error) {
     console.error("Error denying request:", error);
@@ -427,7 +452,7 @@ const denyRequest = async (requestId) => {
 
 const generateInviteLink = async () => {
   if (authStore.permissions.role !== "admin") {
-    console.error("generateInviteLink: User is not a admin", {
+    console.error("generateInviteLink: User is not an admin", {
       role: authStore.permissions.role,
       userId: authStore.userId,
     });
@@ -454,10 +479,10 @@ const generateInviteLink = async () => {
 const copyInviteLink = async () => {
   try {
     await navigator.clipboard.writeText(inviteLink.value);
-    copyButtonText.value = "Copied";
+    copyButtonText.value = "Copied!";
     setTimeout(() => {
       copyButtonText.value = "Copy";
-    }, 1000);
+    }, 2000);
   } catch (error) {
     console.error("Error copying invite link:", error);
     showToast("Failed to copy invite link", "error");
@@ -465,12 +490,22 @@ const copyInviteLink = async () => {
 };
 
 onMounted(async () => {
-  await authStore.initAuth();
-  if (!authStore.isInitialized) {
-    router.push("/login?redirect=/dashboard");
-    return;
+  try {
+    await authStore.initAuth();
+    if (!authStore.isInitialized) {
+      router.push("/login?redirect=/dashboard");
+      return;
+    }
+    await fetchJoinRequests();
+  } catch (error) {
+    console.error("Error initializing dashboard:", error);
+    showToast("Failed to load dashboard", "error");
+  } finally {
+    // Small delay for better UX
+    setTimeout(() => {
+      isLoading.value = false;
+    }, 500);
   }
-  await fetchJoinRequests();
 });
 
 useHead({
@@ -493,6 +528,21 @@ definePageMeta({
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 </style>

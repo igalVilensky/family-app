@@ -1,114 +1,242 @@
 <template>
   <div
-    class="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-12"
+    class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col"
   >
-    <div class="max-w-md w-full">
-      <!-- Header -->
-      <div class="mb-6 text-center">
-        <h2 class="text-3xl font-bold text-gray-900">Join FamilySpace</h2>
-        <p class="text-gray-600 text-sm mt-2">
-          Create an account to start or join your family space.
-        </p>
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <h1 class="text-2xl font-bold text-gray-900">FamilySpace</h1>
       </div>
+    </header>
 
-      <!-- Registration Form or Logged-in State -->
-      <div v-if="!authStore.userId">
-        <div v-if="error" class="text-center text-red-600 mb-4">
-          {{ error }}
+    <!-- Main Content -->
+    <main
+      class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12"
+    >
+      <div class="max-w-md w-full space-y-8">
+        <!-- Welcome Section -->
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-2xl shadow-lg mb-6"
+          >
+            <i class="fas fa-users text-white text-2xl"></i>
+          </div>
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">
+            Join FamilySpace
+          </h2>
+          <p class="text-gray-600">
+            Create your account and start connecting with family
+          </p>
         </div>
-        <form
-          class="bg-white border border-gray-200 rounded-lg p-6"
-          @submit.prevent="handleRegister"
+
+        <!-- Already Logged In State -->
+        <div
+          v-if="authStore.userId"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center"
         >
           <div class="mb-4">
-            <label
-              for="email"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              v-model="email"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter your email"
-              required
-            />
+            <i class="fas fa-check-circle text-green-500 text-4xl"></i>
           </div>
-          <div class="mb-4">
-            <label
-              for="password"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              v-model="password"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <div class="mb-4">
-            <label
-              for="createFamily"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Create a Family?
-            </label>
-            <select
-              id="createFamily"
-              v-model="createFamily"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="yes">Yes, create a new family</option>
-              <option value="no">No, I’ll join a family later</option>
-            </select>
-          </div>
-          <div v-if="createFamily === 'yes'" class="mb-4">
-            <label
-              for="familyName"
-              class="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Family Group Name
-            </label>
-            <input
-              type="text"
-              id="familyName"
-              v-model="familyName"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter your family group name"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-            :disabled="loading || !isFormValid"
+          <p class="text-gray-900 font-medium mb-4">
+            You are already logged in
+          </p>
+          <NuxtLink
+            to="/dashboard"
+            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {{ loading ? "Creating Account..." : "Create Account" }}
-          </button>
-        </form>
+            <i class="fas fa-home text-sm"></i>
+            <span>Go to Dashboard</span>
+          </NuxtLink>
+        </div>
+
+        <!-- Registration Form -->
+        <div
+          v-else
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-8"
+        >
+          <form @submit.prevent="handleRegister" class="space-y-6">
+            <!-- Email Field -->
+            <div>
+              <label
+                for="email"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Email Address
+              </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-envelope text-gray-400 text-sm"></i>
+                </div>
+                <input
+                  type="email"
+                  id="email"
+                  v-model="email"
+                  class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400"
+                  placeholder="you@example.com"
+                  required
+                  :disabled="loading"
+                />
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div>
+              <label
+                for="password"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Password
+              </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-lock text-gray-400 text-sm"></i>
+                </div>
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  id="password"
+                  v-model="password"
+                  class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400"
+                  placeholder="Min 6 characters"
+                  required
+                  :disabled="loading"
+                />
+                <button
+                  type="button"
+                  @click="showPassword = !showPassword"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  :disabled="loading"
+                >
+                  <i
+                    class="text-sm"
+                    :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                  ></i>
+                </button>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">
+                Must be at least 6 characters long
+              </p>
+            </div>
+
+            <!-- Create Family Option -->
+            <div>
+              <label
+                for="createFamily"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Family Setup
+              </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-home text-gray-400 text-sm"></i>
+                </div>
+                <select
+                  id="createFamily"
+                  v-model="createFamily"
+                  class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 appearance-none bg-white"
+                  :disabled="loading"
+                >
+                  <option value="yes">Create a new family</option>
+                  <option value="no">Join a family later</option>
+                </select>
+                <div
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Family Name Field (Conditional) -->
+            <div v-if="createFamily === 'yes'" class="animate-fadeIn">
+              <label
+                for="familyName"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Family Name
+              </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-users text-gray-400 text-sm"></i>
+                </div>
+                <input
+                  type="text"
+                  id="familyName"
+                  v-model="familyName"
+                  class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-gray-900 placeholder-gray-400"
+                  placeholder="e.g., The Smiths"
+                  required
+                  :disabled="loading"
+                />
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div
+              v-if="error"
+              class="bg-red-50 border border-red-200 rounded-lg p-4"
+            >
+              <div class="flex items-center gap-3">
+                <i
+                  class="fas fa-exclamation-circle text-red-500 text-sm flex-shrink-0"
+                ></i>
+                <p class="text-red-800 text-sm">{{ error }}</p>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="loading || !isFormValid"
+            >
+              <i v-if="loading" class="fas fa-spinner fa-spin text-sm"></i>
+              <i v-else class="fas fa-user-plus text-sm"></i>
+              <span>{{
+                loading ? "Creating Account..." : "Create Account"
+              }}</span>
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-200"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-white text-gray-500"
+                >Already have an account?</span
+              >
+            </div>
+          </div>
+
+          <!-- Login Link -->
+          <NuxtLink
+            to="/login"
+            class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <i class="fas fa-sign-in-alt text-sm"></i>
+            <span>Sign In</span>
+          </NuxtLink>
+        </div>
       </div>
-      <div v-else class="text-center text-gray-700">
-        <p>You are already logged in.</p>
-        <NuxtLink to="/dashboard" class="text-blue-600 hover:underline">
-          Go to Dashboard
-        </NuxtLink>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-sm text-gray-500">
+          © 2025 FamilySpace. Your private family digital home.
+        </p>
       </div>
-      <p
-        v-if="!authStore.userId"
-        class="mt-4 text-center text-gray-600 text-sm"
-      >
-        Already have an account?
-        <NuxtLink to="/login" class="text-blue-600 hover:underline">
-          Sign in here
-        </NuxtLink>
-      </p>
-    </div>
+    </footer>
   </div>
 </template>
 
@@ -130,6 +258,7 @@ const password = ref("");
 const createFamily = ref("no");
 const error = ref("");
 const loading = ref(false);
+const showPassword = ref(false);
 
 const isFormValid = computed(() => {
   return (
@@ -163,9 +292,10 @@ const handleRegister = async () => {
     await authStore.initAuth();
     router.push("/family-setup");
   } catch (err) {
+    console.error("Registration error:", err);
     error.value = err.message.includes("permission")
       ? "Permission denied. Please try again or contact support."
-      : err.message || "Failed to register";
+      : err.message || "Failed to register. Please try again.";
   } finally {
     loading.value = false;
   }
@@ -177,17 +307,43 @@ useHead({
     {
       name: "description",
       content:
-        "Join FamilySpace to create or join your family’s private digital home.",
+        "Join FamilySpace to create or join your family's private digital home.",
     },
   ],
 });
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=block");
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
 
-* {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom select styling */
+select {
+  background-image: none;
 }
 </style>
