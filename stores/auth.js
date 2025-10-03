@@ -24,6 +24,7 @@ export const useAuthStore = defineStore("auth", {
     isInitialized: false,
     hasFirestoreUser: false,
     authPromise: null, // Track the auth initialization promise
+    familyMembers: [],
   }),
 
   getters: {
@@ -32,9 +33,28 @@ export const useAuthStore = defineStore("auth", {
     isMinor: (state) => state.permissions.minor,
     isPrivate: (state) => state.permissions.privateMode,
     isProfileComplete: (state) => !!state.name && !!state.familyId,
+    getFamilyMembers: (state) => state.familyMembers,
   },
 
   actions: {
+    async loadFamilyMembers() {
+      if (!this.familyId || this.familyMembers.length > 0) {
+        return; // Already loaded or no family
+      }
+
+      const { $firestore: db } = useNuxtApp();
+      try {
+        const familyDocRef = doc(db, "families", this.familyId);
+        const familyDocSnap = await getDoc(familyDocRef);
+        if (familyDocSnap.exists()) {
+          const familyData = familyDocSnap.data();
+          this.familyMembers = familyData.members || []; // e.g., [{userId, role, email, name?}]
+          console.log("Family members loaded:", this.familyMembers.length);
+        }
+      } catch (error) {
+        console.error("Load family members error:", error);
+      }
+    },
     async initAuth() {
       // If already initialized, return the existing promise
       if (this.authPromise) {

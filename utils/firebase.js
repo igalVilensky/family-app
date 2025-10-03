@@ -7,6 +7,11 @@ import {
   setDoc,
   collection,
   addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "~/plugins/firebase"; // Import directly from your firebase plugin
@@ -167,5 +172,101 @@ export const generateInvite = async (familyId, familyName, createdBy) => {
   } catch (error) {
     console.error("generateInvite error:", error);
     throw new Error(error.message || "Failed to generate invite");
+  }
+};
+
+// Add Event (create with invites/RSVP init)
+export const addEvent = async (eventData) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const familyId = eventData.familyId;
+  if (!familyId) throw new Error("No family ID");
+
+  try {
+    const attendees = eventData.attendees || []; // From form checkboxes
+    const rsvps = { [auth.currentUser.uid]: "yes" }; // Creator auto-yes
+    attendees.forEach((userId) => {
+      if (userId !== auth.currentUser.uid) rsvps[userId] = null;
+    }); // Others pending
+
+    const eventRef = await addDoc(
+      collection(db, "families", familyId, "events"),
+      {
+        ...eventData,
+        familyId,
+        creatorId: auth.currentUser.uid,
+        attendees,
+        rsvps,
+        color: eventData.color || "#f59e0b", // Default amber
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }
+    );
+
+    console.log("Event added:", eventRef.id);
+    return { success: true, eventId: eventRef.id };
+  } catch (error) {
+    console.error("Add event error:", error);
+    throw new Error(error.message || "Failed to add event");
+  }
+};
+
+// Fetch Events by Date Range (manual for month view)
+export const getEventsByRange = async (familyId, startDate, endDate) => {
+  try {
+    const q = query(
+      collection(db, "families", familyId, "events"),
+      where("startDate", ">=", startDate),
+      where("startDate", "<=", endDate)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  } catch (error) {
+    console.error("Fetch events error:", error);
+    return [];
+  }
+};
+
+// Update RSVP (user's own status)
+export const updateRSVP = async (familyId, eventId, status) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    const eventRef = doc(db, "families", familyId, "events", eventId);
+    await updateDoc(eventRef, {
+      [`rsvps.${auth.currentUser.uid}`]: status,
+      updatedAt: serverTimestamp(),
+    });
+    console.log("RSVP updated:", status);
+    return { success: true };
+  } catch (error) {
+    throw new Error(error.message || "Failed to update RSVP");
+  }
+};
+
+// Update Event (edit details)
+export const updateEvent = async (familyId, eventId, updates) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    const eventRef = doc(db, "families", familyId, "events", eventId);
+    await updateDoc(eventRef, { ...updates, updatedAt: serverTimestamp() });
+    return { success: true };
+  } catch (error) {
+    throw new Error(error.message || "Failed to update event");
+  }
+};
+
+// Delete Event (admin only—check in UI)
+export const deleteEvent = async (familyId, eventId) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    // TODO: isAdmin check from store
+    const eventRef = doc(db, "families", familyId, "events", eventId);
+    await deleteDoc(eventRef);
+    return { success: true };
+  } catch (error) {
+    throw new Error(error.message || "Failed to delete event");
   }
 };

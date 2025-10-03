@@ -165,6 +165,35 @@
         </div>
       </div>
 
+      <!-- Calendar Overview Section -->
+      <div
+        v-if="authStore.familyId && authStore.status === 'active'"
+        class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8"
+      >
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-amber-100 rounded-lg">
+            <i class="fas fa-calendar-alt text-amber-600"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900">Calendar Overview</h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p class="text-2xl font-bold text-gray-900">{{ upcomingCount }}</p>
+            <p class="text-sm text-gray-600">Upcoming Events</p>
+          </div>
+          <!-- Add more stats here if needed -->
+        </div>
+
+        <NuxtLink
+          to="/calendar"
+          class="flex items-center justify-center gap-2 w-full px-6 py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors"
+        >
+          <i class="fas fa-calendar-days"></i>
+          View Calendar
+        </NuxtLink>
+      </div>
+
       <!-- Parent Only Sections -->
       <div
         v-if="authStore.permissions.role === 'admin' && authStore.familyId"
@@ -321,7 +350,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { useNuxtApp } from "#app";
-import { generateInvite } from "~/utils/firebase";
+import { generateInvite, getEventsByRange } from "~/utils/firebase";
 import Avatar from "~/components/Avatar.vue";
 
 const { $firestore: db } = useNuxtApp();
@@ -336,10 +365,15 @@ const showToastMessage = ref(false);
 const toastType = ref("success");
 const checkingStatus = ref(false);
 const isLoading = ref(true);
+const events = ref([]);
 
 const userInitial = computed(() =>
   authStore.name ? authStore.name.charAt(0).toUpperCase() : "?"
 );
+
+const upcomingCount = computed(() => {
+  return events.value.filter((e) => new Date(e.startDate) > new Date()).length;
+});
 
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
@@ -349,6 +383,23 @@ const showToast = (message, type = "success") => {
     showToastMessage.value = false;
     toastMessage.value = "";
   }, 3000);
+};
+
+const refreshEvents = async () => {
+  if (!authStore.familyId) return;
+  try {
+    const now = new Date();
+    const start = now.toISOString();
+    const end = new Date(
+      now.getFullYear() + 1,
+      now.getMonth(),
+      now.getDate()
+    ).toISOString();
+    events.value = await getEventsByRange(authStore.familyId, start, end);
+  } catch (error) {
+    console.error("Error refreshing events:", error);
+    showToast("Failed to load calendar stats", "error");
+  }
 };
 
 const checkApprovalStatus = async () => {
@@ -497,6 +548,9 @@ onMounted(async () => {
       return;
     }
     await fetchJoinRequests();
+    if (authStore.familyId && authStore.status === "active") {
+      await refreshEvents();
+    }
   } catch (error) {
     console.error("Error initializing dashboard:", error);
     showToast("Failed to load dashboard", "error");
