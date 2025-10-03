@@ -38,18 +38,50 @@ export const useAuthStore = defineStore("auth", {
 
   actions: {
     async loadFamilyMembers() {
-      if (!this.familyId || this.familyMembers.length > 0) {
-        return; // Already loaded or no family
+      if (!this.familyId) {
+        return;
       }
 
       const { $firestore: db } = useNuxtApp();
       try {
         const familyDocRef = doc(db, "families", this.familyId);
         const familyDocSnap = await getDoc(familyDocRef);
+
         if (familyDocSnap.exists()) {
           const familyData = familyDocSnap.data();
-          this.familyMembers = familyData.members || []; // e.g., [{userId, role, email, name?}]
-          console.log("Family members loaded:", this.familyMembers.length);
+          const members = familyData.members || [];
+
+          // Fetch complete user data for each member
+          const membersWithDetails = await Promise.all(
+            members.map(async (member) => {
+              try {
+                const userDocRef = doc(db, "users", member.userId);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                  const userData = userDocSnap.data();
+                  return {
+                    ...member,
+                    name: userData.name || member.email,
+                    birthday: userData.birthday || null,
+                    avatarUrl: userData.avatarUrl || null,
+                    status: userData.status || null,
+                    phone: userData.phone || null,
+                    bio: userData.bio || null,
+                  };
+                }
+                return member; // Return basic member data if user doc not found
+              } catch (error) {
+                console.error(
+                  `Error fetching user data for ${member.userId}:`,
+                  error
+                );
+                return member; // Return basic member data on error
+              }
+            })
+          );
+
+          this.familyMembers = membersWithDetails;
         }
       } catch (error) {
         console.error("Load family members error:", error);

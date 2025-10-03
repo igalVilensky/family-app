@@ -64,11 +64,9 @@
             <i class="fas fa-users text-sm"></i>
             <span class="text-lg">
               {{
-                authStore.familyRole === "parent"
-                  ? "Parent"
-                  : authStore.permissions.role === "pending"
-                  ? "Pending Member"
-                  : authStore.permissions.role
+                authStore.familyName !== null
+                  ? authStore.familyRole
+                  : "Pending member"
               }}
               of {{ authStore.familyName || "Your Family" }}
             </span>

@@ -28,21 +28,31 @@
           <!-- Action Buttons -->
           <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
             <button
+              v-if="!isToday"
               @click="goToToday"
-              class="hidden sm:flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
+              class="flex items-center px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md"
             >
-              Today
+              <i class="fas fa-calendar-day mr-2"></i>Today
             </button>
             <button
               @click="refreshEvents"
-              class="p-2 sm:p-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
+              :disabled="isRefreshing"
+              class="p-2 sm:p-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 relative"
               title="Refresh"
             >
-              <i class="fas fa-sync-alt text-sm sm:text-base"></i>
+              <i
+                :class="`fas fa-sync-alt text-sm sm:text-base ${
+                  isRefreshing ? 'animate-spin' : ''
+                }`"
+              ></i>
+              <span
+                v-if="refreshSuccess"
+                class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"
+              ></span>
             </button>
             <button
               @click="openCreateModal"
-              class="flex items-center px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg"
+              class="flex items-center px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl active:scale-95"
             >
               <i class="fas fa-plus mr-0 sm:mr-2"></i>
               <span class="hidden sm:inline">New Event</span>
@@ -133,16 +143,26 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Mobile Today Button -->
-      <div class="mt-4 sm:hidden">
-        <button
-          @click="goToToday"
-          class="w-full py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all shadow"
+        <div
+          class="bg-white rounded-xl shadow-md p-3 sm:p-4 hover:shadow-lg transition-shadow"
         >
-          Jump to Today
-        </button>
+          <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="bg-pink-100 p-2 sm:p-3 rounded-lg flex-shrink-0">
+              <i
+                class="fas fa-birthday-cake text-pink-600 text-lg sm:text-xl"
+              ></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-xl sm:text-2xl font-bold text-gray-900">
+                {{ membersWithBirthdays.length }}
+              </p>
+              <p class="text-xs text-gray-500 truncate">Birthdays Set</p>
+              <p class="text-xs text-gray-400">
+                {{ familyMembers.length - membersWithBirthdays.length }} missing
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -189,12 +209,52 @@
               <!-- Modal Body - Scrollable -->
               <div class="flex-1 overflow-y-auto p-4 sm:p-6">
                 <div class="space-y-4">
+                  <!-- Event Type Selection -->
+                  <div>
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Event Type
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        @click="form.eventType = 'event'"
+                        :class="[
+                          'p-3 rounded-lg border-2 transition-all text-center',
+                          form.eventType === 'event'
+                            ? 'border-amber-500 bg-amber-50 text-amber-700'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300',
+                        ]"
+                      >
+                        <i class="fas fa-calendar-day mb-1"></i>
+                        <div class="text-sm font-medium">Event</div>
+                      </button>
+                      <button
+                        type="button"
+                        @click="form.eventType = 'task'"
+                        :class="[
+                          'p-3 rounded-lg border-2 transition-all text-center',
+                          form.eventType === 'task'
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300',
+                        ]"
+                      >
+                        <i class="fas fa-tasks mb-1"></i>
+                        <div class="text-sm font-medium">Task</div>
+                      </button>
+                    </div>
+                  </div>
+
                   <!-- Title Input -->
                   <div>
                     <label
                       class="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Event Title <span class="text-red-500">*</span>
+                      {{
+                        form.eventType === "task" ? "Task Title" : "Event Title"
+                      }}
+                      <span class="text-red-500">*</span>
                     </label>
                     <input
                       v-model="form.title"
@@ -202,7 +262,11 @@
                       required
                       :disabled="mode === 'view'"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-all text-base"
-                      placeholder="e.g., Family Dinner, Movie Night"
+                      :placeholder="
+                        form.eventType === 'task'
+                          ? 'e.g., Grocery shopping, Homework'
+                          : 'e.g., Family Dinner, Movie Night'
+                      "
                     />
                   </div>
 
@@ -218,12 +282,41 @@
                       rows="3"
                       :disabled="mode === 'view'"
                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-all text-base resize-none"
-                      placeholder="Add details about the event..."
+                      :placeholder="
+                        form.eventType === 'task'
+                          ? 'Add task details...'
+                          : 'Add details about the event...'
+                      "
                     ></textarea>
                   </div>
 
+                  <!-- Color Selection -->
+                  <div v-if="mode !== 'view'">
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Color
+                    </label>
+                    <div class="grid grid-cols-6 gap-2">
+                      <button
+                        v-for="color in eventColors"
+                        :key="color.value"
+                        type="button"
+                        @click="form.color = color.value"
+                        :class="[
+                          'w-8 h-8 rounded-full border-2 transition-all',
+                          form.color === color.value
+                            ? 'border-gray-800 scale-110'
+                            : 'border-gray-300 hover:scale-105',
+                        ]"
+                        :style="`background-color: ${color.hex}`"
+                        :title="color.name"
+                      ></button>
+                    </div>
+                  </div>
+
                   <!-- Location -->
-                  <div>
+                  <div v-if="form.eventType === 'event'">
                     <label
                       class="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
                     >
@@ -246,7 +339,11 @@
                         class="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
                       >
                         <i class="fas fa-play-circle text-gray-500 mr-2"></i>
-                        Start Date & Time
+                        {{
+                          form.eventType === "task"
+                            ? "Due Date"
+                            : "Start Date & Time"
+                        }}
                         <span class="text-red-500 ml-1">*</span>
                       </label>
                       <input
@@ -257,7 +354,7 @@
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-all text-base"
                       />
                     </div>
-                    <div>
+                    <div v-if="form.eventType === 'event'">
                       <label
                         class="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
                       >
@@ -273,8 +370,45 @@
                     </div>
                   </div>
 
+                  <!-- Recurring Events -->
+                  <div v-if="form.eventType === 'event' && mode !== 'view'">
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      <i class="fas fa-repeat text-gray-500 mr-2"></i>
+                      Repeat
+                    </label>
+                    <select
+                      v-model="form.recurrence"
+                      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base"
+                    >
+                      <option value="none">Does not repeat</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
+                  </div>
+
+                  <!-- Task Status -->
+                  <div v-if="form.eventType === 'task' && mode !== 'view'">
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Status
+                    </label>
+                    <select
+                      v-model="form.taskStatus"
+                      class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-base"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
+
                   <!-- Attendees Selection (Create/Edit) -->
-                  <div v-if="mode !== 'view'">
+                  <div v-if="mode !== 'view' && form.eventType === 'event'">
                     <label
                       class="block text-sm font-semibold text-gray-700 mb-3 flex items-center"
                     >
@@ -305,12 +439,17 @@
                     </div>
                   </div>
 
-                  <!-- RSVP Display (View Mode) -->
+                  <!-- RSVP Display (View/Edit Mode) -->
                   <div
-                    v-if="currentEvent && currentEvent.rsvps && mode === 'view'"
+                    v-if="
+                      currentEvent &&
+                      currentEvent.rsvps &&
+                      (mode === 'view' || mode === 'edit') &&
+                      form.eventType === 'event'
+                    "
                   >
                     <label
-                      class="block text-sm font-semibold text-gray-700 mb-3 flex items-center"
+                      class="text-sm font-semibold text-gray-700 mb-3 flex items-center"
                     >
                       <i class="fas fa-clipboard-check text-gray-500 mr-2"></i>
                       RSVPs
@@ -347,8 +486,8 @@
                       </div>
                     </div>
 
-                    <!-- RSVP Buttons (Non-Creator) -->
-                    <div v-if="!isCreator" class="mt-4">
+                    <!-- RSVP Buttons (for self, even in edit mode if desired) -->
+                    <div v-if="mode === 'edit' || mode === 'view'" class="mt-4">
                       <label
                         class="block text-sm font-semibold text-gray-700 mb-3"
                       >
@@ -358,7 +497,7 @@
                         <button
                           type="button"
                           @click="setRSVP('yes')"
-                          class="flex flex-col items-center justify-center px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all shadow-md hover:shadow-lg font-semibold"
+                          class="flex flex-col items-center justify-center px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all shadow-md hover:shadow-lg font-semibold active:scale-95"
                         >
                           <i class="fas fa-check-circle text-2xl mb-1"></i>
                           <span class="text-sm">Yes</span>
@@ -366,7 +505,7 @@
                         <button
                           type="button"
                           @click="setRSVP('maybe')"
-                          class="flex flex-col items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-all shadow-md hover:shadow-lg font-semibold"
+                          class="flex flex-col items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-all shadow-md hover:shadow-lg font-semibold active:scale-95"
                         >
                           <i class="fas fa-question-circle text-2xl mb-1"></i>
                           <span class="text-sm">Maybe</span>
@@ -374,7 +513,7 @@
                         <button
                           type="button"
                           @click="setRSVP('no')"
-                          class="flex flex-col items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all shadow-md hover:shadow-lg font-semibold"
+                          class="flex flex-col items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all shadow-md hover:shadow-lg font-semibold active:scale-95"
                         >
                           <i class="fas fa-times-circle text-2xl mb-1"></i>
                           <span class="text-sm">No</span>
@@ -395,7 +534,7 @@
                   <button
                     type="button"
                     @click="closeModal"
-                    class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all"
+                    class="w-full sm:w-auto px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all active:scale-95"
                   >
                     {{ mode === "view" ? "Close" : "Cancel" }}
                   </button>
@@ -403,19 +542,27 @@
                     v-if="mode === 'edit'"
                     type="button"
                     @click="confirmDelete"
-                    class="w-full sm:w-auto px-6 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center"
+                    class="w-full sm:w-auto px-6 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center active:scale-95"
                   >
                     <i class="fas fa-trash-alt mr-2"></i>
-                    Delete Event
+                    Delete {{ form.eventType === "task" ? "Task" : "Event" }}
                   </button>
                   <button
                     v-if="mode !== 'view'"
                     type="button"
                     @click="submitEvent"
                     :disabled="!form.title || !form.startDate"
-                    class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                    class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
-                    {{ mode === "create" ? "Create Event" : "Update Event" }}
+                    {{
+                      mode === "create"
+                        ? form.eventType === "task"
+                          ? "Create Task"
+                          : "Create Event"
+                        : form.eventType === "task"
+                        ? "Update Task"
+                        : "Update Event"
+                    }}
                   </button>
                 </div>
               </div>
@@ -446,6 +593,12 @@ const openEventModal = ref(false);
 const events = ref([]);
 const mode = ref("create");
 const currentEvent = ref(null);
+const isRefreshing = ref(false);
+const currentView = ref("dayGridMonth");
+const refreshSuccess = ref(false);
+const today = new Date().toDateString();
+const isToday = ref(true);
+
 const form = ref({
   title: "",
   description: "",
@@ -454,10 +607,32 @@ const form = ref({
   endDate: "",
   attendees: [],
   familyId: computed(() => authStore.familyId),
+  eventType: "event",
+  color: "amber",
+  recurrence: "none",
+  taskStatus: "pending",
 });
+
+// Event colors for color-coding
+const eventColors = [
+  { name: "Amber", value: "amber", hex: "#f59e0b" },
+  { name: "Blue", value: "blue", hex: "#3b82f6" },
+  { name: "Green", value: "green", hex: "#10b981" },
+  { name: "Red", value: "red", hex: "#ef4444" },
+  { name: "Purple", value: "purple", hex: "#8b5cf6" },
+  { name: "Pink", value: "pink", hex: "#ec4899" },
+  { name: "Indigo", value: "indigo", hex: "#6366f1" },
+  { name: "Teal", value: "teal", hex: "#14b8a6" },
+  { name: "Orange", value: "orange", hex: "#f97316" },
+  { name: "Gray", value: "gray", hex: "#6b7280" },
+];
 
 const familyName = computed(() => authStore.familyName || "Your");
 const familyMembers = computed(() => authStore.familyMembers || []);
+
+const membersWithBirthdays = computed(() => {
+  return familyMembers.value.filter((member) => member.birthday);
+});
 
 const upcomingCount = computed(() => {
   return events.value.filter((e) => new Date(e.startDate) > new Date()).length;
@@ -471,8 +646,10 @@ const confirmedCount = computed(() => {
 const modalTitle = computed(() => {
   if (mode.value === "create") {
     return form.value.startDate
-      ? `New Event - ${new Date(form.value.startDate).toLocaleDateString()}`
-      : "New Event";
+      ? `New ${form.value.eventType === "task" ? "Task" : "Event"} - ${new Date(
+          form.value.startDate
+        ).toLocaleDateString()}`
+      : `New ${form.value.eventType === "task" ? "Task" : "Event"}`;
   } else if (mode.value === "edit") {
     return form.value.title;
   } else {
@@ -481,41 +658,77 @@ const modalTitle = computed(() => {
 });
 
 const modalIcon = computed(() => {
-  if (mode.value === "create") return "fa-plus-circle";
-  if (mode.value === "edit") return "fa-edit";
-  return "fa-calendar-alt";
+  if (mode.value === "create")
+    return form.value.eventType === "task"
+      ? "fa-plus-circle"
+      : "fa-plus-circle";
+  if (mode.value === "edit")
+    return form.value.eventType === "task" ? "fa-edit" : "fa-edit";
+  return form.value.eventType === "task" ? "fa-tasks" : "fa-calendar-alt";
 });
 
 const isCreator = computed(
   () => currentEvent.value?.creatorId === authStore.userId
 );
 
+const checkIsToday = () => {
+  if (!calendarRef.value) return;
+  const calApi = calendarRef.value.getApi();
+  const currentDate = calApi.getDate();
+  const today = new Date();
+  isToday.value =
+    currentDate.getFullYear() === today.getFullYear() &&
+    currentDate.getMonth() === today.getMonth() &&
+    currentDate.getDate() === today.getDate();
+};
+
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: window.innerWidth < 768 ? "dayGridMonth" : "dayGridMonth",
-  events: events.value.map((e) => ({
-    id: e.id,
-    title: e.title,
-    start: e.startDate,
-    end: e.endDate,
-    backgroundColor: "#f59e0b",
-    borderColor: "#f59e0b",
-    extendedProps: e,
-  })),
+  events: events.value.map((e) => {
+    const isBirthday = e.eventType === "birthday";
+    const isTask = e.eventType === "task";
+    const colorConfig =
+      eventColors.find((c) => c.value === e.color) || eventColors[0];
+
+    return {
+      id: e.id,
+      title: isBirthday ? `🎂 ${e.title}` : isTask ? `📝 ${e.title}` : e.title,
+      start: e.startDate,
+      end: e.endDate,
+      backgroundColor: isBirthday ? "#ec4899" : colorConfig.hex,
+      borderColor: isBirthday ? "#ec4899" : colorConfig.hex,
+      textColor: isBirthday ? "#ffffff" : "#ffffff",
+      extendedProps: e,
+    };
+  }),
   headerToolbar: {
     left: "prev,next",
     center: "title",
-    right: window.innerWidth < 768 ? "" : "dayGridMonth,timeGridWeek",
+    right:
+      window.innerWidth < 768
+        ? "dayGridMonth,timeGridWeek,timeGridDay"
+        : "dayGridMonth,timeGridWeek,timeGridDay",
+  },
+  views: {
+    timeGridDay: {
+      type: "timeGrid",
+      duration: { days: 1 },
+      buttonText: "Day",
+    },
   },
   height: "auto",
   editable: false,
   selectable: true,
-  dayMaxEvents: 2,
+  dayMaxEvents: 3,
   moreLinkText: "more",
   eventDisplay: "block",
+  datesSet: () => checkIsToday(),
   dateClick: (info) => {
     const dateStr = info.dateStr + "T12:00";
     form.value.startDate = dateStr.slice(0, 16);
+    form.value.endDate =
+      form.value.eventType === "event" ? dateStr.slice(0, 16) : "";
     mode.value = "create";
     openEventModal.value = true;
   },
@@ -526,35 +739,151 @@ const calendarOptions = computed(() => ({
     openEventModal.value = true;
   },
   eventContent: (arg) => {
-    const rsvps = arg.event.extendedProps.rsvps || {};
-    const stats = getRSVPStats(rsvps);
-    return {
-      html: `
-        <div class="p-1 text-xs">
-          <div class="font-semibold truncate">${arg.event.title}</div>
-          <div class="text-white/90 text-[10px] mt-0.5">
-            ✓${stats.yes} ?${stats.maybe}
-          </div>
-        </div>
-      `,
-    };
+    const event = arg.event.extendedProps;
+    const isBirthday = event.eventType === "birthday";
+    const isTask = event.eventType === "task";
+
+    let content = `
+      <div class="p-1 text-xs">
+        <div class="font-semibold truncate">${arg.event.title}</div>
+    `;
+
+    if (isTask) {
+      const status = event.taskStatus || "pending";
+      const statusColors = {
+        pending: "bg-gray-400",
+        "in-progress": "bg-yellow-400",
+        completed: "bg-green-400",
+      };
+      content += `<div class="flex items-center mt-0.5">
+        <div class="w-2 h-2 rounded-full ${statusColors[status]} mr-1"></div>
+        <span class="text-white/90 text-[10px]">${status}</span>
+      </div>`;
+    } else if (!isBirthday && event.rsvps) {
+      const stats = getRSVPStats(event.rsvps);
+      content += `<div class="text-white/90 text-[10px] mt-0.5">
+        ✓${stats.yes} ?${stats.maybe}
+      </div>`;
+    }
+
+    content += `</div>`;
+    return { html: content };
+  },
+  viewDidMount: (info) => {
+    currentView.value = info.view.type;
   },
 }));
 
 const goToToday = () => {
-  if (calendarRef.value) calendarRef.value.getApi().today();
+  if (calendarRef.value) {
+    calendarRef.value.getApi().today();
+  }
 };
 
 const refreshEvents = async () => {
   if (!authStore.familyId) {
-    console.log("No family ID for fetch");
     return;
   }
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
-  events.value = await getEventsByRange(authStore.familyId, start, end);
-  console.log("Events refreshed:", events.value.length);
+
+  isRefreshing.value = true;
+  refreshSuccess.value = false;
+  try {
+    const now = new Date();
+    const start = new Date(
+      now.getFullYear() - 1,
+      now.getMonth(),
+      1
+    ).toISOString();
+    const end = new Date(
+      now.getFullYear() + 1,
+      now.getMonth(),
+      0
+    ).toISOString();
+    const calendarEvents = await getEventsByRange(
+      authStore.familyId,
+      start,
+      end
+    );
+
+    // Add birthday events
+    const birthdayEvents = generateBirthdayEvents();
+    events.value = [...calendarEvents, ...birthdayEvents];
+
+    refreshSuccess.value = true;
+  } catch (error) {
+    console.error("Refresh error:", error);
+  } finally {
+    setTimeout(() => {
+      isRefreshing.value = false;
+    }, 500);
+  }
+};
+
+const refreshBirthdays = () => {
+  const birthdayEvents = generateBirthdayEvents();
+  events.value = events.value.filter((event) => event.eventType !== "birthday");
+  events.value = [...events.value, ...birthdayEvents];
+};
+
+const generateBirthdayEvents = () => {
+  const birthdayEvents = [];
+  const currentYear = new Date().getFullYear();
+
+  membersWithBirthdays.value.forEach((member) => {
+    if (member.birthday) {
+      try {
+        const birthday = new Date(member.birthday);
+        // Validate the birthday date
+        if (isNaN(birthday.getTime())) {
+          console.warn(
+            `Invalid birthday for member ${member.userId}:`,
+            member.birthday
+          );
+          return;
+        }
+
+        // Create birthday events for current and next year
+        for (let year = currentYear; year <= currentYear + 1; year++) {
+          const eventDate = new Date(
+            year,
+            birthday.getMonth(),
+            birthday.getDate()
+          );
+
+          // Skip if the date is invalid
+          if (isNaN(eventDate.getTime())) {
+            console.warn(
+              `Invalid event date for ${member.userId} birthday:`,
+              birthday
+            );
+            continue;
+          }
+
+          birthdayEvents.push({
+            id: `birthday-${member.userId}-${year}`,
+            title: `${member.name || member.email}'s Birthday`,
+            startDate: eventDate.toISOString(),
+            endDate: eventDate.toISOString(),
+            eventType: "birthday",
+            color: "pink",
+            allDay: true,
+            extendedProps: {
+              isBirthday: true,
+              memberId: member.userId,
+              memberName: member.name || member.email,
+            },
+          });
+        }
+      } catch (error) {
+        console.error(
+          `Error processing birthday for member ${member.userId}:`,
+          error
+        );
+      }
+    }
+  });
+
+  return birthdayEvents;
 };
 
 const openCreateModal = () => {
@@ -572,6 +901,10 @@ const populateFormFromEvent = (event) => {
     ? new Date(event.endDate).toISOString().slice(0, 16)
     : "";
   form.value.attendees = event.attendees || [];
+  form.value.eventType = event.eventType || "event";
+  form.value.color = event.color || "amber";
+  form.value.recurrence = event.recurrence || "none";
+  form.value.taskStatus = event.taskStatus || "pending";
 };
 
 const resetForm = () => {
@@ -583,64 +916,81 @@ const resetForm = () => {
     endDate: "",
     attendees: [],
     familyId: authStore.familyId,
+    eventType: "event",
+    color: "amber",
+    recurrence: "none",
+    taskStatus: "pending",
   };
   currentEvent.value = null;
 };
 
 const submitEvent = async () => {
   if (!form.value.title || !form.value.startDate || !authStore.familyId) {
-    alert("Missing title, date, or family ID");
+    alert(
+      `Missing ${
+        form.value.eventType === "task" ? "task title" : "event title"
+      }, date, or family ID`
+    );
     return;
   }
 
   try {
+    // Set end date to start date if not provided for events, or leave empty for tasks
+    let endDate = form.value.endDate;
+    if (form.value.eventType === "event" && !endDate) {
+      endDate = form.value.startDate;
+    }
+
     const eventData = {
       ...form.value,
       startDate: new Date(form.value.startDate).toISOString(),
-      endDate: form.value.endDate
-        ? new Date(form.value.endDate).toISOString()
-        : undefined,
+      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      creatorId:
+        mode.value === "create"
+          ? authStore.userId
+          : currentEvent.value.creatorId,
     };
 
     if (mode.value === "create") {
       await addEvent(eventData);
     } else if (mode.value === "edit") {
-      const oldAttendees = currentEvent.value.attendees || [];
-      const newAttendees = eventData.attendees;
-      const rsvps = { ...currentEvent.value.rsvps };
-      newAttendees.forEach((uid) => {
-        if (!rsvps[uid]) rsvps[uid] = null;
-      });
-      oldAttendees.forEach((uid) => {
-        if (!newAttendees.includes(uid)) delete rsvps[uid];
-      });
-      eventData.rsvps = rsvps;
+      if (form.value.eventType === "event") {
+        const oldAttendees = currentEvent.value.attendees || [];
+        const newAttendees = eventData.attendees;
+        const rsvps = { ...currentEvent.value.rsvps };
+        newAttendees.forEach((uid) => {
+          if (!rsvps[uid]) rsvps[uid] = null;
+        });
+        oldAttendees.forEach((uid) => {
+          if (!newAttendees.includes(uid)) delete rsvps[uid];
+        });
+        eventData.rsvps = rsvps;
+      }
       await updateEvent(authStore.familyId, currentEvent.value.id, eventData);
     }
 
     await refreshEvents();
     closeModal();
-    console.log(
-      `${
-        mode.value === "create" ? "Event created" : "Event updated"
-      } successfully`
-    );
   } catch (error) {
     console.error("Submit error:", error);
-    alert("Failed to process event: " + error.message);
+    alert(
+      `Failed to process ${
+        form.value.eventType === "task" ? "task" : "event"
+      }: ` + error.message
+    );
   }
 };
 
 const confirmDelete = async () => {
-  if (confirm("Are you sure you want to delete this event?")) {
+  const itemType = form.value.eventType === "task" ? "task" : "event";
+  if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
     try {
       await deleteEvent(authStore.familyId, currentEvent.value.id);
       await refreshEvents();
       closeModal();
-      console.log("Event deleted successfully");
     } catch (error) {
       console.error("Delete error:", error);
-      alert("Failed to delete event: " + error.message);
+      alert(`Failed to delete ${itemType}: ` + error.message);
     }
   }
 };
@@ -650,7 +1000,6 @@ const setRSVP = async (status) => {
     await updateRSVP(authStore.familyId, currentEvent.value.id, status);
     await refreshEvents();
     closeModal();
-    console.log("RSVP set to:", status);
   } catch (error) {
     console.error("RSVP error:", error);
     alert("Failed to update RSVP: " + error.message);
@@ -690,6 +1039,17 @@ const getMemberName = (userId) => {
   const member = familyMembers.value.find((m) => m.userId === userId);
   return member ? member.name || member.email : "Unknown";
 };
+
+// Watch for event type changes to adjust form
+watch(
+  () => form.value.eventType,
+  (newType) => {
+    if (newType === "task") {
+      // Clear end date for tasks
+      form.value.endDate = "";
+    }
+  }
+);
 
 onMounted(async () => {
   await authStore.initAuth();
@@ -740,11 +1100,24 @@ onMounted(async () => {
     font-size: 0.75rem;
     margin-bottom: 1px;
   }
+
+  :deep(.fc-timeGridDay-view .fc-event) {
+    font-size: 0.7rem;
+  }
 }
 
 :deep(.fc-button) {
   padding: 0.5rem 0.75rem !important;
   font-size: 0.875rem !important;
+  transition: all 0.2s ease !important;
+}
+
+:deep(.fc-button:hover) {
+  transform: translateY(-1px);
+}
+
+:deep(.fc-button:active) {
+  transform: translateY(0);
 }
 
 @media (max-width: 640px) {
@@ -758,13 +1131,19 @@ onMounted(async () => {
   padding: 2px 4px;
 }
 
-:deep(.fc-daygrid-event) {
-  white-space: normal;
+:deep(.fc-event) {
   border-radius: 0.375rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-:deep(.fc-day-today) {
-  background-color: rgba(251, 191, 36, 0.1) !important;
+:deep(.fc-daygrid-event) {
+  white-space: normal;
+}
+
+/* Birthday event style */
+:deep(.fc-event[data-event-type="birthday"]) {
+  background: linear-gradient(135deg, #ec4899, #db2777) !important;
+  border: none !important;
 }
 
 /* Modal Transitions */
@@ -819,5 +1198,19 @@ onMounted(async () => {
 
 :deep(*::-webkit-scrollbar-thumb:hover) {
   background: #a0aec0;
+}
+
+/* Animation for refresh button */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
