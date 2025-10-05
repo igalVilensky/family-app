@@ -744,7 +744,7 @@ const calendarOptions = computed(() => ({
     const isTask = event.eventType === "task";
 
     let content = `
-      <div class="p-1 text-xs">
+      <div class="p-1 text-[10px] sm:text-xs">
         <div class="font-semibold truncate">${arg.event.title}</div>
     `;
 
@@ -757,11 +757,11 @@ const calendarOptions = computed(() => ({
       };
       content += `<div class="flex items-center mt-0.5">
         <div class="w-2 h-2 rounded-full ${statusColors[status]} mr-1"></div>
-        <span class="text-white/90 text-[10px]">${status}</span>
+        <span class="text-white/90 text-[10px] sm:text-xs">${status}</span>
       </div>`;
     } else if (!isBirthday && event.rsvps) {
       const stats = getRSVPStats(event.rsvps);
-      content += `<div class="text-white/90 text-[10px] mt-0.5">
+      content += `<div class="text-white/90 text-[10px] sm:text-xs mt-0.5">
         ✓${stats.yes} ?${stats.maybe}
       </div>`;
     }

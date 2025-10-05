@@ -1,40 +1,287 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12"
-  >
-    <div class="max-w-md w-full text-center">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6">
-        Join Family via Invitation
-      </h1>
-      <div v-if="loading">Loading...</div>
-      <div v-else-if="error" class="text-red-600">{{ error }}</div>
-      <div v-else-if="invite">
-        <p class="text-gray-600 mb-4">
-          You’ve been invited to join <strong>{{ invite.familyName }}</strong
-          >.
-        </p>
-        <button
-          @click="acceptInvite"
-          class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300"
-          :disabled="joining"
-        >
-          {{ joining ? "Requesting..." : "Request to Join" }}
-        </button>
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <!-- Navigation Bar -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200/60">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <NuxtLink to="/" class="flex items-center gap-3 group">
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200"
+            >
+              <i class="fas fa-home text-white text-lg"></i>
+            </div>
+            <span
+              class="text-xl font-bold bg-gradient-to-r from-gray-900 to-blue-700 bg-clip-text text-transparent"
+            >
+              FamilySpace
+            </span>
+          </NuxtLink>
+          <div class="text-sm text-gray-600">
+            <NuxtLink
+              to="/join-family"
+              class="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              Search Families
+            </NuxtLink>
+          </div>
+        </div>
       </div>
-      <div v-else>
-        <p class="text-red-600">Invalid or expired invitation.</p>
-        <NuxtLink
-          to="/join-family"
-          class="text-emerald-400 hover:text-emerald-300"
+    </nav>
+
+    <!-- Main Content -->
+    <main
+      class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12"
+    >
+      <div class="max-w-md w-full space-y-8">
+        <!-- Header Section -->
+        <div class="text-center">
+          <div
+            class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"
+          >
+            <i class="fas fa-envelope-open-text text-white text-2xl"></i>
+          </div>
+          <h1 class="text-4xl font-bold text-gray-900 mb-3">
+            Family
+            <span
+              class="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"
+              >Invitation</span
+            >
+          </h1>
+          <p class="text-gray-600 text-lg">
+            You've received a special invitation to join a family
+          </p>
+        </div>
+
+        <!-- Loading State -->
+        <div
+          v-if="loading"
+          class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 text-center"
         >
-          Search for a family
-        </NuxtLink>
+          <div class="relative w-16 h-16 mx-auto mb-4">
+            <div
+              class="absolute inset-0 border-4 border-blue-200 rounded-full"
+            ></div>
+            <div
+              class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
+            ></div>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">
+            Loading Invitation
+          </h3>
+          <p class="text-gray-500">Checking your invitation details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div
+          v-else-if="error"
+          class="bg-white rounded-2xl shadow-sm border border-red-200 p-8 text-center"
+        >
+          <div
+            class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">
+            Invitation Issue
+          </h3>
+          <p class="text-red-600 mb-6">{{ error }}</p>
+          <div class="space-y-4">
+            <NuxtLink
+              to="/join-family"
+              class="inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-search text-sm"></i>
+              Search for Families
+            </NuxtLink>
+            <NuxtLink
+              to="/dashboard"
+              class="inline-flex items-center justify-center gap-3 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+            >
+              <i class="fas fa-home text-sm"></i>
+              Back to Dashboard
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Invitation Details -->
+        <div
+          v-else-if="invite"
+          class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8"
+        >
+          <div class="text-center mb-6">
+            <div
+              class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-users text-white text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+              You're Invited!
+            </h2>
+            <p class="text-gray-600">
+              You've been invited to join a family on FamilySpace
+            </p>
+          </div>
+
+          <!-- Family Details Card -->
+          <div
+            class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 mb-6"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-home text-white text-lg"></i>
+              </div>
+              <div class="text-left">
+                <h3 class="font-semibold text-gray-900 text-lg">
+                  {{ invite.familyName }}
+                </h3>
+                <p class="text-gray-600 text-sm">Family Space</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invitation Status -->
+          <div class="bg-blue-50 rounded-xl p-4 mb-6">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-info-circle text-blue-600 text-lg"></i>
+              <div>
+                <p class="text-sm font-medium text-blue-900">
+                  Invitation Status
+                </p>
+                <p class="text-xs text-blue-700">
+                  This invitation will expire on
+                  {{ formatExpiryDate(invite.expiresAt) }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-4">
+            <button
+              @click="acceptInvite"
+              class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              :disabled="joining || !authStore.userId"
+            >
+              <i v-if="joining" class="fas fa-spinner fa-spin text-lg"></i>
+              <i v-else class="fas fa-check-circle text-lg"></i>
+              <span class="text-lg">
+                {{ joining ? "Accepting Invitation..." : "Accept Invitation" }}
+              </span>
+            </button>
+
+            <div
+              v-if="!authStore.userId"
+              class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center"
+            >
+              <div class="flex items-center gap-2 justify-center mb-2">
+                <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                <p class="text-sm font-medium text-amber-800">
+                  Authentication Required
+                </p>
+              </div>
+              <p class="text-xs text-amber-700 mb-3">
+                You need to be signed in to accept this invitation
+              </p>
+              <NuxtLink
+                :to="`/login?redirect=/join/${route.params.inviteId}`"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all duration-200"
+              >
+                <i class="fas fa-sign-in-alt text-sm"></i>
+                Sign In to Continue
+              </NuxtLink>
+            </div>
+
+            <NuxtLink
+              to="/join-family"
+              class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-search text-lg"></i>
+              <span class="text-lg">Search Other Families</span>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Invalid Invitation -->
+        <div
+          v-else
+          class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 text-center"
+        >
+          <div
+            class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-times-circle text-gray-400 text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">
+            Invalid Invitation
+          </h3>
+          <p class="text-gray-600 mb-6">
+            This invitation link is invalid or has expired. Please request a new
+            one from the family admin.
+          </p>
+          <div class="space-y-4">
+            <NuxtLink
+              to="/join-family"
+              class="inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-search text-sm"></i>
+              Search for Families
+            </NuxtLink>
+            <NuxtLink
+              to="/dashboard"
+              class="inline-flex items-center justify-center gap-3 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+            >
+              <i class="fas fa-home text-sm"></i>
+              Back to Dashboard
+            </NuxtLink>
+          </div>
+        </div>
+
+        <!-- Help Text -->
+        <div class="text-center">
+          <p class="text-gray-500 text-sm">
+            Need help?
+            <NuxtLink
+              to="/support"
+              class="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Contact support
+            </NuxtLink>
+          </p>
+        </div>
       </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div
+      v-if="showToastMessage"
+      class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
+    >
       <div
-        v-if="showToastMessage"
-        class="absolute top-0 left-0 right-0 mt-[-4rem] bg-green-500 text-white text-center py-2 rounded-lg shadow-lg"
+        class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
+        :class="{
+          'bg-green-50/95 text-green-800 border-green-200':
+            toastType === 'success',
+          'bg-red-50/95 text-red-800 border-red-200': toastType === 'error',
+        }"
       >
-        {{ toastMessage }}
+        <div class="flex items-center gap-3">
+          <i
+            class="text-lg flex-shrink-0"
+            :class="{
+              'fas fa-check-circle text-green-500': toastType === 'success',
+              'fas fa-exclamation-circle text-red-500': toastType === 'error',
+            }"
+          ></i>
+          <p class="font-medium flex-1">{{ toastMessage }}</p>
+          <button
+            @click="showToastMessage = false"
+            class="flex-shrink-0 text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -64,31 +311,29 @@ const joining = ref(false);
 const error = ref("");
 const toastMessage = ref("");
 const showToastMessage = ref(false);
+const toastType = ref("success");
 
 const fetchInvite = async () => {
   try {
-    // console.log(
-    //   "fetchInvite: Attempting to fetch invite with ID:",
-    //   route.params.inviteId
-    // );
     const inviteDoc = await getDoc(doc(db, "invites", route.params.inviteId));
     if (inviteDoc.exists()) {
       const inviteData = inviteDoc.data();
-      // console.log("fetchInvite: Invite data:", inviteData);
       const now = new Date();
       if (inviteData.expiresAt.toDate() < now) {
-        console.error("Invite has expired:", route.params.inviteId);
-        error.value = "Invite has expired";
+        error.value =
+          "This invitation has expired. Please request a new one from the family admin.";
         invite.value = null;
         return;
       }
       invite.value = {
         familyId: inviteData.familyId,
         familyName: inviteData.familyName,
+        expiresAt: inviteData.expiresAt,
+        createdBy: inviteData.createdBy,
       };
     } else {
-      console.error("Invite does not exist:", route.params.inviteId);
-      error.value = "Invite does not exist";
+      error.value =
+        "Invalid invitation link. Please check the URL or request a new invitation.";
       invite.value = null;
     }
   } catch (error) {
@@ -97,56 +342,78 @@ const fetchInvite = async () => {
       errorMessage: error.message,
       inviteId: route.params.inviteId,
     });
-    error.value = "Failed to fetch invite: " + error.message;
+    error.value = "Failed to load invitation. Please try again.";
     invite.value = null;
   } finally {
     loading.value = false;
   }
 };
 
+const formatExpiryDate = (timestamp) => {
+  if (!timestamp) return "Unknown";
+  try {
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "Unknown";
+  }
+};
+
 const acceptInvite = async () => {
   if (!authStore.userId) {
-    console.log("acceptInvite: User not authenticated, redirecting to /login");
     router.push(`/login?redirect=/join/${route.params.inviteId}`);
     return;
   }
+
   joining.value = true;
   try {
-    // console.log("acceptInvite: Updating user document", {
-    //   userId: authStore.userId,
-    //   familyId: invite.value.familyId,
-    // });
+    // Update user document
     await updateDoc(doc(db, "users", authStore.userId), {
       familyId: invite.value.familyId,
       role: "pending",
       status: "pending",
+      updatedAt: new Date(),
     });
-    // console.log("acceptInvite: User document updated");
-    // console.log("acceptInvite: Sending join request", {
-    //   familyId: invite.value.familyId,
-    //   userId: authStore.userId,
-    //   email: authStore.email,
-    // });
-    const requestRef = await addDoc(
-      collection(db, `families/${invite.value.familyId}/requests`),
-      {
-        userId: authStore.userId,
-        email: authStore.email,
-        status: "pending",
-        requestedAt: serverTimestamp(),
-      }
+
+    // Send join request
+    await addDoc(collection(db, `families/${invite.value.familyId}/requests`), {
+      userId: authStore.userId,
+      email: authStore.email,
+      name: authStore.name || authStore.email.split("@")[0],
+      status: "pending",
+      requestedAt: serverTimestamp(),
+      viaInvite: true,
+      inviteId: route.params.inviteId,
+    });
+
+    showToast(
+      "Invitation accepted! Your request has been sent to the family admin for approval.",
+      "success"
     );
-    // console.log("acceptInvite: Join request created with ID:", requestRef.id);
-    showToast("Join request sent! Waiting for parent approval.", "success");
-    router.push("/dashboard");
+
+    // Redirect to dashboard after a short delay
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 2000);
   } catch (error) {
-    console.error("Error sending join request:", {
+    console.error("Error accepting invitation:", {
       errorCode: error.code,
       errorMessage: error.message,
       familyId: invite.value.familyId,
       userId: authStore.userId,
     });
-    showToast("Failed to send join request: " + error.message, "error");
+
+    if (error.code === "permission-denied") {
+      showToast("Permission denied. Please contact the family admin.", "error");
+    } else {
+      showToast("Failed to accept invitation. Please try again.", "error");
+    }
   } finally {
     joining.value = false;
   }
@@ -154,11 +421,12 @@ const acceptInvite = async () => {
 
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
+  toastType.value = type;
   showToastMessage.value = true;
   setTimeout(() => {
     showToastMessage.value = false;
     toastMessage.value = "";
-  }, 3000);
+  }, 4000);
 };
 
 onMounted(async () => {
@@ -168,14 +436,46 @@ onMounted(async () => {
 
 useHead({
   title: "FamilySpace - Accept Invitation",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Accept your family invitation to join FamilySpace and connect with your loved ones in a private, secure space.",
+    },
+  ],
 });
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=block");
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
 
-* {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.fa-spinner {
+  animation: spin 1s linear infinite;
 }
 </style>
