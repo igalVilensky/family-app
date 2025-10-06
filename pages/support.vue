@@ -358,16 +358,12 @@
                 >
               </li>
               <li>
-                <NuxtLink
-                  to="/contact"
-                  class="hover:text-blue-600 transition-colors"
+                <NuxtLink class="hover:text-blue-600 transition-colors"
                   >Contact Us</NuxtLink
                 >
               </li>
               <li>
-                <NuxtLink
-                  to="/status"
-                  class="hover:text-blue-600 transition-colors"
+                <NuxtLink class="hover:text-blue-600 transition-colors"
                   >System Status</NuxtLink
                 >
               </li>
@@ -378,9 +374,7 @@
             <h4 class="font-semibold text-gray-900 mb-4">Company</h4>
             <ul class="space-y-2 text-sm text-gray-600">
               <li>
-                <NuxtLink
-                  to="/about"
-                  class="hover:text-blue-600 transition-colors"
+                <NuxtLink class="hover:text-blue-600 transition-colors"
                   >About Us</NuxtLink
                 >
               </li>
@@ -392,9 +386,7 @@
                 >
               </li>
               <li>
-                <NuxtLink
-                  to="/terms"
-                  class="hover:text-blue-600 transition-colors"
+                <NuxtLink class="hover:text-blue-600 transition-colors"
                   >Terms of Service</NuxtLink
                 >
               </li>
