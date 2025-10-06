@@ -196,6 +196,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <NuxtLink
+                to="/guides/getting-started"
                 class="border border-gray-200 rounded-xl p-6 hover:border-amber-300 hover:shadow-md transition-all duration-200 group"
               >
                 <div
@@ -212,6 +213,7 @@
               </NuxtLink>
 
               <NuxtLink
+                to="/guides/family-management"
                 class="border border-gray-200 rounded-xl p-6 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
               >
                 <div
@@ -321,7 +323,7 @@
     </main>
 
     <!-- Footer -->
-    <!-- <footer
+    <footer
       class="bg-white/80 backdrop-blur-md border-t border-gray-200/60 py-12"
     >
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -430,7 +432,7 @@
           </p>
         </div>
       </div>
-    </footer> -->
+    </footer>
   </div>
 </template>
 

@@ -39,13 +39,30 @@
               FamilySpace
             </h1>
           </div>
-          <button
-            @click="handleLogout"
-            class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:shadow-sm"
-          >
-            <i class="fas fa-sign-out-alt text-sm"></i>
-            Logout
-          </button>
+          <div class="flex items-center gap-4">
+            <!-- Support Links -->
+            <div class="hidden sm:flex items-center gap-4">
+              <NuxtLink
+                to="/help"
+                class="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                Help
+              </NuxtLink>
+              <NuxtLink
+                to="/support"
+                class="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                Support
+              </NuxtLink>
+            </div>
+            <button
+              @click="handleLogout"
+              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:shadow-sm"
+            >
+              <i class="fas fa-sign-out-alt text-sm"></i>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -163,6 +180,53 @@
           </div>
         </div>
       </div>
+      <!-- Pending Join Request Status -->
+      <div
+        v-if="hasPendingJoinRequest && !authStore.familyId"
+        class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 animate-fadeIn"
+      >
+        <div class="flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0"
+          >
+            <i class="fas fa-clock text-amber-600 text-xl"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-amber-900 mb-1">
+              Join Request Pending Approval
+            </h3>
+            <p class="text-amber-700 text-sm mb-3">
+              Your request to join <strong>{{ pendingFamilyName }}</strong> is
+              waiting for admin approval. The family admin will review your
+              request soon.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                @click="checkRequestStatus"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="checkingStatus"
+              >
+                <i
+                  class="fas fa-sync-alt text-sm"
+                  :class="{ 'animate-spin': checkingStatus }"
+                ></i>
+                {{ checkingStatus ? "Checking..." : "Check Status" }}
+              </button>
+              <button
+                @click="cancelJoinRequest"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="cancelingRequest"
+              >
+                <i
+                  class="fas fa-times text-sm"
+                  :class="{ 'animate-spin': cancelingRequest }"
+                ></i>
+                {{ cancelingRequest ? "Canceling..." : "Cancel Request" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Main Grid -->
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -253,6 +317,41 @@
                   <div class="text-white/80 text-sm">Update your profile</div>
                 </div>
               </NuxtLink>
+
+              <!-- Support Links for Mobile -->
+              <div
+                class="md:hidden grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200"
+              >
+                <NuxtLink
+                  to="/help"
+                  class="group p-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+                >
+                  <div
+                    class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+                  >
+                    <i class="fas fa-book-open text-lg"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold">Help Center</div>
+                    <div class="text-white/80 text-sm">Guides & tutorials</div>
+                  </div>
+                </NuxtLink>
+
+                <NuxtLink
+                  to="/support"
+                  class="group p-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+                >
+                  <div
+                    class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
+                  >
+                    <i class="fas fa-headset text-lg"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold">Support</div>
+                    <div class="text-white/80 text-sm">Get help</div>
+                  </div>
+                </NuxtLink>
+              </div>
             </div>
           </div>
 
@@ -489,6 +588,55 @@
               </div>
             </div>
           </div>
+          <!-- Pending Approval Status -->
+
+          <div
+            v-if="authStore.status === 'pending' && authStore.familyId"
+            class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 animate-fadeIn"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-clock text-amber-600 text-xl"></i>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold text-amber-900 mb-1">
+                  Join Request Pending Approval
+                </h3>
+                <p class="text-amber-700 text-sm mb-3">
+                  Your request to join
+                  <strong>{{ authStore.familyName }}</strong> is waiting for
+                  admin approval. The family admin will review your request
+                  soon.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <button
+                    @click="checkApprovalStatus"
+                    class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="checkingStatus"
+                  >
+                    <i
+                      class="fas fa-sync-alt text-sm"
+                      :class="{ 'animate-spin': checkingStatus }"
+                    ></i>
+                    {{ checkingStatus ? "Checking..." : "Check Status" }}
+                  </button>
+                  <button
+                    @click="cancelJoinRequest"
+                    class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="cancelingRequest"
+                  >
+                    <i
+                      class="fas fa-times text-sm"
+                      :class="{ 'animate-spin': cancelingRequest }"
+                    ></i>
+                    {{ cancelingRequest ? "Canceling..." : "Cancel Request" }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Right Column - Upcoming Events -->
@@ -627,6 +775,8 @@ import {
   deleteDoc,
   arrayUnion,
   getDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import { useNuxtApp } from "#app";
 import { generateInvite, getEventsByRange } from "~/utils/firebase";
@@ -708,9 +858,17 @@ const copyButtonText = ref("Copy");
 const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
+const hasPendingJoinRequest = ref(false);
+const pendingFamilyName = ref("");
+const pendingFamilyId = ref("");
 const checkingStatus = ref(false);
+const cancelingRequest = ref(false);
 const isLoading = ref(true);
 const events = ref([]);
+
+const userHasPendingRequest = computed(() => {
+  return hasPendingJoinRequest.value && !authStore.familyId;
+});
 
 const familyMembers = computed(() => authStore.familyMembers || []);
 const membersWithBirthdays = computed(() =>
@@ -780,14 +938,6 @@ const formatEventDate = (dateString) => {
     hour12: true,
   });
 };
-
-// ... rest of your existing script logic remains the same
-// (showToast, refreshEvents, generateBirthdayEvents, checkApprovalStatus,
-// handleLogout, fetchJoinRequests, approveRequest, denyRequest,
-// generateInviteLink, copyInviteLink, onMounted, etc.)
-
-// Keep all your existing methods and lifecycle hooks exactly as they were
-// Only the template and computed properties above have been modified
 
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
@@ -906,6 +1056,125 @@ const checkApprovalStatus = async () => {
   }
 };
 
+const checkForPendingRequests = async () => {
+  if (!authStore.userId || authStore.familyId) return;
+
+  try {
+    // If user has a familyId but status is not active, they have a pending request
+    if (authStore.familyId && authStore.status !== "active") {
+      hasPendingJoinRequest.value = true;
+      pendingFamilyId.value = authStore.familyId;
+
+      // Get family name for display
+      try {
+        const familyDoc = await getDoc(doc(db, "families", authStore.familyId));
+        if (familyDoc.exists()) {
+          pendingFamilyName.value = familyDoc.data().name || "Unknown Family";
+        }
+      } catch (error) {
+        console.error("Error fetching family name:", error);
+        pendingFamilyName.value = "Unknown Family";
+      }
+    }
+  } catch (error) {
+    console.error("Error checking for pending requests:", error);
+  }
+};
+
+const checkRequestStatus = async () => {
+  checkingStatus.value = true;
+  try {
+    if (!pendingFamilyId.value) {
+      showToast("No pending request found", "error");
+      return;
+    }
+
+    // Check if the user has been added to the family members
+    const familyDoc = await getDoc(doc(db, "families", pendingFamilyId.value));
+    if (familyDoc.exists()) {
+      const familyData = familyDoc.data();
+      const isMember = familyData.members?.some(
+        (member) => member.userId === authStore.userId
+      );
+
+      if (isMember) {
+        // User has been approved - update their status
+        await updateDoc(doc(db, "users", authStore.userId), {
+          status: "active",
+          updatedAt: new Date(),
+        });
+
+        // Update auth store
+        authStore.status = "active";
+        hasPendingJoinRequest.value = false;
+
+        showToast(
+          "Your request has been approved! Welcome to the family.",
+          "success"
+        );
+
+        // Refresh the page to show the new family data
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        showToast("Your request is still pending approval.", "info");
+      }
+    }
+  } catch (error) {
+    console.error("Error checking request status:", error);
+    showToast("Failed to check request status", "error");
+  } finally {
+    checkingStatus.value = false;
+  }
+};
+
+const cancelJoinRequest = async () => {
+  if (
+    !confirm(
+      "Are you sure you want to cancel your join request? You'll need to request to join again if you change your mind."
+    )
+  ) {
+    return;
+  }
+
+  cancelingRequest.value = true;
+  try {
+    // Remove user from family requests
+    const requestsQuery = query(
+      collection(db, `families/${pendingFamilyId.value}/requests`),
+      where("userId", "==", authStore.userId)
+    );
+    const querySnapshot = await getDocs(requestsQuery);
+
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    // Clear user's familyId
+    await updateDoc(doc(db, "users", authStore.userId), {
+      familyId: null,
+      familyName: null,
+      status: null,
+      updatedAt: new Date(),
+    });
+
+    // Update auth store
+    authStore.familyId = null;
+    authStore.familyName = null;
+    authStore.status = null;
+    hasPendingJoinRequest.value = false;
+    pendingFamilyId.value = "";
+    pendingFamilyName.value = "";
+
+    showToast("Join request canceled successfully", "success");
+  } catch (error) {
+    console.error("Error canceling join request:", error);
+    showToast("Failed to cancel join request", "error");
+  } finally {
+    cancelingRequest.value = false;
+  }
+};
+
 const handleLogout = async () => {
   try {
     const auth = getAuth();
@@ -1016,8 +1285,15 @@ onMounted(async () => {
       router.push("/login?redirect=/dashboard");
       return;
     }
+
+    // Check for pending join requests if user doesn't have an active family
+    if (!authStore.familyId || authStore.status !== "active") {
+      await checkForPendingRequests();
+    }
+
     await authStore.loadFamilyMembers();
     await fetchJoinRequests();
+
     if (authStore.familyId && authStore.status === "active") {
       await refreshEvents();
     }
@@ -1067,6 +1343,20 @@ definePageMeta({
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

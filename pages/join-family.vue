@@ -4,7 +4,7 @@
     <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200/60">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex items-center justify-between">
-          <NuxtLink to="/dashboard" class="flex items-center gap-3 group">
+          <NuxtLink to="/" class="flex items-center gap-3 group">
             <div
               class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200"
             >
@@ -16,8 +16,23 @@
               FamilySpace
             </span>
           </NuxtLink>
-          <div class="text-sm text-gray-600">
+          <div class="flex items-center gap-4">
             <NuxtLink
+              v-if="!authStore.userId"
+              to="/register"
+              class="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              Sign Up
+            </NuxtLink>
+            <NuxtLink
+              v-if="!authStore.userId"
+              to="/login"
+              class="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              Sign In
+            </NuxtLink>
+            <NuxtLink
+              v-if="authStore.userId"
               to="/dashboard"
               class="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
             >
@@ -237,6 +252,54 @@
       </div>
     </main>
 
+    <!-- Authentication Required Modal -->
+    <div
+      v-if="showAuthModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn"
+    >
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+        <div class="text-center mb-6">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-user-lock text-white text-xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">
+            Join Request Requires Account
+          </h3>
+          <p class="text-gray-600">
+            You need to create an account or sign in to send a join request to
+            <strong>{{ selectedFamilyName }}</strong>
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <NuxtLink
+            :to="`/register?redirect=/join-family&family=${selectedFamilyId}`"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg"
+          >
+            <i class="fas fa-user-plus text-lg"></i>
+            Create Free Account
+          </NuxtLink>
+
+          <NuxtLink
+            :to="`/login?redirect=/join-family&family=${selectedFamilyId}`"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+          >
+            <i class="fas fa-sign-in-alt text-lg"></i>
+            Sign In to Existing Account
+          </NuxtLink>
+
+          <button
+            @click="showAuthModal = false"
+            class="w-full px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div
       v-if="showToastMessage"
@@ -289,6 +352,9 @@ const searched = ref(false);
 const showToastMessage = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
+const showAuthModal = ref(false);
+const selectedFamilyId = ref("");
+const selectedFamilyName = ref("");
 
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
@@ -334,6 +400,14 @@ const searchFamilies = async () => {
 };
 
 const requestToJoin = async (familyId, familyName) => {
+  // Check if user is authenticated
+  if (!authStore.userId) {
+    selectedFamilyId.value = familyId;
+    selectedFamilyName.value = familyName;
+    showAuthModal.value = true;
+    return;
+  }
+
   loading.value = true;
   try {
     await addDoc(collection(db, `families/${familyId}/requests`), {
@@ -388,17 +462,15 @@ useHead({
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
