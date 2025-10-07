@@ -153,11 +153,12 @@
               <div
                 v-for="member in familyData?.members"
                 :key="member.userId"
-                class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 hover:shadow-sm"
+                class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 hover:shadow-sm cursor-pointer group"
+                @click="goToUserProfile(member.userId)"
               >
                 <div class="relative">
                   <div
-                    class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0"
+                    class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:from-blue-600 group-hover:to-purple-700 transition-all"
                   >
                     <span class="text-white font-semibold text-lg">
                       {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
@@ -173,7 +174,9 @@
 
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 class="font-semibold text-gray-900 truncate text-lg">
+                    <h4
+                      class="font-semibold text-gray-900 truncate text-lg group-hover:text-blue-600 transition-colors"
+                    >
                       {{ getMemberDisplayName(member) }}
                     </h4>
                     <span
@@ -188,22 +191,27 @@
                   </p>
                 </div>
 
-                <span
-                  class="px-4 py-2 text-sm font-semibold rounded-xl flex-shrink-0"
-                  :class="{
-                    'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
-                      member.role === 'admin',
-                    'bg-green-100 text-green-700': member.role === 'member',
-                    'bg-gray-100 text-gray-700': !member.role,
-                  }"
-                >
-                  {{
-                    member.role
-                      ? member.role.charAt(0).toUpperCase() +
-                        member.role.slice(1)
-                      : "Member"
-                  }}
-                </span>
+                <div class="flex items-center gap-3 flex-shrink-0">
+                  <span
+                    class="px-4 py-2 text-sm font-semibold rounded-xl"
+                    :class="{
+                      'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
+                        member.role === 'admin',
+                      'bg-green-100 text-green-700': member.role === 'member',
+                      'bg-gray-100 text-gray-700': !member.role,
+                    }"
+                  >
+                    {{
+                      member.role
+                        ? member.role.charAt(0).toUpperCase() +
+                          member.role.slice(1)
+                        : "Member"
+                    }}
+                  </span>
+                  <i
+                    class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-blue-500 transition-colors"
+                  ></i>
+                </div>
               </div>
             </div>
 
@@ -419,6 +427,24 @@
             </div>
 
             <div class="space-y-3">
+              <NuxtLink
+                to="/calendar"
+                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group hover:shadow-sm cursor-pointer"
+              >
+                <div
+                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                >
+                  <i class="fas fa-calendar-alt text-blue-600 text-lg"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="font-semibold text-gray-900">View Calendar</div>
+                  <div class="text-xs text-gray-500">See upcoming events</div>
+                </div>
+                <i
+                  class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500 transition-colors"
+                ></i>
+              </NuxtLink>
+
               <button
                 class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group"
                 disabled
@@ -430,24 +456,6 @@
                 </div>
                 <div class="flex-1">
                   <div class="font-semibold text-gray-400">Share Memories</div>
-                  <div class="text-xs text-gray-400">Coming soon</div>
-                </div>
-                <i
-                  class="fas fa-lock text-gray-300 group-hover:text-gray-400"
-                ></i>
-              </button>
-
-              <button
-                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group"
-                disabled
-              >
-                <div
-                  class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0"
-                >
-                  <i class="fas fa-calendar-plus text-gray-400 text-lg"></i>
-                </div>
-                <div class="flex-1">
-                  <div class="font-semibold text-gray-400">Plan Events</div>
                   <div class="text-xs text-gray-400">Coming soon</div>
                 </div>
                 <i
@@ -669,6 +677,15 @@ const formatDate = (timestamp) => {
     });
   } catch {
     return "Unknown";
+  }
+};
+
+// Add this method for navigation to user profiles
+const goToUserProfile = (userId) => {
+  if (userId === authStore.userId) {
+    router.push("/profile"); // Goes to editable profile page
+  } else {
+    router.push(`/user/${userId}`); // Goes to view-only profile page
   }
 };
 

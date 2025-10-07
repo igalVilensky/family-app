@@ -462,15 +462,20 @@
                         :key="userId"
                         class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm"
                       >
-                        <div class="flex items-center space-x-3">
+                        <div
+                          class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                          @click="goToUserProfile(userId)"
+                        >
                           <div
                             :class="`w-2 h-2 rounded-full ${getRSVPColor(
                               status
                             )}`"
                           ></div>
-                          <span class="text-sm font-medium text-gray-900">{{
-                            getMemberName(userId)
-                          }}</span>
+                          <span
+                            class="text-sm font-medium text-gray-900 hover:text-blue-600"
+                          >
+                            {{ getMemberName(userId) }}
+                          </span>
                         </div>
                         <span
                           :class="`px-3 py-1 rounded-full text-xs font-semibold ${getRSVPBadgeClass(
@@ -819,10 +824,12 @@ const refreshEvents = async () => {
   }
 };
 
-const refreshBirthdays = () => {
-  const birthdayEvents = generateBirthdayEvents();
-  events.value = events.value.filter((event) => event.eventType !== "birthday");
-  events.value = [...events.value, ...birthdayEvents];
+const goToUserProfile = (userId) => {
+  if (userId === authStore.userId) {
+    router.push("/profile");
+  } else {
+    router.push(`/user/${userId}`);
+  }
 };
 
 const generateBirthdayEvents = () => {

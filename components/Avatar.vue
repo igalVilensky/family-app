@@ -11,7 +11,7 @@
       <img
         :src="avatarUrl"
         alt="Avatar"
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover rounded-full"
         :width="size"
         :height="size"
       />

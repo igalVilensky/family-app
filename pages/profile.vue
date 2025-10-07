@@ -102,6 +102,31 @@
               </div>
             </div>
           </div>
+          <div class="flex-1 text-center sm:text-left">
+            <h2 class="text-3xl font-bold text-gray-900 mb-3">
+              {{ authStore.name || "Your Name" }}
+            </h2>
+            <div
+              class="flex items-center justify-center sm:justify-start gap-2 text-gray-600 mb-4 text-lg"
+            >
+              <i class="fas fa-envelope text-blue-500"></i>
+              <span>{{ authStore.email }}</span>
+            </div>
+
+            <div class="flex justify-center sm:justify-start mb-4">
+              <NuxtLink
+                :to="`/user/${authStore.userId}`"
+                class="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium border border-blue-200"
+              >
+                <i class="fas fa-eye text-sm"></i>
+                View Public Profile
+              </NuxtLink>
+            </div>
+
+            <div
+              class="flex flex-wrap items-center justify-center sm:justify-start gap-3"
+            ></div>
+          </div>
         </div>
       </div>
 
@@ -566,6 +591,61 @@
               </div>
             </div>
           </div>
+          <!-- Family Members -->
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center"
+              >
+                <i class="fas fa-users text-white text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900">
+                  Family Members
+                </h3>
+                <p class="text-gray-500 text-sm">View other family profiles</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                v-for="member in otherFamilyMembers"
+                :key="member.userId"
+                class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors duration-200 cursor-pointer group"
+                @click="goToUserProfile(member.userId)"
+              >
+                <div
+                  class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors"
+                >
+                  <span class="text-sm font-medium text-blue-600">
+                    {{
+                      member.name ? member.name.charAt(0).toUpperCase() : "?"
+                    }}
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-gray-900 truncate text-sm">
+                    {{ member.name || member.email }}
+                  </p>
+                  <p class="text-xs text-gray-500 capitalize">
+                    {{ member.role }}
+                  </p>
+                </div>
+                <i
+                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-blue-500 transition-colors"
+                ></i>
+              </div>
+            </div>
+
+            <NuxtLink
+              :to="`/family/${authStore.familyId}`"
+              class="block text-center mt-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-medium border border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-all duration-200"
+            >
+              View All Family Members
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </main>
@@ -681,6 +761,14 @@ const isPasswordFormValid = computed(() => {
   );
 });
 
+const familyMembers = computed(() => authStore.familyMembers || []);
+
+const otherFamilyMembers = computed(() => {
+  return familyMembers.value
+    .filter((member) => member.userId !== authStore.userId)
+    .slice(0, 3); // Show max 3 other members
+});
+
 const calculateMinor = (birthday) => {
   if (!birthday) return false;
   const birthDate = new Date(birthday);
@@ -707,6 +795,10 @@ const formatJoinDate = (timestamp) => {
   } catch {
     return "Unknown";
   }
+};
+
+const goToUserProfile = (userId) => {
+  router.push(`/user/${userId}`);
 };
 
 const showToast = (message, type = "success") => {
@@ -907,6 +999,12 @@ onMounted(async () => {
     router.push("/login?redirect=/profile");
     return;
   }
+
+  // Load family members if user has a family
+  if (authStore.familyId) {
+    await authStore.loadFamilyMembers();
+  }
+
   initializeForm();
 });
 

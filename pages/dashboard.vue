@@ -78,14 +78,17 @@
           <div
             class="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left"
           >
-            <NuxtLink to="/profile" class="group flex-shrink-0">
+            <NuxtLink
+              :to="`/user/${authStore.userId}`"
+              class="group flex-shrink-0"
+            >
               <div class="relative">
                 <avatar
                   :avatar-url="authStore.avatarUrl"
                   :user-initial="userInitial"
-                  :size="96"
+                  :size="120"
                   :no-upload="true"
-                  class="hover:ring-4 hover:ring-blue-100 transition-all duration-300 rounded-2xl group-hover:scale-105"
+                  class="hover:ring-4 hover:ring-blue-100 transition-all duration-300 rounded-2xl group-hover:scale-105 cursor-pointer"
                 />
                 <div
                   class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
@@ -718,10 +721,11 @@
               <div
                 v-for="member in familyMembers.slice(0, 5)"
                 :key="member.userId"
-                class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200 cursor-pointer group"
+                @click="goToUserProfile(member.userId)"
               >
                 <div
-                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors"
                 >
                   <span class="text-sm font-medium text-blue-600">
                     {{
@@ -737,6 +741,9 @@
                     {{ member.role }}
                   </p>
                 </div>
+                <i
+                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-blue-500 transition-colors"
+                ></i>
               </div>
 
               <NuxtLink
@@ -1276,6 +1283,10 @@ const copyInviteLink = async () => {
     console.error("Error copying invite link:", error);
     showToast("Failed to copy invite link", "error");
   }
+};
+
+const goToUserProfile = (userId) => {
+  router.push(`/user/${userId}`);
 };
 
 onMounted(async () => {
