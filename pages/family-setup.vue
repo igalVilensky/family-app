@@ -474,20 +474,6 @@ const handleProfileSetup = async () => {
   error.value = "";
 
   try {
-    console.log("Submitting profile:", {
-      userId: authStore.userId,
-      name: name.value,
-      birthday: birthday.value,
-      familyRole: familyRole.value,
-      createFamily: createFamily.value,
-      familyName: familyName.value,
-      permissions: {
-        role: createFamily.value === "yes" ? "admin" : "member",
-        minor: calculateMinor(birthday.value),
-        privateMode: false,
-      },
-    });
-
     await createProfile(authStore.userId, {
       name: name.value,
       birthday: birthday.value,
@@ -502,7 +488,6 @@ const handleProfileSetup = async () => {
         createFamily.value === "yes" ? familyName.value : authStore.familyName,
     });
 
-    console.log("Profile saved successfully, redirecting to /dashboard");
     await authStore.initAuth();
 
     showToast("Profile setup complete! Welcome to FamilySpace.", "success");

@@ -107,7 +107,6 @@ const onFileChange = async (event) => {
     const url = await uploadAvatar(file);
     if (url) {
       emit("update:avatarUrl", url);
-      console.log("Avatar uploaded successfully:", url);
     }
   }
 };

@@ -108,7 +108,6 @@ export const useAuthStore = defineStore("auth", {
       // Create a promise that resolves when auth is ready
       this.authPromise = new Promise((resolve) => {
         const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-          console.log("Auth store - onAuthStateChanged:", firebaseUser?.uid);
           unsubscribe(); // Unsubscribe after first call
 
           try {
@@ -155,7 +154,6 @@ export const useAuthStore = defineStore("auth", {
                 };
               } else {
                 // User authenticated but no Firestore doc - this is normal for new users
-                console.log("No Firestore user document found - new user");
                 this.hasFirestoreUser = false;
                 // Keep auth state but clear profile data
                 this.name = null;
@@ -189,7 +187,6 @@ export const useAuthStore = defineStore("auth", {
             }
           } finally {
             this.isInitialized = true;
-            console.log("Auth store fully initialized, userId:", this.userId);
             resolve();
           }
         });

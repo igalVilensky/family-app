@@ -154,12 +154,6 @@ export const generateInvite = async (familyId, familyName, createdBy) => {
   }
 
   try {
-    console.log("generateInvite: Creating invite", {
-      familyId,
-      familyName,
-      createdBy,
-      uid: auth.currentUser?.uid,
-    });
     const inviteRef = await addDoc(collection(db, "invites"), {
       familyId,
       familyName,
@@ -167,7 +161,6 @@ export const generateInvite = async (familyId, familyName, createdBy) => {
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
-    console.log("generateInvite: Invite created with ID", inviteRef.id);
     return inviteRef.id;
   } catch (error) {
     console.error("generateInvite error:", error);
@@ -203,7 +196,6 @@ export const addEvent = async (eventData) => {
       }
     );
 
-    console.log("Event added:", eventRef.id);
     return { success: true, eventId: eventRef.id };
   } catch (error) {
     console.error("Add event error:", error);
@@ -237,7 +229,6 @@ export const updateRSVP = async (familyId, eventId, status) => {
       [`rsvps.${auth.currentUser.uid}`]: status,
       updatedAt: serverTimestamp(),
     });
-    console.log("RSVP updated:", status);
     return { success: true };
   } catch (error) {
     throw new Error(error.message || "Failed to update RSVP");

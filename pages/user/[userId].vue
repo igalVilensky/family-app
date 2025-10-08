@@ -6,7 +6,7 @@
       class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center"
     >
       <div class="text-center">
-        <div class="relative w-20 h-20 mx-auto mb-4">
+        <div class="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4">
           <div
             class="absolute inset-0 border-4 border-blue-200 rounded-full"
           ></div>
@@ -14,7 +14,7 @@
             class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
           ></div>
         </div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
           Loading profile...
         </h2>
       </div>
@@ -24,52 +24,51 @@
     <header
       class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-40"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <NuxtLink
-              to="/dashboard"
-              class="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          <NuxtLink
+            to="/dashboard"
+            class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
+          >
+            <div
+              class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"
             >
-              <div
-                class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"
-              >
-                <i class="fas fa-home text-white text-lg"></i>
-              </div>
-              <h1
-                class="text-2xl font-bold bg-gradient-to-r from-gray-900 to-blue-700 bg-clip-text text-transparent"
-              >
-                FamilySpace
-              </h1>
-            </NuxtLink>
-          </div>
-          <div class="flex items-center gap-4">
-            <NuxtLink
-              to="/dashboard"
-              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              <i class="fas fa-home text-white text-sm sm:text-lg"></i>
+            </div>
+            <h1
+              class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-blue-700 bg-clip-text text-transparent hidden sm:block"
             >
-              <i class="fas fa-arrow-left text-sm"></i>
-              Back to Dashboard
-            </NuxtLink>
-          </div>
+              FamilySpace
+            </h1>
+          </NuxtLink>
+          <NuxtLink
+            to="/dashboard"
+            class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
+          >
+            <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline">Back to Dashboard</span>
+            <span class="sm:hidden">Back</span>
+          </NuxtLink>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main
+      class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-20 sm:pb-8"
+    >
       <!-- Profile Header -->
       <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 mb-8"
+        class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-8 mb-4 sm:mb-8"
       >
         <div
-          class="flex flex-col lg:flex-row items-center lg:items-start gap-8"
+          class="flex flex-col lg:flex-row items-center lg:items-start gap-4 sm:gap-8"
         >
           <!-- Avatar -->
           <div class="flex-shrink-0">
             <div class="relative">
               <div
-                class="w-32 h-32 rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg"
+                class="w-24 h-24 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg"
               >
                 <img
                   v-if="userProfile.avatarUrl"
@@ -77,40 +76,45 @@
                   :alt="userProfile.name"
                   class="w-full h-full object-cover"
                 />
-                <div v-else class="text-4xl font-bold text-blue-600">
+                <div
+                  v-else
+                  class="text-3xl sm:text-4xl font-bold text-blue-600"
+                >
                   {{ userInitial }}
                 </div>
               </div>
               <div
                 v-if="isOnline"
-                class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
+                class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
               >
-                <i class="fas fa-check text-white text-xs"></i>
+                <i class="fas fa-check text-white text-[8px] sm:text-xs"></i>
               </div>
             </div>
           </div>
 
           <!-- Profile Info -->
-          <div class="flex-1 text-center lg:text-left">
+          <div class="flex-1 text-center lg:text-left w-full">
             <div
-              class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4"
+              class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4"
             >
-              <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+              <div class="w-full lg:w-auto">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                   {{ userProfile.name }}
                 </h1>
                 <div
-                  class="flex items-center justify-center lg:justify-start gap-4 text-gray-600 mb-4"
+                  class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-4 text-gray-600 mb-4"
                 >
                   <div class="flex items-center gap-2">
-                    <i class="fas fa-users text-sm"></i>
-                    <span class="text-lg capitalize">
+                    <i class="fas fa-users text-xs sm:text-sm"></i>
+                    <span class="text-sm sm:text-lg capitalize">
                       {{ userProfile.familyRole || "Member" }}
                     </span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <i class="fas fa-envelope text-sm"></i>
-                    <span class="text-lg">{{ userProfile.email }}</span>
+                    <i class="fas fa-envelope text-xs sm:text-sm"></i>
+                    <span class="text-sm sm:text-lg break-all">{{
+                      userProfile.email
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -118,121 +122,136 @@
               <!-- Action Buttons -->
               <div
                 v-if="authStore.userId !== userId"
-                class="flex gap-3 justify-center lg:justify-start mt-4 lg:mt-0"
+                class="flex gap-2 sm:gap-3 justify-center lg:justify-start w-full lg:w-auto"
               >
                 <button
-                  @click="sendMessage"
-                  class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
+                  @click="showMessageModal = true"
+                  class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg text-sm sm:text-base"
                 >
-                  <i class="fas fa-envelope text-sm"></i>
-                  Message
+                  <i class="fas fa-envelope text-xs sm:text-sm"></i>
+                  <span>Message</span>
                 </button>
                 <button
                   @click="toggleFavorite"
-                  class="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all duration-200"
+                  class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all duration-200 text-sm sm:text-base"
                 >
                   <i
-                    class="fas text-sm"
+                    class="fas text-xs sm:text-sm"
                     :class="
                       isFavorited
                         ? 'fa-heart text-red-500'
                         : 'fa-heart text-gray-400'
                     "
                   ></i>
-                  {{ isFavorited ? "Favorited" : "Favorite" }}
+                  <span>{{ isFavorited ? "Favorited" : "Favorite" }}</span>
                 </button>
               </div>
             </div>
 
             <!-- Bio -->
-            <div v-if="userProfile.bio" class="bg-gray-50 rounded-xl p-4 mb-6">
-              <p class="text-gray-700 text-lg leading-relaxed">
+            <div
+              v-if="userProfile.bio"
+              class="bg-gray-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6"
+            >
+              <p class="text-gray-700 text-sm sm:text-lg leading-relaxed">
                 "{{ userProfile.bio }}"
               </p>
             </div>
 
             <!-- Quick Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
+                <div class="text-xl sm:text-2xl font-bold text-gray-900">
                   {{ userEvents.length }}
                 </div>
-                <div class="text-sm text-gray-500">Events</div>
+                <div class="text-xs sm:text-sm text-gray-500">Events</div>
               </div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">
+              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
+                <div class="text-xl sm:text-2xl font-bold text-gray-900">
                   {{ upcomingEventsCount }}
                 </div>
-                <div class="text-sm text-gray-500">Upcoming</div>
+                <div class="text-xs sm:text-sm text-gray-500">Upcoming</div>
               </div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">
+              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
+                <div class="text-xl sm:text-2xl font-bold text-gray-900">
                   {{ confirmedEventsCount }}
                 </div>
-                <div class="text-sm text-gray-500">Confirmed</div>
+                <div class="text-xs sm:text-sm text-gray-500">Confirmed</div>
               </div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900">
+              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
+                <div class="text-xl sm:text-2xl font-bold text-gray-900">
                   {{ familyMembershipDuration }}
                 </div>
-                <div class="text-sm text-gray-500">Months in Family</div>
+                <div class="text-xs sm:text-sm text-gray-500">Months</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Left Column - Personal Info -->
-        <div class="lg:col-span-2 space-y-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+        <!-- Left Column - Events & Activity -->
+        <div class="lg:col-span-2 space-y-4 sm:space-y-8">
           <!-- Upcoming Events -->
           <div
             v-if="upcomingEvents.length > 0"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
           >
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
               >
-                <i class="fas fa-calendar-alt text-white text-lg"></i>
+                <i
+                  class="fas fa-calendar-alt text-white text-base sm:text-lg"
+                ></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
                   Upcoming Events
                 </h3>
-                <p class="text-gray-500 text-sm">
+                <p class="text-gray-500 text-xs sm:text-sm">
                   {{ userProfile.name }}'s schedule
                 </p>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <div
                 v-for="event in upcomingEvents"
                 :key="event.id"
-                class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+                class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
                 @click="viewEvent(event)"
               >
                 <div
-                  class="w-3 h-12 rounded-full flex-shrink-0"
+                  class="w-1 sm:w-3 h-10 sm:h-12 rounded-full flex-shrink-0"
                   :style="`background-color: ${getEventColor(event)}`"
                 ></div>
                 <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-gray-900 truncate">
+                  <p
+                    class="font-semibold text-gray-900 truncate text-sm sm:text-base"
+                  >
                     {{ event.title }}
                   </p>
-                  <p class="text-sm text-gray-500 flex items-center gap-2">
-                    <i class="fas fa-clock text-xs"></i>
-                    {{ formatEventDate(event.startDate) }}
+                  <p
+                    class="text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-2"
+                  >
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-clock text-[10px] sm:text-xs"></i>
+                      {{ formatEventDate(event.startDate) }}
+                    </span>
                     <span v-if="event.location" class="flex items-center gap-1">
-                      <i class="fas fa-map-marker-alt text-xs"></i>
-                      {{ event.location }}
+                      <i
+                        class="fas fa-map-marker-alt text-[10px] sm:text-xs"
+                      ></i>
+                      <span class="truncate max-w-[120px] sm:max-w-none">{{
+                        event.location
+                      }}</span>
                     </span>
                   </p>
                 </div>
                 <div
                   v-if="event.rsvps && event.rsvps[userId]"
-                  :class="`px-3 py-1 rounded-full text-xs font-semibold ${getRSVPBadgeClass(
+                  :class="`px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap ${getRSVPBadgeClass(
                     event.rsvps[userId]
                   )}`"
                 >
@@ -246,7 +265,7 @@
 
             <NuxtLink
               to="/calendar"
-              class="block text-center mt-6 py-3 text-blue-600 hover:text-blue-700 font-medium border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-all duration-200"
+              class="block text-center mt-4 sm:mt-6 py-2.5 sm:py-3 text-blue-600 hover:text-blue-700 font-medium border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-all duration-200 text-sm sm:text-base"
             >
               View Full Calendar
             </NuxtLink>
@@ -254,41 +273,42 @@
 
           <!-- Recent Activity -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
           >
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
+                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
               >
-                <i class="fas fa-history text-white text-lg"></i>
+                <i class="fas fa-history text-white text-base sm:text-lg"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
                   Recent Activity
                 </h3>
-                <p class="text-gray-500 text-sm">
-                  Latest actions and participation
-                </p>
+                <p class="text-gray-500 text-xs sm:text-sm">Latest actions</p>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <div
                 v-for="activity in recentActivities"
                 :key="activity.id"
-                class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200"
+                class="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200"
               >
                 <div
-                  class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                  class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0"
                   :class="getActivityIconClass(activity.type)"
                 >
-                  <i :class="getActivityIcon(activity.type)"></i>
+                  <i
+                    :class="getActivityIcon(activity.type)"
+                    class="text-sm"
+                  ></i>
                 </div>
-                <div class="flex-1">
-                  <p class="text-gray-900 font-medium">
+                <div class="flex-1 min-w-0">
+                  <p class="text-gray-900 font-medium text-sm sm:text-base">
                     {{ activity.description }}
                   </p>
-                  <p class="text-sm text-gray-500 mt-1">
+                  <p class="text-xs sm:text-sm text-gray-500 mt-1">
                     {{ formatTimeAgo(activity.timestamp) }}
                   </p>
                 </div>
@@ -296,36 +316,42 @@
 
               <div
                 v-if="recentActivities.length === 0"
-                class="text-center py-8 text-gray-500"
+                class="text-center py-8 sm:py-12 text-gray-500"
               >
-                <i class="fas fa-inbox text-3xl mb-3 text-gray-300"></i>
-                <p class="font-medium">No recent activity</p>
-                <p class="text-sm">Activity will appear here</p>
+                <i
+                  class="fas fa-inbox text-2xl sm:text-3xl mb-3 text-gray-300"
+                ></i>
+                <p class="font-medium text-sm sm:text-base">
+                  No recent activity
+                </p>
+                <p class="text-xs sm:text-sm">Activity will appear here</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Right Column - Personal Details -->
-        <div class="space-y-8">
+        <div class="space-y-4 sm:space-y-8">
           <!-- Personal Information -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
           >
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
               Personal Information
             </h3>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-9 h-9 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-birthday-cake text-blue-600"></i>
+                  <i class="fas fa-birthday-cake text-blue-600 text-sm"></i>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500">Birthday</p>
-                  <p class="font-medium text-gray-900">
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs sm:text-sm text-gray-500">Birthday</p>
+                  <p
+                    class="font-medium text-gray-900 text-sm sm:text-base truncate"
+                  >
                     {{
                       userProfile.birthday
                         ? formatBirthday(userProfile.birthday)
@@ -337,13 +363,15 @@
 
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-phone text-green-600"></i>
+                  <i class="fas fa-phone text-green-600 text-sm"></i>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500">Phone</p>
-                  <p class="font-medium text-gray-900">
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs sm:text-sm text-gray-500">Phone</p>
+                  <p
+                    class="font-medium text-gray-900 text-sm sm:text-base truncate"
+                  >
                     {{ userProfile.phone || "Not provided" }}
                   </p>
                 </div>
@@ -351,13 +379,15 @@
 
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-user-tag text-purple-600"></i>
+                  <i class="fas fa-user-tag text-purple-600 text-sm"></i>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500">Family Role</p>
-                  <p class="font-medium text-gray-900 capitalize">
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs sm:text-sm text-gray-500">Family Role</p>
+                  <p
+                    class="font-medium text-gray-900 capitalize text-sm sm:text-base truncate"
+                  >
                     {{ userProfile.familyRole || "Member" }}
                   </p>
                 </div>
@@ -365,13 +395,15 @@
 
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-9 h-9 sm:w-10 sm:h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-calendar-plus text-amber-600"></i>
+                  <i class="fas fa-calendar-plus text-amber-600 text-sm"></i>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500">Member Since</p>
-                  <p class="font-medium text-gray-900">
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs sm:text-sm text-gray-500">Member Since</p>
+                  <p
+                    class="font-medium text-gray-900 text-sm sm:text-base truncate"
+                  >
                     {{ formatJoinDate(userProfile.createdAt) }}
                   </p>
                 </div>
@@ -381,59 +413,71 @@
 
           <!-- Event Participation -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
           >
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
               Event Participation
             </h3>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Total Events</span>
-                <span class="font-semibold text-gray-900">{{
-                  userEvents.length
-                }}</span>
+                <span class="text-xs sm:text-sm text-gray-600"
+                  >Total Events</span
+                >
+                <span
+                  class="font-semibold text-gray-900 text-sm sm:text-base"
+                  >{{ userEvents.length }}</span
+                >
               </div>
 
               <div class="space-y-2">
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600 flex items-center gap-2">
+                  <span
+                    class="text-xs sm:text-sm text-gray-600 flex items-center gap-2"
+                  >
                     <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                     Confirmed
                   </span>
-                  <span class="font-semibold text-gray-900">{{
-                    confirmedEventsCount
-                  }}</span>
+                  <span
+                    class="font-semibold text-gray-900 text-sm sm:text-base"
+                    >{{ confirmedEventsCount }}</span
+                  >
                 </div>
 
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600 flex items-center gap-2">
+                  <span
+                    class="text-xs sm:text-sm text-gray-600 flex items-center gap-2"
+                  >
                     <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
                     Maybe
                   </span>
-                  <span class="font-semibold text-gray-900">{{
-                    maybeEventsCount
-                  }}</span>
+                  <span
+                    class="font-semibold text-gray-900 text-sm sm:text-base"
+                    >{{ maybeEventsCount }}</span
+                  >
                 </div>
 
                 <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600 flex items-center gap-2">
+                  <span
+                    class="text-xs sm:text-sm text-gray-600 flex items-center gap-2"
+                  >
                     <div class="w-2 h-2 bg-red-500 rounded-full"></div>
                     Declined
                   </span>
-                  <span class="font-semibold text-gray-900">{{
-                    declinedEventsCount
-                  }}</span>
+                  <span
+                    class="font-semibold text-gray-900 text-sm sm:text-base"
+                    >{{ declinedEventsCount }}</span
+                  >
                 </div>
               </div>
 
               <!-- Participation Chart -->
-              <div class="mt-4 bg-gray-50 rounded-lg p-4">
+              <div class="mt-4 bg-gray-50 rounded-lg p-3 sm:p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-gray-700"
+                  <span class="text-xs sm:text-sm font-medium text-gray-700"
                     >Participation Rate</span
                   >
-                  <span class="text-sm font-bold text-gray-900"
+                  <span class="text-xs sm:text-sm font-bold text-gray-900"
                     >{{ participationRate }}%</span
                   >
                 </div>
@@ -450,13 +494,13 @@
           <!-- Common Connections -->
           <div
             v-if="commonConnections.length > 0"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
           >
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
               Common Connections
             </h3>
 
-            <div class="space-y-3">
+            <div class="space-y-2 sm:space-y-3">
               <div
                 v-for="member in commonConnections"
                 :key="member.userId"
@@ -466,17 +510,19 @@
                 <div
                   class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
                 >
-                  <span class="text-sm font-medium text-blue-600">
+                  <span class="text-xs sm:text-sm font-medium text-blue-600">
                     {{
                       member.name ? member.name.charAt(0).toUpperCase() : "?"
                     }}
                   </span>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate">
+                  <p
+                    class="text-xs sm:text-sm font-medium text-gray-900 truncate"
+                  >
                     {{ member.name || member.email }}
                   </p>
-                  <p class="text-xs text-gray-500 capitalize">
+                  <p class="text-[10px] sm:text-xs text-gray-500 capitalize">
                     {{ member.role }}
                   </p>
                 </div>
@@ -487,13 +533,85 @@
       </div>
     </main>
 
+    <!-- Message Modal -->
+    <div
+      v-if="showMessageModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      @click.self="showMessageModal = false"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
+          >
+            <i class="fas fa-envelope text-blue-600 text-lg"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900">Send Message</h3>
+        </div>
+
+        <p class="text-gray-600 mb-4">
+          Send a message to <strong>{{ userProfile.name }}</strong>
+        </p>
+
+        <textarea
+          v-model="messageText"
+          placeholder="Type your message..."
+          rows="4"
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4 resize-none"
+        ></textarea>
+
+        <div class="flex gap-3">
+          <button
+            @click="showMessageModal = false"
+            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="sendMessage"
+            class="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
-    <ToastNotification
-      :show="showToastMessage"
-      :message="toastMessage"
-      :type="toastType"
-      @hide="showToastMessage = false"
-    />
+    <div
+      v-if="showToastMessage"
+      class="fixed top-4 right-4 left-4 sm:left-auto z-50 max-w-sm w-full sm:w-auto px-4 animate-slideIn"
+    >
+      <div
+        class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
+        :class="{
+          'bg-green-50/95 text-green-800 border-green-200':
+            toastType === 'success',
+          'bg-red-50/95 text-red-800 border-red-200': toastType === 'error',
+        }"
+      >
+        <div class="flex items-center gap-3">
+          <i
+            class="text-lg flex-shrink-0"
+            :class="{
+              'fas fa-check-circle text-green-500': toastType === 'success',
+              'fas fa-exclamation-circle text-red-500': toastType === 'error',
+            }"
+          ></i>
+          <p class="font-medium flex-1 text-sm sm:text-base">
+            {{ toastMessage }}
+          </p>
+          <button
+            @click="showToastMessage = false"
+            class="flex-shrink-0 text-gray-400 hover:text-gray-600"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -527,6 +645,8 @@ const isOnline = ref(true);
 const showToastMessage = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
+const showMessageModal = ref(false);
+const messageText = ref("");
 
 // Computed properties
 const userInitial = computed(() =>
@@ -703,7 +823,14 @@ const getActivityIconClass = (type) => {
 };
 
 const sendMessage = () => {
+  if (!messageText.value.trim()) {
+    showToast("Please enter a message", "error");
+    return;
+  }
+
+  showMessageModal.value = false;
   showToast(`Message sent to ${userProfile.value.name}`, "success");
+  messageText.value = "";
 };
 
 const toggleFavorite = () => {
@@ -804,6 +931,36 @@ definePageMeta({
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 </style>

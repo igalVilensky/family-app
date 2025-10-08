@@ -525,23 +525,25 @@
                 ></i>
               </button>
 
-              <button
-                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group"
-                disabled
+              <NuxtLink
+                :to="`/family/manage/${route.params.id}`"
+                class="w-full flex items-center gap-4 p-4 text-left bg-blue-50 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all duration-200 group hover:shadow-sm"
               >
                 <div
-                  class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-users-cog text-gray-400 text-lg"></i>
+                  <i class="fas fa-users-cog text-blue-600 text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-400">Manage Members</div>
-                  <div class="text-xs text-gray-400">Coming soon</div>
+                  <div class="font-semibold text-gray-900">Manage Members</div>
+                  <div class="text-xs text-gray-500">
+                    Add, remove, or change roles
+                  </div>
                 </div>
                 <i
-                  class="fas fa-lock text-gray-300 group-hover:text-gray-400"
+                  class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500"
                 ></i>
-              </button>
+              </NuxtLink>
             </div>
           </div>
         </div>

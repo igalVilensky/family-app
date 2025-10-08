@@ -43,7 +43,6 @@ export { auth, db, firestore };
 // Export the createProfile function with access to db
 export const createProfile = async (userData) => {
   try {
-    console.log("Creating profile:", userData);
     const userDocRef = doc(db, "users", userData.userId);
     await setDoc(userDocRef, {
       name: userData.name,
@@ -62,7 +61,6 @@ export const createProfile = async (userData) => {
       },
       createdAt: new Date(),
     });
-    console.log("Profile created successfully");
     return true;
   } catch (error) {
     console.error("Error creating profile:", error);
@@ -76,7 +74,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const userId = ref(null);
   onAuthStateChanged(auth, (user) => {
     userId.value = user ? user.uid : null;
-    console.log(user ? `User logged in: ${userId.value}` : "User logged out");
   });
 
   nuxtApp.provide("auth", auth);
