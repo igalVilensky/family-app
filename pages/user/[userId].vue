@@ -570,7 +570,7 @@
             Cancel
           </button>
           <button
-            @click="sendMessage"
+            @click="sendMessageToUser"
             class="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
           >
             Send
@@ -629,6 +629,12 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
+import {
+  sendMessage,
+  addToFavorites,
+  isUserFavorited,
+  markMessagesAsRead,
+} from "~/utils/firebase";
 import { useNuxtApp } from "#app";
 
 const route = useRoute();
@@ -648,7 +654,7 @@ const toastType = ref("success");
 const showMessageModal = ref(false);
 const messageText = ref("");
 
-// Computed properties
+// Computed properties (keep all your existing computed properties)
 const userInitial = computed(() =>
   userProfile.value.name ? userProfile.value.name.charAt(0).toUpperCase() : "?"
 );
@@ -822,29 +828,44 @@ const getActivityIconClass = (type) => {
   return classes[type] || "bg-gray-100 text-gray-600";
 };
 
-const sendMessage = () => {
-  if (!messageText.value.trim()) {
+// Basic messaging function
+const sendMessageToUser = async () => {
+  if (!messageText.value || !messageText.value.trim()) {
     showToast("Please enter a message", "error");
     return;
   }
 
-  showMessageModal.value = false;
-  showToast(`Message sent to ${userProfile.value.name}`, "success");
-  messageText.value = "";
+  try {
+    await sendMessage(userId.value, messageText.value);
+    showMessageModal.value = false;
+    showToast(`Message sent to ${userProfile.value.name}`, "success");
+    messageText.value = "";
+
+    // Optionally redirect to conversation page
+    router.push(`/messages/${userId.value}`);
+  } catch (error) {
+    console.error("Send message error:", error);
+    showToast(error.message || "Failed to send message", "error");
+  }
 };
 
-const toggleFavorite = () => {
-  isFavorited.value = !isFavorited.value;
-  showToast(
-    isFavorited.value
-      ? `Added ${userProfile.value.name} to favorites`
-      : `Removed ${userProfile.value.name} from favorites`,
-    "success"
-  );
+const toggleFavorite = async () => {
+  try {
+    const result = await addToFavorites(userId.value);
+    isFavorited.value = result.action === "added";
+    showToast(
+      isFavorited.value
+        ? `Added ${userProfile.value.name} to favorites`
+        : `Removed ${userProfile.value.name} from favorites`,
+      "success"
+    );
+  } catch (error) {
+    console.error("Toggle favorite error:", error);
+    showToast(error.message || "Failed to update favorites", "error");
+  }
 };
 
 const viewEvent = (event) => {
-  // Navigate to calendar with event focused
   router.push(`/calendar?event=${event.id}`);
 };
 
@@ -890,20 +911,40 @@ const fetchUserEvents = async () => {
   }
 };
 
+const checkFavoriteStatus = async () => {
+  try {
+    isFavorited.value = await isUserFavorited(userId.value);
+  } catch (error) {
+    console.error("Check favorite status error:", error);
+  }
+};
+
 onMounted(async () => {
   await authStore.initAuth();
 
-  if (!authStore.familyId || authStore.status !== "active") {
+  // Only redirect if user doesn't belong to any family at all
+  if (!authStore.familyId) {
     router.push("/dashboard");
     return;
   }
 
-  await Promise.all([fetchUserProfile(), authStore.loadFamilyMembers()]);
+  // Allow users to view profiles even if status is not 'active'
+  // (like pending members who should still see family profiles)
 
-  if (userProfile.value.familyId === authStore.familyId) {
-    await fetchUserEvents();
+  await Promise.all([
+    fetchUserProfile(),
+    authStore.loadFamilyMembers(),
+    checkFavoriteStatus(),
+  ]);
+
+  // Check if the target user is in the same family
+  if (userProfile.value.familyId !== authStore.familyId) {
+    showToast("You can only view profiles of family members", "error");
+    router.push("/dashboard");
+    return;
   }
 
+  await fetchUserEvents();
   isLoading.value = false;
 });
 

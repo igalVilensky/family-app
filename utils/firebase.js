@@ -12,10 +12,12 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
   serverTimestamp,
+  orderBy,
 } from "firebase/firestore";
-import { auth, db } from "~/plugins/firebase"; // Import directly from your firebase plugin
 
+import { auth, db } from "~/plugins/firebase";
 export const registerUser = async (email, password, familyName) => {
   if (!auth || !db) {
     console.error("Auth or Firestore unavailable");
@@ -259,5 +261,354 @@ export const deleteEvent = async (familyId, eventId) => {
     return { success: true };
   } catch (error) {
     throw new Error(error.message || "Failed to delete event");
+  }
+};
+
+// Send Message (Basic)
+export const sendMessage = async (receiverId, content) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const senderId = auth.currentUser.uid;
+
+  // Get familyId directly from the user document instead of using authStore
+  try {
+    const userDoc = await getDoc(doc(db, "users", senderId));
+    if (!userDoc.exists()) {
+      throw new Error("User profile not found");
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) throw new Error("No family access");
+
+    // Validate content
+    if (!content || typeof content !== "string") {
+      throw new Error("Message content is required");
+    }
+
+    const trimmedContent = content.trim();
+    if (trimmedContent.length === 0) {
+      throw new Error("Message cannot be empty");
+    }
+
+    const messageRef = await addDoc(collection(db, "messages"), {
+      familyId: familyId,
+      senderId,
+      receiverId,
+      content: trimmedContent,
+      timestamp: serverTimestamp(),
+      read: false,
+      type: "direct",
+    });
+
+    return { success: true, messageId: messageRef.id };
+  } catch (error) {
+    console.error("Send message error:", error);
+    throw new Error(error.message || "Failed to send message");
+  }
+};
+
+// Get Message History between two users
+export const getMessageHistory = async (otherUserId) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const currentUserId = auth.currentUser.uid;
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", currentUserId));
+    if (!userDoc.exists()) {
+      return [];
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) return [];
+
+    const messagesQuery = query(
+      collection(db, "messages"),
+      where("familyId", "==", familyId),
+      where("senderId", "in", [currentUserId, otherUserId]),
+      where("receiverId", "in", [currentUserId, otherUserId]),
+      orderBy("timestamp", "asc")
+    );
+
+    const snapshot = await getDocs(messagesQuery);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Get messages error:", error);
+    return [];
+  }
+};
+
+// Get All Conversations (for message history page)
+export const getAllConversations = async () => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const currentUserId = auth.currentUser.uid;
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", currentUserId));
+    if (!userDoc.exists()) {
+      return [];
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) return [];
+
+    // Get messages where current user is sender OR receiver
+    const sentMessagesQuery = query(
+      collection(db, "messages"),
+      where("familyId", "==", familyId),
+      where("senderId", "==", currentUserId) // Messages sent by current user
+      // Removed orderBy from here since we're processing all messages
+    );
+
+    const receivedMessagesQuery = query(
+      collection(db, "messages"),
+      where("familyId", "==", familyId),
+      where("receiverId", "==", currentUserId) // Messages received by current user
+      // Removed orderBy from here since we're processing all messages
+    );
+
+    const [sentSnapshot, receivedSnapshot] = await Promise.all([
+      getDocs(sentMessagesQuery),
+      getDocs(receivedMessagesQuery),
+    ]);
+
+    const conversationsMap = new Map();
+
+    // Process sent messages
+    for (const messageDoc of sentSnapshot.docs) {
+      const message = messageDoc.data();
+      const otherUserId = message.receiverId;
+
+      if (!conversationsMap.has(otherUserId)) {
+        // Get the other user's profile
+        const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
+        if (otherUserDoc.exists()) {
+          const otherUserData = otherUserDoc.data();
+          conversationsMap.set(otherUserId, {
+            userId: otherUserId,
+            name: otherUserData.name || otherUserData.email,
+            avatarUrl: otherUserData.avatarUrl,
+            lastMessage: message.content,
+            lastMessageTime: message.timestamp,
+            unreadCount: 0,
+          });
+        }
+      } else {
+        // Update if this message is newer
+        const existing = conversationsMap.get(otherUserId);
+        const messageTime = message.timestamp?.toDate?.() || new Date(0);
+        const existingTime =
+          existing.lastMessageTime?.toDate?.() || new Date(0);
+
+        if (messageTime > existingTime) {
+          existing.lastMessage = message.content;
+          existing.lastMessageTime = message.timestamp;
+        }
+      }
+    }
+
+    // Process received messages
+    for (const messageDoc of receivedSnapshot.docs) {
+      const message = messageDoc.data();
+      const otherUserId = message.senderId;
+
+      if (!conversationsMap.has(otherUserId)) {
+        // Get the other user's profile
+        const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
+        if (otherUserDoc.exists()) {
+          const otherUserData = otherUserDoc.data();
+          conversationsMap.set(otherUserId, {
+            userId: otherUserId,
+            name: otherUserData.name || otherUserData.email,
+            avatarUrl: otherUserData.avatarUrl,
+            lastMessage: message.content,
+            lastMessageTime: message.timestamp,
+            unreadCount: message.read ? 0 : 1,
+          });
+        }
+      } else {
+        // Update if this message is newer
+        const existing = conversationsMap.get(otherUserId);
+        const messageTime = message.timestamp?.toDate?.() || new Date(0);
+        const existingTime =
+          existing.lastMessageTime?.toDate?.() || new Date(0);
+
+        if (messageTime > existingTime) {
+          existing.lastMessage = message.content;
+          existing.lastMessageTime = message.timestamp;
+          // Update unread count for received messages
+          if (!message.read) {
+            existing.unreadCount = (existing.unreadCount || 0) + 1;
+          }
+        } else if (!message.read) {
+          // If not the latest message but still unread, count it
+          existing.unreadCount = (existing.unreadCount || 0) + 1;
+        }
+      }
+    }
+
+    // Sort conversations by last message time (newest first)
+    return Array.from(conversationsMap.values()).sort((a, b) => {
+      const timeA = a.lastMessageTime?.toDate?.() || new Date(0);
+      const timeB = b.lastMessageTime?.toDate?.() || new Date(0);
+      return timeB - timeA;
+    });
+  } catch (error) {
+    console.error("Get conversations error:", error);
+    return [];
+  }
+};
+
+// Favorites functions - update these too
+export const addToFavorites = async (favoriteUserId) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const userId = auth.currentUser.uid;
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (!userDoc.exists()) {
+      throw new Error("User profile not found");
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) throw new Error("No family access");
+
+    // Check if already favorited
+    const existingFavoriteQuery = query(
+      collection(db, "favorites"),
+      where("userId", "==", userId),
+      where("favoriteUserId", "==", favoriteUserId),
+      where("familyId", "==", familyId)
+    );
+
+    const existingSnapshot = await getDocs(existingFavoriteQuery);
+
+    if (!existingSnapshot.empty) {
+      // Already favorited, so remove it (toggle behavior)
+      await deleteDoc(existingSnapshot.docs[0].ref);
+      return { success: true, action: "removed" };
+    }
+
+    // Add to favorites
+    await addDoc(collection(db, "favorites"), {
+      userId,
+      favoriteUserId,
+      familyId: familyId,
+      createdAt: serverTimestamp(),
+    });
+
+    return { success: true, action: "added" };
+  } catch (error) {
+    console.error("Toggle favorite error:", error);
+    throw new Error(error.message || "Failed to update favorites");
+  }
+};
+
+export const getFavorites = async () => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const userId = auth.currentUser.uid;
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (!userDoc.exists()) {
+      return [];
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) return [];
+
+    const favoritesQuery = query(
+      collection(db, "favorites"),
+      where("userId", "==", userId),
+      where("familyId", "==", familyId)
+    );
+
+    const snapshot = await getDocs(favoritesQuery);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Get favorites error:", error);
+    return [];
+  }
+};
+
+export const isUserFavorited = async (targetUserId) => {
+  if (!auth.currentUser) return false;
+
+  const userId = auth.currentUser.uid;
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (!userDoc.exists()) {
+      return false;
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) return false;
+
+    const favoriteQuery = query(
+      collection(db, "favorites"),
+      where("userId", "==", userId),
+      where("favoriteUserId", "==", targetUserId),
+      where("familyId", "==", familyId)
+    );
+
+    const snapshot = await getDocs(favoriteQuery);
+    return !snapshot.empty;
+  } catch (error) {
+    console.error("Check favorite error:", error);
+    return false;
+  }
+};
+// Mark messages as read
+export const markMessagesAsRead = async (senderId) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  const receiverId = auth.currentUser.uid;
+
+  try {
+    // Get user's familyId
+    const userDoc = await getDoc(doc(db, "users", receiverId));
+    if (!userDoc.exists()) {
+      return;
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) return;
+
+    // Find unread messages from this sender
+    const unreadMessagesQuery = query(
+      collection(db, "messages"),
+      where("familyId", "==", familyId),
+      where("senderId", "==", senderId),
+      where("receiverId", "==", receiverId),
+      where("read", "==", false)
+    );
+
+    const snapshot = await getDocs(unreadMessagesQuery);
+    const updatePromises = snapshot.docs.map((doc) =>
+      updateDoc(doc.ref, { read: true })
+    );
+
+    await Promise.all(updatePromises);
+    return { success: true };
+  } catch (error) {
+    console.error("Mark messages read error:", error);
   }
 };

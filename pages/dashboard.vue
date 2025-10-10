@@ -25,7 +25,7 @@
     <header
       class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-40"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="max-w-5xl mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div
@@ -39,27 +39,35 @@
               FamilySpace
             </h1>
           </div>
-          <div class="flex items-center gap-4">
-            <!-- Support Links -->
-            <div class="hidden sm:flex items-center gap-4">
-              <NuxtLink
-                to="/help"
-                class="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+          <div class="flex items-center gap-3">
+            <NuxtLink
+              v-if="authStore.familyId"
+              to="/messages"
+              class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              <i class="fas fa-comments text-lg"></i>
+              <span
+                v-if="unreadMessagesCount > 0"
+                class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold"
               >
-                Help
-              </NuxtLink>
-              <NuxtLink
-                to="/support"
-                class="text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                {{ unreadMessagesCount }}
+              </span>
+            </NuxtLink>
+
+            <div class="hidden sm:flex items-center gap-3 text-sm">
+              <NuxtLink to="/help" class="text-gray-600 hover:text-gray-900"
+                >Help</NuxtLink
               >
-                Support
-              </NuxtLink>
+              <div class="w-px h-4 bg-gray-300"></div>
+              <NuxtLink to="/support" class="text-gray-600 hover:text-gray-900"
+                >Support</NuxtLink
+              >
             </div>
+
             <button
               @click="handleLogout"
-              class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 hover:shadow-sm"
+              class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
             >
-              <i class="fas fa-sign-out-alt text-sm"></i>
               Logout
             </button>
           </div>
@@ -68,160 +76,90 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-5xl mx-auto px-4 py-8 space-y-8">
       <!-- Welcome Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <!-- User Profile Card -->
-        <div
-          class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 hover:shadow-md transition-all duration-300"
-        >
-          <div
-            class="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left"
-          >
-            <NuxtLink
-              :to="`/user/${authStore.userId}`"
-              class="group flex-shrink-0"
-            >
-              <div class="relative">
-                <avatar
-                  :avatar-url="authStore.avatarUrl"
-                  :user-initial="userInitial"
-                  :size="120"
-                  :no-upload="true"
-                  class="hover:ring-4 hover:ring-blue-100 transition-all duration-300 rounded-2xl group-hover:scale-105 cursor-pointer"
-                />
-                <div
-                  class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
-                >
-                  <i class="fas fa-check text-white text-xs"></i>
-                </div>
-              </div>
-            </NuxtLink>
-
-            <div class="flex-1">
-              <h2 class="text-3xl font-bold text-gray-900 mb-2">
-                Welcome back, {{ authStore.name || "User" }}! 👋
-              </h2>
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <div class="flex flex-col items-center text-center gap-4 sm:gap-6">
+          <NuxtLink :to="`/user/${authStore.userId}`" class="group">
+            <div class="relative w-24 h-24 mx-auto">
+              <avatar
+                :avatar-url="authStore.avatarUrl"
+                :user-initial="userInitial"
+                :size="96"
+                :no-upload="true"
+                class="hover:ring-4 hover:ring-blue-100 transition-all rounded-2xl group-hover:scale-105 cursor-pointer w-full h-full"
+              />
               <div
-                class="flex items-center justify-center sm:justify-start gap-2 text-gray-600 mb-4"
+                class="absolute -bottom-2 -right-2 w-7 h-7 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
               >
-                <i class="fas fa-users text-sm"></i>
-                <span class="text-lg">
-                  {{
-                    authStore.familyName !== null
-                      ? authStore.familyRole
-                      : "Pending member"
-                  }}
-                  of {{ authStore.familyName || "Your Family" }}
-                </span>
-              </div>
-              <div class="flex flex-col sm:flex-row gap-3">
-                <NuxtLink
-                  to="/profile"
-                  class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 min-w-[160px]"
-                >
-                  <i class="fas fa-user-edit text-sm"></i>
-                  Edit Profile
-                </NuxtLink>
-
-                <NuxtLink
-                  v-if="authStore.familyId"
-                  :to="`/family/${authStore.familyId}`"
-                  class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all duration-200 min-w-[160px]"
-                >
-                  <i class="fas fa-eye text-sm"></i>
-                  View Family
-                </NuxtLink>
+                <i class="fas fa-check text-white text-xs"></i>
               </div>
             </div>
+          </NuxtLink>
+
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+              Welcome back, {{ authStore.name || "User" }}!
+            </h1>
+            <p class="text-base sm:text-lg text-gray-600">
+              {{
+                authStore.familyName !== null
+                  ? `${authStore.familyRole} of ${authStore.familyName}`
+                  : "Pending family approval"
+              }}
+            </p>
           </div>
-        </div>
 
-        <!-- Quick Stats -->
-        <div
-          class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
-        >
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            Today's Overview
-          </h3>
-          <div class="space-y-4">
-            <div
-              class="flex items-center justify-between p-3 bg-blue-50 rounded-xl"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
-                >
-                  <i class="fas fa-calendar-day text-blue-600"></i>
-                </div>
-                <span class="text-sm font-medium text-gray-700"
-                  >Today's Events</span
-                >
-              </div>
-              <span class="text-xl font-bold text-gray-900">{{
-                todaysEventsCount
-              }}</span>
-            </div>
-
-            <div
-              class="flex items-center justify-between p-3 bg-green-50 rounded-xl"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
-                >
-                  <i class="fas fa-birthday-cake text-green-600"></i>
-                </div>
-                <span class="text-sm font-medium text-gray-700"
-                  >Upcoming Birthdays</span
-                >
-              </div>
-              <span class="text-xl font-bold text-gray-900">{{
-                upcomingBirthdaysCount
-              }}</span>
-            </div>
-          </div>
+          <NuxtLink
+            to="/profile"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            <i class="fas fa-user-edit"></i>
+            Manage Profile
+          </NuxtLink>
         </div>
       </div>
-      <!-- Pending Join Request Status -->
+
+      <!-- Pending Join Request Alert -->
       <div
         v-if="hasPendingJoinRequest && !authStore.familyId"
-        class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 animate-fadeIn"
+        class="bg-amber-50 border border-amber-200 rounded-2xl p-6 animate-fadeIn"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
           <div
             class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0"
           >
             <i class="fas fa-clock text-amber-600 text-xl"></i>
           </div>
-          <div class="flex-1">
+          <div class="text-center sm:text-left flex-1">
             <h3 class="text-lg font-semibold text-amber-900 mb-1">
-              Join Request Pending Approval
+              Join Request Pending
             </h3>
-            <p class="text-amber-700 text-sm mb-3">
+            <p class="text-amber-700 text-sm mb-4">
               Your request to join <strong>{{ pendingFamilyName }}</strong> is
-              waiting for admin approval. The family admin will review your
-              request soon.
+              waiting for admin approval.
             </p>
-            <div class="flex flex-col sm:flex-row gap-3">
+            <div class="flex flex-col sm:flex-row gap-2">
               <button
                 @click="checkRequestStatus"
-                class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 :disabled="checkingStatus"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all disabled:opacity-50"
               >
                 <i
-                  class="fas fa-sync-alt text-sm"
+                  class="fas fa-sync-alt"
                   :class="{ 'animate-spin': checkingStatus }"
                 ></i>
                 {{ checkingStatus ? "Checking..." : "Check Status" }}
               </button>
               <button
                 @click="cancelJoinRequest"
-                class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 :disabled="cancelingRequest"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all disabled:opacity-50"
               >
                 <i
-                  class="fas fa-times text-sm"
+                  class="fas fa-times"
                   :class="{ 'animate-spin': cancelingRequest }"
                 ></i>
                 {{ cancelingRequest ? "Canceling..." : "Cancel Request" }}
@@ -231,528 +169,516 @@
         </div>
       </div>
 
-      <!-- Main Grid -->
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <!-- Left Column -->
-        <div class="xl:col-span-2 space-y-8">
-          <!-- Quick Actions -->
-          <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+      <!-- Quick Overview Stats -->
+      <div
+        v-if="authStore.familyId"
+        class="grid grid-cols-1 sm:grid-cols-3 gap-4"
+      >
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200/60 p-6 text-center"
+        >
+          <div class="text-4xl font-bold text-blue-600 mb-2">
+            {{ todaysEventsCount }}
+          </div>
+          <p class="text-sm text-gray-600">Events Today</p>
+        </div>
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200/60 p-6 text-center"
+        >
+          <div class="text-4xl font-bold text-green-600 mb-2">
+            {{ upcomingBirthdaysCount }}
+          </div>
+          <p class="text-sm text-gray-600">Upcoming Birthdays</p>
+        </div>
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200/60 p-6 text-center"
+        >
+          <div class="text-4xl font-bold text-purple-600 mb-2">
+            {{ unreadMessagesCount }}
+          </div>
+          <p class="text-sm text-gray-600">Unread Messages</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <h2
+          class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 text-center sm:text-left"
+        >
+          Quick Access
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Family -->
+          <NuxtLink
+            v-if="!authStore.familyId"
+            to="/family-setup"
+            class="group p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
           >
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
-              >
-                <i class="fas fa-bolt text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Quick Actions
-                </h3>
-                <p class="text-gray-500 text-sm">Manage your family space</p>
-              </div>
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i class="fas fa-plus-circle text-2xl"></i>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <NuxtLink
-                v-if="!authStore.familyId"
-                to="/family-setup"
-                class="group p-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
-              >
-                <div
-                  class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-                >
-                  <i class="fas fa-plus-circle text-lg"></i>
-                </div>
-                <div>
-                  <div class="font-semibold">Set Up Family</div>
-                  <div class="text-white/80 text-sm">
-                    Create your family space
-                  </div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink
-                v-if="authStore.familyId"
-                to="/calendar"
-                class="group p-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
-              >
-                <div
-                  class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-                >
-                  <i class="fas fa-calendar-days text-lg"></i>
-                </div>
-                <div>
-                  <div class="font-semibold">View Calendar</div>
-                  <div class="text-white/80 text-sm">Check upcoming events</div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink
-                v-if="authStore.familyId"
-                :to="`/family/${authStore.familyId}`"
-                class="group p-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
-              >
-                <div
-                  class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-                >
-                  <i class="fas fa-home text-lg"></i>
-                </div>
-                <div>
-                  <div class="font-semibold">Family Profile</div>
-                  <div class="text-white/80 text-sm">
-                    Manage family settings
-                  </div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink
-                to="/profile"
-                class="group p-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
-              >
-                <div
-                  class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-                >
-                  <i class="fas fa-user-cog text-lg"></i>
-                </div>
-                <div>
-                  <div class="font-semibold">Settings</div>
-                  <div class="text-white/80 text-sm">Update your profile</div>
-                </div>
-              </NuxtLink>
-
-              <!-- Support Links for Mobile -->
-              <div
-                class="md:hidden grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200"
-              >
-                <NuxtLink
-                  to="/help"
-                  class="group p-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
-                >
-                  <div
-                    class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-                  >
-                    <i class="fas fa-book-open text-lg"></i>
-                  </div>
-                  <div>
-                    <div class="font-semibold">Help Center</div>
-                    <div class="text-white/80 text-sm">Guides & tutorials</div>
-                  </div>
-                </NuxtLink>
-
-                <NuxtLink
-                  to="/support"
-                  class="group p-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
-                >
-                  <div
-                    class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center"
-                  >
-                    <i class="fas fa-headset text-lg"></i>
-                  </div>
-                  <div>
-                    <div class="font-semibold">Support</div>
-                    <div class="text-white/80 text-sm">Get help</div>
-                  </div>
-                </NuxtLink>
-              </div>
+            <div>
+              <div class="font-semibold text-base">Set Up Family</div>
+              <div class="text-white/80 text-sm">Create your space</div>
             </div>
+          </NuxtLink>
+
+          <NuxtLink
+            v-else
+            :to="`/family/${authStore.familyId}`"
+            class="group p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+          >
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i class="fas fa-home text-2xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-base">Family Profile</div>
+              <div class="text-white/80 text-sm">View members</div>
+            </div>
+          </NuxtLink>
+
+          <!-- Calendar -->
+          <NuxtLink
+            v-if="authStore.familyId"
+            to="/calendar"
+            class="group p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+          >
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i class="fas fa-calendar-days text-2xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-base">Calendar</div>
+              <div class="text-white/80 text-sm">View schedule</div>
+            </div>
+          </NuxtLink>
+
+          <!-- Messages -->
+          <NuxtLink
+            v-if="authStore.familyId"
+            to="/messages"
+            class="group p-6 bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+          >
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0 relative"
+            >
+              <i class="fas fa-comments text-2xl"></i>
+              <span
+                v-if="unreadMessagesCount > 0"
+                class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold"
+              >
+                {{ unreadMessagesCount }}
+              </span>
+            </div>
+            <div>
+              <div class="font-semibold text-base">Messages</div>
+              <div class="text-white/80 text-sm">Chat with family</div>
+            </div>
+          </NuxtLink>
+
+          <!-- Settings -->
+          <NuxtLink
+            to="/profile"
+            class="group p-6 bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+          >
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i class="fas fa-user-cog text-2xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-base">Settings</div>
+              <div class="text-white/80 text-sm">Update profile</div>
+            </div>
+          </NuxtLink>
+
+          <!-- Help (Mobile) -->
+          <NuxtLink
+            to="/help"
+            class="sm:hidden group p-6 bg-gradient-to-br from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+          >
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i class="fas fa-book-open text-2xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-base">Help</div>
+              <div class="text-white/80 text-sm">Guides & FAQs</div>
+            </div>
+          </NuxtLink>
+
+          <!-- Support (Mobile) -->
+          <NuxtLink
+            to="/support"
+            class="sm:hidden group p-6 bg-gradient-to-br from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all hover:shadow-lg transform hover:-translate-y-1 flex items-center gap-4"
+          >
+            <div
+              class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i class="fas fa-headset text-2xl"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-base">Support</div>
+              <div class="text-white/80 text-sm">Get help</div>
+            </div>
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Calendar Overview Section -->
+      <div
+        v-if="authStore.familyId && authStore.status === 'active'"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
+        >
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-900">
+            <i class="fas fa-calendar-alt text-amber-500 mr-3"></i>Upcoming
+            Events
+          </h2>
+        </div>
+
+        <!-- Events List -->
+        <div class="space-y-3 mb-6">
+          <div
+            v-if="upcomingEvents.length === 0"
+            class="text-center py-8 text-gray-500"
+          >
+            <i class="fas fa-calendar-plus text-3xl text-gray-300 mb-2"></i>
+            <p class="font-medium text-sm">No upcoming events</p>
+            <NuxtLink
+              to="/calendar"
+              class="text-blue-600 hover:text-blue-700 text-sm mt-2 inline-block"
+            >
+              Create one
+            </NuxtLink>
           </div>
 
-          <!-- Calendar Overview -->
           <div
-            v-if="authStore.familyId && authStore.status === 'active'"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            v-for="event in upcomingEvents.slice(0, 4)"
+            :key="event.id"
+            class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
+            @click="goToCalendar(event.id)"
           >
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center"
-              >
-                <i class="fas fa-calendar-alt text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Calendar Overview
-                </h3>
-                <p class="text-gray-500 text-sm">
-                  Your family's schedule at a glance
-                </p>
-              </div>
-            </div>
-
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <StatCard
-                icon="calendar-check"
-                :value="events.length"
-                label="Total Events"
-                color="blue"
-              />
-              <StatCard
-                icon="users"
-                :value="familyMembers.length"
-                label="Family Members"
-                color="green"
-              />
-              <StatCard
-                icon="clock"
-                :value="upcomingCount"
-                label="Upcoming"
-                color="amber"
-              />
-              <StatCard
-                icon="check-circle"
-                :value="confirmedCount"
-                label="Confirmed"
-                color="purple"
-              />
-            </div>
-
-            <!-- Birthday Progress -->
             <div
-              class="bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-4 mb-6 border border-pink-100"
-            >
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <i class="fas fa-birthday-cake text-pink-600"></i>
-                  <span class="font-semibold text-gray-900"
-                    >Birthday Setup Progress</span
-                  >
-                </div>
-                <span class="text-sm font-medium text-gray-700">
-                  {{ membersWithBirthdays.length }}/{{ familyMembers.length }}
-                </span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="bg-gradient-to-r from-pink-500 to-rose-600 h-2 rounded-full transition-all duration-500"
-                  :style="{
-                    width: `${
-                      (membersWithBirthdays.length / familyMembers.length) * 100
-                    }%`,
-                  }"
-                ></div>
-              </div>
-              <div class="flex justify-between text-xs text-gray-500 mt-2">
-                <span
-                  >{{
-                    familyMembers.length - membersWithBirthdays.length
-                  }}
-                  missing</span
-                >
-                <span
-                  >{{
-                    Math.round(
-                      (membersWithBirthdays.length / familyMembers.length) * 100
-                    )
-                  }}% complete</span
-                >
-              </div>
+              class="w-1 h-12 rounded-full flex-shrink-0"
+              :style="`background-color: ${getEventColor(event)}`"
+            ></div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 text-sm">{{ event.title }}</p>
+              <p class="text-xs text-gray-500">
+                {{ formatEventDate(event.startDate) }}
+              </p>
             </div>
-          </div>
-
-          <!-- Parent Only Sections -->
-          <div
-            v-if="authStore.permissions.role === 'admin' && authStore.familyId"
-            class="space-y-6"
-          >
-            <!-- Invite Management -->
             <div
-              class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+              v-if="event.rsvps && event.rsvps[authStore.userId]"
+              :class="`px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${getRSVPBadgeClass(
+                event.rsvps[authStore.userId]
+              )}`"
             >
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
-                >
-                  <i class="fas fa-user-plus text-white text-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-xl font-semibold text-gray-900">
-                    Invite Family Members
-                  </h3>
-                  <p class="text-gray-500 text-sm">
-                    Share invite link with family
-                  </p>
-                </div>
-              </div>
-
-              <button
-                @click="generateInviteLink"
-                class="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-medium rounded-xl hover:from-purple-700 hover:to-indigo-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                :disabled="generatingInvite"
-              >
-                <i
-                  class="fas fa-link text-sm"
-                  :class="{ 'animate-spin': generatingInvite }"
-                ></i>
-                {{
-                  generatingInvite ? "Generating..." : "Generate Invite Link"
-                }}
-              </button>
-
-              <div
-                v-if="inviteLink"
-                class="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-200"
-              >
-                <label class="block text-sm font-medium text-gray-700 mb-3">
-                  Share this link to invite members:
-                </label>
-                <div class="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="text"
-                    :value="inviteLink"
-                    readonly
-                    class="flex-1 px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    @click="$event.target.select()"
-                  />
-                  <button
-                    @click="copyInviteLink"
-                    class="flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition-all duration-200 font-medium whitespace-nowrap"
-                  >
-                    <i class="fas fa-copy text-sm"></i>
-                    {{ copyButtonText }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Join Requests -->
-            <div
-              v-if="joinRequests.length"
-              class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
-            >
-              <div class="flex items-center gap-3 mb-6">
-                <div
-                  class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center"
-                >
-                  <i class="fas fa-user-clock text-white text-lg"></i>
-                </div>
-                <div>
-                  <h3
-                    class="text-xl font-semibold text-gray-900 flex items-center gap-2"
-                  >
-                    Pending Join Requests
-                    <span
-                      class="px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full font-medium"
-                    >
-                      {{ joinRequests.length }}
-                    </span>
-                  </h3>
-                  <p class="text-gray-500 text-sm">
-                    Approve or deny family requests
-                  </p>
-                </div>
-              </div>
-
-              <div class="space-y-4">
-                <div
-                  v-for="request in joinRequests"
-                  :key="request.id"
-                  class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
-                >
-                  <div class="flex items-center gap-3">
-                    <div
-                      class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0"
-                    >
-                      <i class="fas fa-user text-gray-600"></i>
-                    </div>
-                    <div>
-                      <p class="font-semibold text-gray-900">
-                        {{ request.email }}
-                      </p>
-                      <p class="text-sm text-gray-500">
-                        Wants to join your family
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="flex gap-2 w-full sm:w-auto">
-                    <button
-                      @click="
-                        approveRequest(
-                          request.id,
-                          request.userId,
-                          request.email
-                        )
-                      "
-                      class="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium"
-                    >
-                      <i class="fas fa-check text-sm"></i>
-                      Approve
-                    </button>
-                    <button
-                      @click="denyRequest(request.id)"
-                      class="flex items-center justify-center gap-2 flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
-                    >
-                      <i class="fas fa-times text-sm"></i>
-                      Deny
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Pending Approval Status -->
-
-          <div
-            v-if="authStore.status === 'pending' && authStore.familyId"
-            class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 animate-fadeIn"
-          >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
-                <i class="fas fa-clock text-amber-600 text-xl"></i>
-              </div>
-              <div class="flex-1">
-                <h3 class="text-lg font-semibold text-amber-900 mb-1">
-                  Join Request Pending Approval
-                </h3>
-                <p class="text-amber-700 text-sm mb-3">
-                  Your request to join
-                  <strong>{{ authStore.familyName }}</strong> is waiting for
-                  admin approval. The family admin will review your request
-                  soon.
-                </p>
-                <div class="flex flex-col sm:flex-row gap-3">
-                  <button
-                    @click="checkApprovalStatus"
-                    class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="checkingStatus"
-                  >
-                    <i
-                      class="fas fa-sync-alt text-sm"
-                      :class="{ 'animate-spin': checkingStatus }"
-                    ></i>
-                    {{ checkingStatus ? "Checking..." : "Check Status" }}
-                  </button>
-                  <button
-                    @click="cancelJoinRequest"
-                    class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="cancelingRequest"
-                  >
-                    <i
-                      class="fas fa-times text-sm"
-                      :class="{ 'animate-spin': cancelingRequest }"
-                    ></i>
-                    {{ cancelingRequest ? "Canceling..." : "Cancel Request" }}
-                  </button>
-                </div>
-              </div>
+              {{ event.rsvps[authStore.userId] }}
             </div>
           </div>
         </div>
 
-        <!-- Right Column - Upcoming Events -->
-        <div class="space-y-8">
-          <!-- Upcoming Events -->
-          <div
-            v-if="authStore.familyId && authStore.status === 'active'"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+        <!-- View All Link -->
+        <div class="text-center">
+          <NuxtLink
+            to="/calendar"
+            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
           >
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center"
-              >
-                <i class="fas fa-fire text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Upcoming Events
-                </h3>
-                <p class="text-gray-500 text-sm">Next 7 days</p>
-              </div>
-            </div>
+            View all events
+            <i class="fas fa-arrow-right text-sm"></i>
+          </NuxtLink>
+        </div>
+      </div>
 
-            <div class="space-y-3">
-              <div
-                v-for="event in upcomingEvents"
-                :key="event.id"
-                class="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
-              >
-                <div class="flex items-start gap-3">
-                  <div
-                    class="w-2 h-12 bg-blue-500 rounded-full flex-shrink-0"
-                  ></div>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-medium text-gray-900 truncate">
-                      {{ event.title }}
-                    </p>
-                    <p class="text-sm text-gray-500">
-                      <i class="fas fa-clock text-xs mr-1"></i>
-                      {{ formatEventDate(event.startDate) }}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <!-- Family Members Section -->
+      <div
+        v-if="authStore.familyId"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <div class="mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-900">
+            <i class="fas fa-users text-green-500 mr-3"></i>Family Members
+          </h2>
+          <p class="text-sm text-gray-600 mt-1">
+            {{ familyMembers.length }} people
+          </p>
+        </div>
 
-              <div
-                v-if="upcomingEvents.length === 0"
-                class="text-center py-8 text-gray-500"
-              >
-                <i class="fas fa-calendar-plus text-3xl mb-3 text-gray-300"></i>
-                <p class="font-medium">No upcoming events</p>
-                <p class="text-sm">Events in the next week will appear here</p>
-              </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div
+            v-for="member in familyMembers.slice(0, 4)"
+            :key="member.userId"
+            class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer group"
+            @click="goToUserProfile(member.userId)"
+          >
+            <div
+              class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors"
+            >
+              <span class="text-sm font-bold text-blue-600">
+                {{ member.name ? member.name.charAt(0).toUpperCase() : "?" }}
+              </span>
             </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 text-sm truncate">
+                {{ member.name || member.email }}
+              </p>
+              <p class="text-xs text-gray-500 capitalize">{{ member.role }}</p>
+            </div>
+            <button
+              @click.stop="sendMessageToMember(member.userId, member.name)"
+              class="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-blue-600 transition-all"
+            >
+              <i class="fas fa-comment"></i>
+            </button>
           </div>
+        </div>
 
-          <!-- Family Members -->
-          <div
-            v-if="authStore.familyId"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+        <!-- View All Link -->
+        <div class="text-center">
+          <NuxtLink
+            :to="`/family/${authStore.familyId}`"
+            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
           >
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
-              >
-                <i class="fas fa-users text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Family Members
-                </h3>
-                <p class="text-gray-500 text-sm">
-                  {{ familyMembers.length }} people
+            View all members
+            <i class="fas fa-arrow-right text-sm"></i>
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Recent Messages Section -->
+      <div
+        v-if="authStore.familyId && recentConversations.length > 0"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <div class="mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-900">
+            <i class="fas fa-comments text-purple-500 mr-3"></i>Recent Messages
+          </h2>
+          <p class="text-sm text-gray-600 mt-1">Latest conversations</p>
+        </div>
+
+        <div class="space-y-3 mb-6">
+          <div
+            v-for="conversation in recentConversations.slice(0, 4)"
+            :key="conversation.userId"
+            class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer group"
+            @click="goToConversation(conversation.userId)"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
+            >
+              <img
+                v-if="conversation.avatarUrl"
+                :src="conversation.avatarUrl"
+                :alt="conversation.name"
+                class="w-full h-full object-cover"
+              />
+              <span v-else class="text-xs font-bold text-blue-600">
+                {{
+                  conversation.name
+                    ? conversation.name.charAt(0).toUpperCase()
+                    : "?"
+                }}
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <p class="font-medium text-gray-900 text-sm truncate">
+                  {{ conversation.name }}
                 </p>
+                <span class="text-xs text-gray-500 flex-shrink-0">
+                  {{ formatTimeAgo(conversation.lastMessageTime) }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-600 truncate">
+                {{ conversation.lastMessage }}
+              </p>
+            </div>
+            <div
+              v-if="conversation.unreadCount > 0"
+              class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0"
+            ></div>
+          </div>
+        </div>
+
+        <!-- View All Link -->
+        <div class="text-center">
+          <NuxtLink
+            to="/messages"
+            class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+          >
+            View all messages
+            <i class="fas fa-arrow-right text-sm"></i>
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Birthday Progress Section -->
+      <div
+        v-if="authStore.familyId"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+          <i class="fas fa-birthday-cake text-pink-500 mr-3"></i>Birthday Setup
+        </h2>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700"
+              >Profiles Complete</span
+            >
+            <span class="text-lg font-bold text-gray-900">
+              {{ membersWithBirthdays.length }}/{{ familyMembers.length }}
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3">
+            <div
+              class="bg-gradient-to-r from-pink-500 to-rose-600 h-3 rounded-full transition-all duration-500"
+              :style="{
+                width: `${
+                  familyMembers.length > 0
+                    ? (membersWithBirthdays.length / familyMembers.length) * 100
+                    : 0
+                }%`,
+              }"
+            ></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-600">
+            <span>
+              {{
+                familyMembers.length > 0
+                  ? Math.round(
+                      (membersWithBirthdays.length / familyMembers.length) * 100
+                    )
+                  : 0
+              }}% complete
+            </span>
+            <span
+              >{{
+                Math.max(0, familyMembers.length - membersWithBirthdays.length)
+              }}
+              to go</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Section: Invite Members -->
+      <div
+        v-if="authStore.permissions.role === 'admin' && authStore.familyId"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+          <i class="fas fa-user-plus text-purple-500 mr-3"></i>Invite Family
+          Members
+        </h2>
+
+        <button
+          @click="generateInviteLink"
+          :disabled="generatingInvite"
+          class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-medium rounded-xl hover:from-purple-700 hover:to-indigo-800 transition-all hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 text-sm sm:text-base"
+        >
+          <i
+            class="fas fa-link text-sm"
+            :class="{ 'animate-spin': generatingInvite }"
+          ></i>
+          {{ generatingInvite ? "Generating..." : "Generate Invite Link" }}
+        </button>
+
+        <div
+          v-if="inviteLink"
+          class="mt-6 bg-purple-50 rounded-xl p-6 border border-purple-200"
+        >
+          <label class="block text-sm font-medium text-gray-900 mb-3">
+            Share this link to invite members:
+          </label>
+          <div class="flex flex-col gap-3">
+            <input
+              type="text"
+              :value="inviteLink"
+              readonly
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              @click="$event.target.select()"
+            />
+            <button
+              @click="copyInviteLink"
+              class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-medium text-sm"
+            >
+              <i class="fas fa-copy text-sm"></i>
+              {{ copyButtonText }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Section: Join Requests -->
+      <div
+        v-if="
+          authStore.permissions.role === 'admin' &&
+          authStore.familyId &&
+          joinRequests.length
+        "
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
+      >
+        <h2
+          class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3"
+        >
+          <i class="fas fa-user-clock text-amber-500"></i>
+          Pending Join Requests
+          <span
+            class="ml-auto px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full font-medium"
+          >
+            {{ joinRequests.length }}
+          </span>
+        </h2>
+
+        <div class="space-y-4">
+          <div
+            v-for="request in joinRequests"
+            :key="request.id"
+            class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors"
+          >
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div
+                class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-user text-gray-600"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="font-medium text-gray-900 text-sm truncate">
+                  {{ request.email }}
+                </p>
+                <p class="text-xs text-gray-500">Wants to join your family</p>
               </div>
             </div>
 
-            <div class="space-y-3">
-              <div
-                v-for="member in familyMembers.slice(0, 5)"
-                :key="member.userId"
-                class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200 cursor-pointer group"
-                @click="goToUserProfile(member.userId)"
+            <div class="flex gap-2">
+              <button
+                @click="
+                  approveRequest(request.id, request.userId, request.email)
+                "
+                class="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all"
               >
-                <div
-                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors"
-                >
-                  <span class="text-sm font-medium text-blue-600">
-                    {{
-                      member.name ? member.name.charAt(0).toUpperCase() : "?"
-                    }}
-                  </span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="font-medium text-gray-900 truncate text-sm">
-                    {{ member.name || member.email }}
-                  </p>
-                  <p class="text-xs text-gray-500 capitalize">
-                    {{ member.role }}
-                  </p>
-                </div>
-                <i
-                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-blue-500 transition-colors"
-                ></i>
-              </div>
-
-              <NuxtLink
-                v-if="familyMembers.length > 5"
-                :to="`/family/${authStore.familyId}`"
-                class="block text-center py-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                Approve
+              </button>
+              <button
+                @click="denyRequest(request.id)"
+                class="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all"
               >
-                View all {{ familyMembers.length }} members
-              </NuxtLink>
+                Deny
+              </button>
             </div>
           </div>
         </div>
@@ -789,36 +715,6 @@ import { useNuxtApp } from "#app";
 import { generateInvite, getEventsByRange } from "~/utils/firebase";
 import Avatar from "~/components/Avatar.vue";
 
-// Reusable Stat Card Component
-const StatCard = {
-  props: ["icon", "value", "label", "color"],
-  setup(props) {
-    const colorClasses = {
-      blue: "bg-blue-100 text-blue-600",
-      green: "bg-green-100 text-green-600",
-      amber: "bg-amber-100 text-amber-600",
-      purple: "bg-purple-100 text-purple-600",
-      pink: "bg-pink-100 text-pink-600",
-    };
-
-    return { colorClasses };
-  },
-  template: `
-    <div class="bg-white rounded-xl p-4 hover:shadow-md transition-shadow duration-200 border border-gray-200/60">
-      <div class="flex items-center gap-3">
-        <div class="p-2 rounded-lg flex-shrink-0" :class="colorClasses[color]">
-          <i class="fas text-sm" :class="'fa-' + icon"></i>
-        </div>
-        <div class="min-w-0">
-          <p class="text-2xl font-bold text-gray-900">{{ value }}</p>
-          <p class="text-xs text-gray-500 truncate">{{ label }}</p>
-        </div>
-      </div>
-    </div>
-  `,
-};
-
-// Reusable Toast Component
 const ToastNotification = {
   props: ["show", "message", "type"],
   emits: ["hide"],
@@ -872,10 +768,7 @@ const checkingStatus = ref(false);
 const cancelingRequest = ref(false);
 const isLoading = ref(true);
 const events = ref([]);
-
-const userHasPendingRequest = computed(() => {
-  return hasPendingJoinRequest.value && !authStore.familyId;
-});
+const recentConversations = ref([]);
 
 const familyMembers = computed(() => authStore.familyMembers || []);
 const membersWithBirthdays = computed(() =>
@@ -903,7 +796,7 @@ const upcomingEvents = computed(() => {
       const eventDate = new Date(event.startDate);
       return eventDate >= now && eventDate <= nextWeek;
     })
-    .slice(0, 5); // Limit to 5 events
+    .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 });
 
 const todaysEventsCount = computed(() => {
@@ -935,6 +828,13 @@ const upcomingBirthdaysCount = computed(() => {
   }).length;
 });
 
+const unreadMessagesCount = computed(() => {
+  return recentConversations.value.reduce(
+    (total, conv) => total + (conv.unreadCount || 0),
+    0
+  );
+});
+
 const formatEventDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
@@ -944,6 +844,42 @@ const formatEventDate = (dateString) => {
     minute: "2-digit",
     hour12: true,
   });
+};
+
+const formatTimeAgo = (timestamp) => {
+  if (!timestamp) return "Never";
+
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
+
+const getEventColor = (event) => {
+  const colors = {
+    amber: "#f59e0b",
+    blue: "#3b82f6",
+    green: "#10b981",
+    red: "#ef4444",
+    purple: "#8b5cf6",
+    pink: "#ec4899",
+  };
+  return colors[event.color] || colors.amber;
+};
+
+const getRSVPBadgeClass = (status) => {
+  if (status === "yes") return "bg-green-100 text-green-800";
+  if (status === "no") return "bg-red-100 text-red-800";
+  if (status === "maybe") return "bg-yellow-100 text-yellow-800";
+  return "bg-gray-100 text-gray-800";
 };
 
 const showToast = (message, type = "success") => {
@@ -1028,66 +964,6 @@ const generateBirthdayEvents = () => {
   return birthdayEvents;
 };
 
-const checkApprovalStatus = async () => {
-  checkingStatus.value = true;
-  try {
-    const familyDoc = await getDoc(doc(db, "families", authStore.familyId));
-    if (familyDoc.exists()) {
-      const familyData = familyDoc.data();
-      const isMember = familyData.members.some(
-        (member) => member.userId === authStore.userId
-      );
-
-      if (isMember) {
-        await updateDoc(doc(db, "users", authStore.userId), {
-          role: "member",
-          status: "active",
-        });
-        authStore.permissions.role = "member";
-        authStore.status = "active";
-        showToast(
-          "Your request has been approved! Welcome to the family.",
-          "success"
-        );
-      } else {
-        showToast("Your request is still pending.", "error");
-      }
-    } else {
-      showToast("Family not found. Please contact support.", "error");
-    }
-  } catch (error) {
-    console.error("Error checking approval status:", error);
-    showToast("Failed to check status: " + error.message, "error");
-  } finally {
-    checkingStatus.value = false;
-  }
-};
-
-const checkForPendingRequests = async () => {
-  if (!authStore.userId || authStore.familyId) return;
-
-  try {
-    // If user has a familyId but status is not active, they have a pending request
-    if (authStore.familyId && authStore.status !== "active") {
-      hasPendingJoinRequest.value = true;
-      pendingFamilyId.value = authStore.familyId;
-
-      // Get family name for display
-      try {
-        const familyDoc = await getDoc(doc(db, "families", authStore.familyId));
-        if (familyDoc.exists()) {
-          pendingFamilyName.value = familyDoc.data().name || "Unknown Family";
-        }
-      } catch (error) {
-        console.error("Error fetching family name:", error);
-        pendingFamilyName.value = "Unknown Family";
-      }
-    }
-  } catch (error) {
-    console.error("Error checking for pending requests:", error);
-  }
-};
-
 const checkRequestStatus = async () => {
   checkingStatus.value = true;
   try {
@@ -1096,7 +972,6 @@ const checkRequestStatus = async () => {
       return;
     }
 
-    // Check if the user has been added to the family members
     const familyDoc = await getDoc(doc(db, "families", pendingFamilyId.value));
     if (familyDoc.exists()) {
       const familyData = familyDoc.data();
@@ -1105,13 +980,11 @@ const checkRequestStatus = async () => {
       );
 
       if (isMember) {
-        // User has been approved - update their status
         await updateDoc(doc(db, "users", authStore.userId), {
           status: "active",
           updatedAt: new Date(),
         });
 
-        // Update auth store
         authStore.status = "active";
         hasPendingJoinRequest.value = false;
 
@@ -1120,12 +993,11 @@ const checkRequestStatus = async () => {
           "success"
         );
 
-        // Refresh the page to show the new family data
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       } else {
-        showToast("Your request is still pending approval.", "info");
+        showToast("Your request is still pending approval.", "error");
       }
     }
   } catch (error) {
@@ -1147,7 +1019,6 @@ const cancelJoinRequest = async () => {
 
   cancelingRequest.value = true;
   try {
-    // Remove user from family requests
     const requestsQuery = query(
       collection(db, `families/${pendingFamilyId.value}/requests`),
       where("userId", "==", authStore.userId)
@@ -1157,7 +1028,6 @@ const cancelJoinRequest = async () => {
     const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
     await Promise.all(deletePromises);
 
-    // Clear user's familyId
     await updateDoc(doc(db, "users", authStore.userId), {
       familyId: null,
       familyName: null,
@@ -1165,7 +1035,6 @@ const cancelJoinRequest = async () => {
       updatedAt: new Date(),
     });
 
-    // Update auth store
     authStore.familyId = null;
     authStore.familyName = null;
     authStore.status = null;
@@ -1222,13 +1091,7 @@ const approveRequest = async (requestId, userId, email) => {
     await fetchJoinRequests();
     showToast("Request approved successfully", "success");
   } catch (error) {
-    console.error("Error approving request:", {
-      errorCode: error.code,
-      errorMessage: error.message,
-      requestId,
-      userId,
-      familyId: authStore.familyId,
-    });
+    console.error("Error approving request:", error);
     showToast("Failed to approve request: " + error.message, "error");
   }
 };
@@ -1248,10 +1111,6 @@ const denyRequest = async (requestId) => {
 
 const generateInviteLink = async () => {
   if (authStore.permissions.role !== "admin") {
-    console.error("generateInviteLink: User is not an admin", {
-      role: authStore.permissions.role,
-      userId: authStore.userId,
-    });
     showToast("Only admins can generate invite links", "error");
     return;
   }
@@ -1289,6 +1148,52 @@ const goToUserProfile = (userId) => {
   router.push(`/user/${userId}`);
 };
 
+const goToCalendar = (eventId) => {
+  router.push(`/calendar?event=${eventId}`);
+};
+
+const goToConversation = (userId) => {
+  router.push(`/messages/${userId}`);
+};
+
+const sendMessageToMember = (userId, name) => {
+  router.push(`/messages/${userId}`);
+};
+
+const fetchRecentConversations = async () => {
+  if (!authStore.familyId) return;
+
+  try {
+    const { getAllConversations } = await import("~/utils/firebase");
+    recentConversations.value = await getAllConversations();
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+  }
+};
+
+const checkForPendingRequests = async () => {
+  if (!authStore.userId || authStore.familyId) return;
+
+  try {
+    if (authStore.familyId && authStore.status !== "active") {
+      hasPendingJoinRequest.value = true;
+      pendingFamilyId.value = authStore.familyId;
+
+      try {
+        const familyDoc = await getDoc(doc(db, "families", authStore.familyId));
+        if (familyDoc.exists()) {
+          pendingFamilyName.value = familyDoc.data().name || "Unknown Family";
+        }
+      } catch (error) {
+        console.error("Error fetching family name:", error);
+        pendingFamilyName.value = "Unknown Family";
+      }
+    }
+  } catch (error) {
+    console.error("Error checking for pending requests:", error);
+  }
+};
+
 onMounted(async () => {
   try {
     await authStore.initAuth();
@@ -1297,7 +1202,6 @@ onMounted(async () => {
       return;
     }
 
-    // Check for pending join requests if user doesn't have an active family
     if (!authStore.familyId || authStore.status !== "active") {
       await checkForPendingRequests();
     }
@@ -1307,12 +1211,12 @@ onMounted(async () => {
 
     if (authStore.familyId && authStore.status === "active") {
       await refreshEvents();
+      await fetchRecentConversations();
     }
   } catch (error) {
     console.error("Error initializing dashboard:", error);
     showToast("Failed to load dashboard", "error");
   } finally {
-    // Small delay for better UX
     setTimeout(() => {
       isLoading.value = false;
     }, 500);
@@ -1356,6 +1260,7 @@ definePageMeta({
     opacity: 1;
   }
 }
+
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out;
 }
