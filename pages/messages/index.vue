@@ -77,7 +77,7 @@
           and sending them a message.
         </p>
         <NuxtLink
-          to="/family"
+          :to="familyLink"
           class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors duration-200"
         >
           <i class="fas fa-users"></i>
@@ -131,6 +131,10 @@ const loadConversations = async () => {
   }
 };
 
+const familyLink = computed(
+  () => authStore.familyId && `/family/${authStore.familyId}`
+);
+
 onMounted(async () => {
   await authStore.initAuth();
 
@@ -143,6 +147,6 @@ onMounted(async () => {
 
 definePageMeta({
   middleware: ["auth"],
-  layout: "default", // Use our new layout
+  layout: "default",
 });
 </script>

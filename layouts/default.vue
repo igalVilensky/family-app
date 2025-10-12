@@ -126,8 +126,8 @@ import { useAuthStore } from "~/stores/auth";
 const authStore = useAuthStore();
 const route = useRoute();
 
-const familyLink = computed(() =>
-  authStore.familyId ? `/family/${authStore.familyId}` : "/family"
+const familyLink = computed(
+  () => authStore.familyId && `/family/${authStore.familyId}`
 );
 
 const showHeader = ref(true);
