@@ -1,37 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-    <!-- Header -->
-    <header
-      class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-40"
-    >
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div
-              class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"
-            >
-              <i class="fas fa-comments text-white text-sm sm:text-lg"></i>
-            </div>
-            <h1
-              class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-blue-700 bg-clip-text text-transparent"
-            >
-              Messages
-            </h1>
-          </div>
-          <NuxtLink
-            to="/dashboard"
-            class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
-          >
-            <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
-            <span class="hidden sm:inline">Back to Dashboard</span>
-            <span class="sm:hidden">Back</span>
-          </NuxtLink>
-        </div>
-      </div>
-    </header>
-
+  <div>
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <div class="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Loading State -->
       <div v-if="isLoading" class="text-center py-12">
         <div
@@ -107,14 +77,14 @@
           and sending them a message.
         </p>
         <NuxtLink
-          to="/dashboard"
+          to="/family"
           class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors duration-200"
         >
           <i class="fas fa-users"></i>
           View Family Members
         </NuxtLink>
       </div>
-    </main>
+    </div>
   </div>
 </template>
 
@@ -173,5 +143,6 @@ onMounted(async () => {
 
 definePageMeta({
   middleware: ["auth"],
+  layout: "default", // Use our new layout
 });
 </script>

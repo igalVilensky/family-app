@@ -29,9 +29,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main
-      class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12"
-    >
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
       <div class="max-w-md w-full space-y-8">
         <!-- Header Section -->
         <div class="text-center">

@@ -1,37 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-    <!-- Header -->
-    <header
-      class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-40"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <NuxtLink
-            to="/dashboard"
-            class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:bg-gray-100 px-3 py-2 rounded-lg"
-          >
-            <i class="fas fa-arrow-left text-sm"></i>
-            <span>Back to Dashboard</span>
-          </NuxtLink>
-          <div class="flex items-center gap-3">
-            <div
-              class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center"
-            >
-              <i class="fas fa-user-cog text-white text-lg"></i>
-            </div>
-            <h1
-              class="text-2xl font-bold bg-gradient-to-r from-gray-900 to-purple-700 bg-clip-text text-transparent"
-            >
-              Profile Settings
-            </h1>
-          </div>
-          <div class="w-32"></div>
-        </div>
-      </div>
-    </header>
-
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 py-8">
       <!-- Profile Header Card -->
       <div
         class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 mb-8"
