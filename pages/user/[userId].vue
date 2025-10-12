@@ -938,7 +938,10 @@ onMounted(async () => {
   ]);
 
   // Check if the target user is in the same family
-  if (userProfile.value.familyId !== authStore.familyId) {
+  if (
+    userProfile.value.familyId &&
+    userProfile.value.familyId !== authStore.familyId
+  ) {
     showToast("You can only view profiles of family members", "error");
     router.push("/dashboard");
     return;
