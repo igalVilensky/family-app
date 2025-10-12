@@ -900,13 +900,29 @@ const openCreateModal = () => {
 };
 
 const populateFormFromEvent = (event) => {
+  // Convert UTC dates to local datetime-local format
+  const startDate = new Date(event.startDate);
+  const localStartDate = new Date(
+    startDate.getTime() - startDate.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .slice(0, 16);
+
+  let localEndDate = "";
+  if (event.endDate) {
+    const endDate = new Date(event.endDate);
+    localEndDate = new Date(
+      endDate.getTime() - endDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .slice(0, 16);
+  }
+
   form.value.title = event.title;
   form.value.description = event.description || "";
   form.value.location = event.location || "";
-  form.value.startDate = new Date(event.startDate).toISOString().slice(0, 16);
-  form.value.endDate = event.endDate
-    ? new Date(event.endDate).toISOString().slice(0, 16)
-    : "";
+  form.value.startDate = localStartDate;
+  form.value.endDate = localEndDate;
   form.value.attendees = event.attendees || [];
   form.value.eventType = event.eventType || "event";
   form.value.color = event.color || "amber";
@@ -942,16 +958,23 @@ const submitEvent = async () => {
   }
 
   try {
-    // Set end date to start date if not provided for events, or leave empty for tasks
-    let endDate = form.value.endDate;
-    if (form.value.eventType === "event" && !endDate) {
-      endDate = form.value.startDate;
+    // Convert local datetime to ISO string without timezone conversion
+    const startDate = new Date(form.value.startDate);
+    const startDateISO = startDate.toISOString();
+
+    let endDateISO = null;
+    if (form.value.endDate) {
+      const endDate = new Date(form.value.endDate);
+      endDateISO = endDate.toISOString();
+    } else if (form.value.eventType === "event") {
+      // For events without end date, set to same as start
+      endDateISO = startDateISO;
     }
 
     const eventData = {
       ...form.value,
-      startDate: new Date(form.value.startDate).toISOString(),
-      endDate: endDate ? new Date(endDate).toISOString() : undefined,
+      startDate: startDateISO,
+      endDate: endDateISO,
       creatorId:
         mode.value === "create"
           ? authStore.userId
