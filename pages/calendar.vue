@@ -27,6 +27,16 @@
 
           <!-- Action Buttons -->
           <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+            <!-- Dashboard Link -->
+            <button
+              @click="$router.push('/dashboard')"
+              class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
+              title="Back to Dashboard"
+            >
+              <i class="fas fa-home sm:mr-2"></i>
+              <span class="hidden sm:inline">Dashboard</span>
+            </button>
+
             <button
               v-if="!isToday"
               @click="goToToday"
@@ -246,6 +256,39 @@
                     </div>
                   </div>
 
+                  <!-- Event Category Selection -->
+                  <div v-if="mode !== 'view' && form.eventType === 'event'">
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Event Category
+                    </label>
+                    <div
+                      class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-40 overflow-y-auto p-2 border-2 border-gray-200 rounded-xl"
+                    >
+                      <button
+                        v-for="type in eventTypes"
+                        :key="type.value"
+                        type="button"
+                        @click="
+                          form.eventCategory = type.value;
+                          form.color = type.color;
+                        "
+                        :class="[
+                          'p-2 rounded-lg border-2 transition-all text-center group',
+                          form.eventCategory === type.value
+                            ? `border-${type.color}-500 bg-${type.color}-50 text-${type.color}-700`
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300',
+                        ]"
+                      >
+                        <i :class="`fas ${type.icon} mb-1 text-lg`"></i>
+                        <div class="text-xs font-medium truncate">
+                          {{ type.label }}
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
                   <!-- Title Input -->
                   <div>
                     <label
@@ -318,10 +361,26 @@
                   <!-- Location -->
                   <div v-if="form.eventType === 'event'">
                     <label
-                      class="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
+                      class="block text-sm font-semibold text-gray-700 mb-2 flex items-center justify-between"
                     >
-                      <i class="fas fa-map-marker-alt text-gray-500 mr-2"></i>
-                      Location
+                      <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-gray-500 mr-2"></i>
+                        Location
+                      </div>
+                      <button
+                        v-if="mode !== 'view'"
+                        type="button"
+                        @click="detectLocation"
+                        :disabled="isDetectingLocation"
+                        class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50"
+                      >
+                        <i
+                          :class="`fas fa-location-arrow mr-1 ${
+                            isDetectingLocation ? 'animate-pulse' : ''
+                          }`"
+                        ></i>
+                        Detect
+                      </button>
                     </label>
                     <input
                       v-model="form.location"
@@ -593,6 +652,7 @@ import {
 } from "~/utils/firebase";
 
 const authStore = useAuthStore();
+const router = useRouter();
 const calendarRef = ref(null);
 const openEventModal = ref(false);
 const events = ref([]);
@@ -603,6 +663,43 @@ const currentView = ref("dayGridMonth");
 const refreshSuccess = ref(false);
 const today = new Date().toDateString();
 const isToday = ref(true);
+const isDetectingLocation = ref(false);
+
+// Event types with icons
+const eventTypes = [
+  { value: "custom", label: "Custom", icon: "fa-calendar", color: "amber" },
+  {
+    value: "birthday",
+    label: "Birthday",
+    icon: "fa-birthday-cake",
+    color: "pink",
+  },
+  { value: "party", label: "Party", icon: "fa-glass-cheers", color: "purple" },
+  {
+    value: "vacation",
+    label: "Vacation",
+    icon: "fa-umbrella-beach",
+    color: "green",
+  },
+  { value: "flight", label: "Flight", icon: "fa-plane", color: "blue" },
+  { value: "meeting", label: "Meeting", icon: "fa-users", color: "indigo" },
+  {
+    value: "appointment",
+    label: "Appointment",
+    icon: "fa-stethoscope",
+    color: "teal",
+  },
+  {
+    value: "shopping",
+    label: "Shopping",
+    icon: "fa-shopping-cart",
+    color: "orange",
+  },
+  { value: "school", label: "School", icon: "fa-graduation-cap", color: "red" },
+  { value: "sports", label: "Sports", icon: "fa-running", color: "green" },
+  { value: "dinner", label: "Dinner", icon: "fa-utensils", color: "amber" },
+  { value: "movie", label: "Movie", icon: "fa-film", color: "purple" },
+];
 
 const form = ref({
   title: "",
@@ -613,6 +710,7 @@ const form = ref({
   attendees: [],
   familyId: computed(() => authStore.familyId),
   eventType: "event",
+  eventCategory: "custom",
   color: "amber",
   recurrence: "none",
   taskStatus: "pending",
@@ -693,12 +791,22 @@ const calendarOptions = computed(() => ({
   events: events.value.map((e) => {
     const isBirthday = e.eventType === "birthday";
     const isTask = e.eventType === "task";
+    const eventType =
+      eventTypes.find((et) => et.value === e.eventCategory) || eventTypes[0];
     const colorConfig =
       eventColors.find((c) => c.value === e.color) || eventColors[0];
 
+    // Format time for display
+    const startTime = new Date(e.startDate);
+    const timeText = !e.allDay
+      ? startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : "";
+
     return {
       id: e.id,
-      title: isBirthday ? `🎂 ${e.title}` : isTask ? `📝 ${e.title}` : e.title,
+      title: isTask
+        ? `📝 ${e.title}`
+        : `${timeText ? timeText + " " : ""}${e.title}`,
       start: e.startDate,
       end: e.endDate,
       backgroundColor: isBirthday ? "#ec4899" : colorConfig.hex,
@@ -747,12 +855,66 @@ const calendarOptions = computed(() => ({
     const event = arg.event.extendedProps;
     const isBirthday = event.eventType === "birthday";
     const isTask = event.eventType === "task";
+    const eventType =
+      eventTypes.find((et) => et.value === event.eventCategory) ||
+      eventTypes[0];
+
+    // Format time
+    const startTime = new Date(event.startDate);
+    const timeText = !event.allDay
+      ? startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : "";
+
+    // Check if mobile
+    const isMobile = window.innerWidth < 768;
 
     let content = `
-      <div class="p-1 text-[10px] sm:text-xs">
-        <div class="font-semibold truncate">${arg.event.title}</div>
-    `;
+    <div class="p-1 text-[10px] sm:text-xs">
+  `;
 
+    if (isMobile) {
+      // Mobile layout: time above title
+      content += `
+      <div class="flex flex-col">
+        ${
+          timeText
+            ? `<div class="font-semibold text-white/90 text-[9px]">${timeText}</div>`
+            : ""
+        }
+        <div class="flex items-center gap-1 mt-0.5">
+          <div class="font-semibold truncate ${
+            isBirthday ? "text-pink-200" : "text-white"
+          }">
+            ${isBirthday ? "🎂" : isTask ? "📝" : ""} ${event.title}
+          </div>
+        </div>
+    `;
+    } else {
+      // Desktop layout: time on left, title on right
+      content += `
+      <div class="flex items-start gap-1">
+        ${
+          timeText
+            ? `<div class="font-semibold text-white/90 flex-shrink-0">${timeText}</div>`
+            : ""
+        }
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1">
+            ${
+              !isTask && !isBirthday
+                ? `<i class="fas ${eventType.icon} flex-shrink-0 text-[8px] sm:text-[10px]"></i>`
+                : ""
+            }
+            <div class="font-semibold truncate ${
+              isBirthday ? "text-pink-200" : "text-white"
+            }">
+              ${isBirthday ? "🎂" : isTask ? "📝" : ""} ${event.title}
+            </div>
+          </div>
+    `;
+    }
+
+    // Stats row (same for both mobile and desktop)
     if (isTask) {
       const status = event.taskStatus || "pending";
       const statusColors = {
@@ -760,18 +922,18 @@ const calendarOptions = computed(() => ({
         "in-progress": "bg-yellow-400",
         completed: "bg-green-400",
       };
-      content += `<div class="flex items-center mt-0.5">
-        <div class="w-2 h-2 rounded-full ${statusColors[status]} mr-1"></div>
-        <span class="text-white/90 text-[10px] sm:text-xs">${status}</span>
-      </div>`;
+      content += `<div class="flex items-center mt-0.5 gap-1">
+      <div class="w-1.5 h-1.5 rounded-full ${statusColors[status]} flex-shrink-0"></div>
+      <span class="text-white/90 text-[9px] truncate">${status}</span>
+    </div>`;
     } else if (!isBirthday && event.rsvps) {
       const stats = getRSVPStats(event.rsvps);
-      content += `<div class="text-white/90 text-[10px] sm:text-xs mt-0.5">
-        ✓${stats.yes} ?${stats.maybe}
-      </div>`;
+      content += `<div class="hidden  sm:block text-white/90 text-[9px] mt-0.5">
+      ✓${stats.yes} ?${stats.maybe} ${stats.no > 0 ? `✗${stats.no}` : ""}
+    </div>`;
     }
 
-    content += `</div>`;
+    content += `</div></div>`;
     return { html: content };
   },
   viewDidMount: (info) => {
@@ -824,6 +986,56 @@ const refreshEvents = async () => {
   }
 };
 
+const detectLocation = () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser");
+    return;
+  }
+
+  isDetectingLocation.value = true;
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+
+        // Reverse geocoding to get address
+        const response = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          form.value.location =
+            data.city ||
+            data.locality ||
+            data.principalSubdivision ||
+            "Current Location";
+        } else {
+          form.value.location = `Lat: ${latitude.toFixed(
+            4
+          )}, Lng: ${longitude.toFixed(4)}`;
+        }
+      } catch (error) {
+        console.error("Geocoding error:", error);
+        form.value.location = "Current Location";
+      } finally {
+        isDetectingLocation.value = false;
+      }
+    },
+    (error) => {
+      console.error("Geolocation error:", error);
+      alert("Unable to retrieve your location");
+      isDetectingLocation.value = false;
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000,
+    }
+  );
+};
+
 const goToUserProfile = (userId) => {
   if (userId === authStore.userId) {
     router.push("/profile");
@@ -872,6 +1084,7 @@ const generateBirthdayEvents = () => {
             startDate: eventDate.toISOString(),
             endDate: eventDate.toISOString(),
             eventType: "birthday",
+            eventCategory: "birthday",
             color: "pink",
             allDay: true,
             extendedProps: {
@@ -925,6 +1138,7 @@ const populateFormFromEvent = (event) => {
   form.value.endDate = localEndDate;
   form.value.attendees = event.attendees || [];
   form.value.eventType = event.eventType || "event";
+  form.value.eventCategory = event.eventCategory || "custom";
   form.value.color = event.color || "amber";
   form.value.recurrence = event.recurrence || "none";
   form.value.taskStatus = event.taskStatus || "pending";
@@ -940,6 +1154,7 @@ const resetForm = () => {
     attendees: [],
     familyId: authStore.familyId,
     eventType: "event",
+    eventCategory: "custom",
     color: "amber",
     recurrence: "none",
     taskStatus: "pending",
@@ -1159,15 +1374,32 @@ onMounted(async () => {
 
 :deep(.fc-event-main) {
   padding: 2px 4px;
+  line-height: 1.2;
 }
 
 :deep(.fc-event) {
   border-radius: 0.375rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: auto !important;
 }
 
 :deep(.fc-daygrid-event) {
   white-space: normal;
+  min-height: auto !important;
+}
+
+:deep(.fc-event-time) {
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+/* Make sure events are properly spaced */
+:deep(.fc-daygrid-day-events) {
+  margin-top: 2px;
+}
+
+:deep(.fc-daygrid-event-harness) {
+  margin-bottom: 2px;
 }
 
 /* Birthday event style */
