@@ -79,7 +79,7 @@
     </header>
 
     <!-- Main Content -->
-    <main :class="isAuthenticated ? 'pt-16 pb-20 lg:pb-0' : 'pt-0'">
+    <main class="pt-16 pb-20 lg:pb-0">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>

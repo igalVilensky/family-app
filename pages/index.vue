@@ -1,45 +1,5 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-    <!-- Navigation Bar -->
-    <nav
-      class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-50"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center gap-3">
-            <div
-              class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"
-            >
-              <i class="fas fa-home text-white text-lg"></i>
-            </div>
-            <span
-              class="text-xl font-bold bg-gradient-to-r from-gray-900 to-blue-700 bg-clip-text text-transparent"
-            >
-              FamilySpace
-            </span>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <NuxtLink
-              v-if="!authStore.userId"
-              to="/login"
-              class="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
-            >
-              Sign In
-            </NuxtLink>
-            <NuxtLink
-              v-if="authStore.userId"
-              to="/dashboard"
-              class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <i class="fas fa-tachometer-alt text-sm"></i>
-              Dashboard
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-    </nav>
-
     <!-- Hero Section -->
     <div class="relative overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">

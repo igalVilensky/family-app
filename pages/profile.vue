@@ -24,13 +24,6 @@
                 <i class="fas fa-check text-white text-xs"></i>
               </div>
             </div>
-            <button
-              @click="triggerAvatarUpload"
-              class="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium"
-            >
-              <i class="fas fa-camera text-sm"></i>
-              Change Photo
-            </button>
           </div>
 
           <!-- Basic Info -->
