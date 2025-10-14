@@ -96,14 +96,31 @@
 import { deleteEvent, addEvent, updateEvent } from "~/utils/firebase";
 
 const authStore = useAuthStore();
-const { openEventModal, mode, currentEvent, closeModal } = useCalendarModal();
+const { openEventModal, mode, currentEvent, closeModal, clickedDate } =
+  useCalendarModal();
 const { form, resetForm } = useCalendarForm();
 const { refreshEvents } = useCalendarEvents();
 
 watch(openEventModal, (newValue) => {
   if (newValue && mode.value === "create") {
-    // Ensure form is reset for new events
     resetForm();
+
+    // If there's a clicked date, prefill the form with it
+    if (clickedDate.value) {
+      // Create a new date object to avoid timezone issues
+      const date = new Date(clickedDate.value);
+
+      // Use local date methods to get the correct date without timezone offset
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      // Create the date string in local timezone (default to 12:00)
+      const dateStr = `${year}-${month}-${day}T12:00`;
+
+      form.startDate = dateStr;
+      form.endDate = form.eventType === "event" ? dateStr : "";
+    }
   }
 });
 
@@ -167,6 +184,7 @@ const submitEvent = async () => {
       ...form,
       startDate: startDateISO,
       endDate: endDateISO,
+      familyId: authStore.familyId,
       creatorId:
         mode.value === "create"
           ? authStore.userId

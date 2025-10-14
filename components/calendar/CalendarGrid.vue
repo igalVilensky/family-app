@@ -125,7 +125,7 @@ const calendarOptions = computed(() => ({
     resetForm();
     form.startDate = dateStr.slice(0, 16);
     form.endDate = form.eventType === "event" ? dateStr.slice(0, 16) : "";
-    openCreateModal();
+    openCreateModal(info.date);
   },
   eventClick: (info) => {
     const event = info.event.extendedProps;
