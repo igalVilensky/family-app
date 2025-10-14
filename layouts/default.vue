@@ -68,7 +68,7 @@
               Login
             </NuxtLink>
             <NuxtLink
-              to="/signup"
+              to="/register"
               class="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
             >
               Sign Up
