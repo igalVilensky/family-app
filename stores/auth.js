@@ -213,12 +213,12 @@ export const useAuthStore = defineStore("auth", {
       this.bio = null;
       this.avatarUrl = null;
       this.birthday = null;
-      this.isInitialized = true;
+      this.isInitialized = false;
       this.hasFirestoreUser = false;
       this.authPromise = null;
+      this.familyMembers = [];
     },
 
-    // Add a method to update auth state after profile creation
     updateAuthProfile(userData) {
       this.name = userData.name;
       this.familyId = userData.familyId;

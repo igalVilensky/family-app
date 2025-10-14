@@ -30,8 +30,8 @@
             </div>
           </NuxtLink>
 
-          <!-- Right Section -->
-          <div class="flex items-center gap-4">
+          <!-- Right Section - Only show when authenticated -->
+          <div v-if="isAuthenticated" class="flex items-center gap-4">
             <!-- Messages Badge -->
             <NuxtLink
               v-if="showMessagesBadge"
@@ -58,19 +58,36 @@
               Logout
             </button>
           </div>
+
+          <!-- Show login/signup links when not authenticated -->
+          <div v-else class="flex items-center gap-3">
+            <NuxtLink
+              to="/login"
+              class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Login
+            </NuxtLink>
+            <NuxtLink
+              to="/signup"
+              class="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+            >
+              Sign Up
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="pt-16 pb-20 lg:pb-0">
+    <main :class="isAuthenticated ? 'pt-16 pb-20 lg:pb-0' : 'pt-0'">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
 
-    <!-- Bottom Navigation - Mobile -->
+    <!-- Bottom Navigation - Mobile - Only show when authenticated -->
     <nav
+      v-if="isAuthenticated"
       class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 lg:hidden"
     >
       <div class="flex items-center justify-around">
@@ -122,9 +139,14 @@
 
 <script setup>
 import { useAuthStore } from "~/stores/auth";
+import { getAuth, signOut } from "firebase/auth";
 
 const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
+
+// Use computed to reactively check authentication state
+const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 const familyLink = computed(
   () => authStore.familyId && `/family/${authStore.familyId}`
@@ -163,6 +185,24 @@ const updateHeaderConfig = (path) => {
       subtitle: "",
       badge: true,
     },
+    "/login": {
+      icon: "fa-home",
+      title: "FamilySpace",
+      subtitle: "",
+      badge: false,
+    },
+    "/signup": {
+      icon: "fa-home",
+      title: "FamilySpace",
+      subtitle: "",
+      badge: false,
+    },
+    "/": {
+      icon: "fa-home",
+      title: "FamilySpace",
+      subtitle: "",
+      badge: false,
+    },
   };
 
   const config =
@@ -190,10 +230,15 @@ const fetchUnreadMessages = async () => {
 
 const handleLogout = async () => {
   try {
-    await authStore.logout();
-    await navigateTo("/login");
+    const auth = getAuth();
+    await signOut(auth);
+
+    authStore.clearAuth();
+
+    await navigateTo("/");
   } catch (error) {
     console.error("Logout error:", error);
+    alert("Failed to log out. Please try again.");
   }
 };
 
@@ -203,6 +248,18 @@ watch(
     updateHeaderConfig(newPath);
   },
   { immediate: true }
+);
+
+watch(
+  () => authStore.isAuthenticated,
+  (isAuth) => {
+    if (!isAuth) {
+      headerIcon.value = "fa-home";
+      headerTitle.value = "FamilySpace";
+      headerSubtitle.value = "";
+      showMessagesBadge.value = false;
+    }
+  }
 );
 
 onMounted(async () => {
