@@ -32,13 +32,26 @@
 
           <!-- Right Section - Only show when authenticated -->
           <div v-if="isAuthenticated" class="flex items-center gap-4">
+            <!-- Capsules Link - Desktop -->
+            <NuxtLink
+              to="/capsules"
+              class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              :class="{
+                'text-blue-600 bg-blue-50': route.path.startsWith('/capsules'),
+              }"
+            >
+              <i class="fas fa-clock"></i>
+              <span class="text-sm">Capsules</span>
+            </NuxtLink>
+
             <!-- Messages Badge -->
             <NuxtLink
               v-if="showMessagesBadge"
               to="/messages"
-              class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <i class="fas fa-comments text-lg"></i>
+              <i class="fas fa-comments"></i>
+              <span class="text-sm"> Messages</span>
               <span
                 v-if="unreadMessagesCount > 0"
                 class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
@@ -118,6 +131,16 @@
           <span>Family</span>
         </NuxtLink>
 
+        <!-- Capsules Link - Mobile -->
+        <NuxtLink
+          to="/capsules"
+          class="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          :class="{ 'text-blue-600': route.path.startsWith('/capsules') }"
+        >
+          <i class="fas fa-clock text-lg"></i>
+          <span>Capsules</span>
+        </NuxtLink>
+
         <NuxtLink
           to="/messages"
           class="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors relative"
@@ -183,6 +206,12 @@ const updateHeaderConfig = (path) => {
       icon: "fa-users",
       title: "Family Members",
       subtitle: "",
+      badge: true,
+    },
+    "/capsules": {
+      icon: "fa-clock",
+      title: "Memory Capsules",
+      subtitle: "Future messages",
       badge: true,
     },
     "/login": {

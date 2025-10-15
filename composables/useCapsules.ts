@@ -178,6 +178,32 @@ export const useCapsules = () => {
     }
   };
 
+  const updateCapsuleById = async (id, data) => {
+    try {
+      ensureAuth();
+      loading.value = true;
+      error.value = null;
+
+      // Transform the data to match your Firebase structure
+      const updateData = {
+        title: data.title,
+        content: data.content,
+        deliveryDate: data.deliveryDate, // This should be a Date object
+        type: data.type,
+        // Only update recipientName if it exists in your structure
+        ...(data.recipientName && { recipientName: data.recipientName }),
+      };
+
+      const result = await updateCapsule(id, updateData);
+      return result;
+    } catch (err: any) {
+      error.value = err.message;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const updateStatus = async (capsuleId: string, status: string) => {
     try {
       ensureAuth();
@@ -209,6 +235,7 @@ export const useCapsules = () => {
     createNewCapsule,
     fetchCapsules,
     fetchCapsuleById,
+    updateCapsuleById,
     updateStatus,
     calculateDaysUntil,
   };

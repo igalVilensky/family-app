@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+    <main class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
       <div class="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div

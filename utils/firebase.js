@@ -3,6 +3,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import {
+  getFirestore,
   doc,
   setDoc,
   collection,
@@ -756,5 +757,24 @@ export const updateCapsuleStatus = async (capsuleId, status) => {
     return { success: true };
   } catch (error) {
     throw new Error(error.message || "Failed to update capsule");
+  }
+};
+
+export const updateCapsule = async (capsuleId, updateData) => {
+  try {
+    const db = getFirestore();
+    const capsuleRef = doc(db, "capsules", capsuleId);
+
+    // Prepare the update data with timestamp
+    const updatePayload = {
+      ...updateData,
+      updatedAt: serverTimestamp(),
+    };
+
+    await updateDoc(capsuleRef, updatePayload);
+    return { success: true, id: capsuleId };
+  } catch (error) {
+    console.error("Error updating capsule:", error);
+    throw new Error("Failed to update capsule: " + error.message);
   }
 };
