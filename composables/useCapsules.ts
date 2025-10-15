@@ -84,6 +84,7 @@ export const useCapsules = () => {
         // Enhance capsules with additional data
         const enhancedCapsules = secureCapsules.map((capsule) => ({
           ...capsule,
+          currentUserId: authStore.userId,
           daysUntilDelivery: calculateDaysUntil(capsule.deliveryDate),
           createdByName:
             capsule.createdBy === authStore.userId ? "You" : "Family Member",
@@ -113,6 +114,7 @@ export const useCapsules = () => {
 
       const enhancedCapsules = secureCapsules.map((capsule) => ({
         ...capsule,
+        currentUserId: authStore.userId,
         daysUntilDelivery: calculateDaysUntil(capsule.deliveryDate),
         createdByName:
           capsule.createdBy === authStore.userId ? "You" : "Family Member",
@@ -157,6 +159,7 @@ export const useCapsules = () => {
       // Enhance capsule with additional data
       return {
         ...capsule,
+        currentUserId: authStore.userId,
         daysUntilDelivery: calculateDaysUntil(capsule.deliveryDate),
         createdByName:
           capsule.createdBy === authStore.userId ? "You" : "Family Member",

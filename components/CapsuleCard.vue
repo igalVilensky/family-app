@@ -95,12 +95,18 @@ const props = defineProps({
 defineEmits(["view", "cancel"]);
 
 const canShowContent = computed(() => {
-  // Creator can always see content
-  if (props.capsule.createdBy === props.capsule.currentUserId) return true;
+  const currentUserId = props.capsule.currentUserId;
 
-  // Recipient can see content only after delivery
-  if (props.capsule.recipientId === props.capsule.currentUserId) {
-    return props.capsule.status === "delivered"; // This should be TRUE for delivered capsules
+  // 1. Creator can ALWAYS see content (they wrote it!)
+  if (props.capsule.createdBy === currentUserId) return true;
+
+  // 2. Recipient can see content if delivery date has passed
+  if (props.capsule.recipientId === currentUserId) {
+    const now = new Date();
+    const deliveryDate = props.capsule.deliveryDate.toDate
+      ? props.capsule.deliveryDate.toDate()
+      : new Date(props.capsule.deliveryDate);
+    return deliveryDate <= now;
   }
 
   return false;
