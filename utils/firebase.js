@@ -612,3 +612,149 @@ export const markMessagesAsRead = async (senderId) => {
     console.error("Mark messages read error:", error);
   }
 };
+
+// Capsules functions
+export const getCapsules = async (status = null) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+    if (!userDoc.exists()) {
+      return [];
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) return [];
+
+    // CRITICAL FIX: Only fetch capsules that user should see
+    const userId = auth.currentUser.uid;
+
+    // Build query for capsules user can access:
+    // 1. Capsules created by user (can see all statuses)
+    // 2. Capsules where user is recipient AND status is 'delivered'
+    const capsulesQuery = query(
+      collection(db, "capsules"),
+      where("familyId", "==", familyId),
+      where("status", "in", ["scheduled", "delivered", "cancelled"]),
+      orderBy("deliveryDate", "asc")
+    );
+
+    const snapshot = await getDocs(capsulesQuery);
+
+    // CRITICAL: Filter on client side for additional security
+    const filteredCapsules = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((capsule) => {
+        // User can always see capsules they created
+        if (capsule.createdBy === userId) return true;
+
+        // User can only see received capsules if delivered
+        if (capsule.recipientId === userId) {
+          return capsule.status === "delivered";
+        }
+
+        return false;
+      });
+
+    return filteredCapsules;
+  } catch (error) {
+    console.error("Get capsules error:", error);
+    return [];
+  }
+};
+
+export const createCapsule = async (capsuleData) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+    if (!userDoc.exists()) {
+      throw new Error("User profile not found");
+    }
+
+    const userData = userDoc.data();
+    const familyId = userData.familyId;
+
+    if (!familyId) throw new Error("No family access");
+
+    // Validate recipient is in same family
+    if (capsuleData.recipientId) {
+      const recipientDoc = await getDoc(
+        doc(db, "users", capsuleData.recipientId)
+      );
+      if (!recipientDoc.exists() || recipientDoc.data().familyId !== familyId) {
+        throw new Error("Recipient must be in the same family");
+      }
+    }
+
+    // Validate delivery date is in the future
+    const deliveryDate = new Date(capsuleData.deliveryDate);
+    if (deliveryDate <= new Date()) {
+      throw new Error("Delivery date must be in the future");
+    }
+
+    const capsuleRef = await addDoc(collection(db, "capsules"), {
+      familyId,
+      createdBy: auth.currentUser.uid,
+      recipientId: capsuleData.recipientId,
+      title: capsuleData.title.trim(),
+      content: capsuleData.content.trim(),
+      type: capsuleData.type || "text",
+      deliveryDate: deliveryDate,
+      status: "scheduled",
+      createdAt: serverTimestamp(),
+      isPrivate: true,
+    });
+
+    return { success: true, capsuleId: capsuleRef.id };
+  } catch (error) {
+    console.error("Create capsule error:", error);
+    throw new Error(error.message || "Failed to create capsule");
+  }
+};
+
+export const getCapsuleById = async (capsuleId) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    const capsuleDoc = await getDoc(doc(db, "capsules", capsuleId));
+    if (!capsuleDoc.exists()) {
+      throw new Error("Capsule not found");
+    }
+
+    const capsuleData = capsuleDoc.data();
+
+    // Check if user has access to this capsule (same family)
+    const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+    if (!userDoc.exists()) {
+      throw new Error("User not found");
+    }
+
+    const userData = userDoc.data();
+    if (capsuleData.familyId !== userData.familyId) {
+      throw new Error("Access denied");
+    }
+
+    return { id: capsuleDoc.id, ...capsuleData };
+  } catch (error) {
+    console.error("Get capsule error:", error);
+    throw error;
+  }
+};
+
+export const updateCapsuleStatus = async (capsuleId, status) => {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+
+  try {
+    const capsuleRef = doc(db, "capsules", capsuleId);
+    await updateDoc(capsuleRef, {
+      status,
+      updatedAt: serverTimestamp(),
+    });
+    return { success: true };
+  } catch (error) {
+    throw new Error(error.message || "Failed to update capsule");
+  }
+};
