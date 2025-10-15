@@ -30,75 +30,109 @@
             </div>
           </NuxtLink>
 
-          <!-- Right Section - Only show when authenticated -->
-          <div v-if="isAuthenticated" class="flex items-center gap-4">
-            <!-- Capsules Link - Desktop -->
-            <NuxtLink
-              to="/capsules"
-              class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              :class="{
-                'text-blue-600 bg-blue-50': route.path.startsWith('/capsules'),
-              }"
-            >
-              <i class="fas fa-clock"></i>
-              <span class="text-sm">Capsules</span>
-            </NuxtLink>
+          <!-- Right Section -->
+          <div class="flex items-center gap-4">
+            <!-- Links for Authenticated Users -->
+            <template v-if="isAuthenticated">
+              <NuxtLink
+                to="/dashboard"
+                class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                :class="{
+                  'text-blue-600 bg-blue-50':
+                    route.path.startsWith('/dashboard'),
+                }"
+              >
+                <i class="fas fa-home"></i>
+                <span class="text-sm">Home</span>
+              </NuxtLink>
 
-            <!-- Messages Badge -->
-            <NuxtLink
-              v-if="showMessagesBadge"
-              to="/messages"
-              class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <i class="fas fa-comments"></i>
-              <span class="text-sm"> Messages</span>
-              <span
-                v-if="unreadMessagesCount > 0"
-                class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
-              ></span>
-            </NuxtLink>
+              <NuxtLink
+                to="/calendar"
+                class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                :class="{
+                  'text-blue-600 bg-blue-50':
+                    route.path.startsWith('/calendar'),
+                }"
+              >
+                <i class="fas fa-calendar-alt"></i>
+                <span class="text-sm">Calendar</span>
+              </NuxtLink>
 
-            <!-- Header Actions Slot -->
-            <div class="flex items-center gap-2 border-l border-gray-200 pl-4">
-              <slot name="header-actions" />
-            </div>
+              <NuxtLink
+                :to="familyLink"
+                class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                :class="{
+                  'text-blue-600 bg-blue-50': route.path.startsWith('/family'),
+                }"
+              >
+                <i class="fas fa-users"></i>
+                <span class="text-sm">Family</span>
+              </NuxtLink>
 
-            <!-- Logout -->
-            <button
-              @click="handleLogout"
-              class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              Logout
-            </button>
-          </div>
+              <NuxtLink
+                to="/capsules"
+                class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                :class="{
+                  'text-blue-600 bg-blue-50':
+                    route.path.startsWith('/capsules'),
+                }"
+              >
+                <i class="fas fa-clock"></i>
+                <span class="text-sm">Capsules</span>
+              </NuxtLink>
 
-          <!-- Show login/signup links when not authenticated -->
-          <div v-else class="flex items-center gap-3">
-            <NuxtLink
-              to="/login"
-              class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Login
-            </NuxtLink>
-            <NuxtLink
-              to="/register"
-              class="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              Sign Up
-            </NuxtLink>
+              <NuxtLink
+                to="/messages"
+                class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors relative"
+                :class="{
+                  'text-blue-600 bg-blue-50':
+                    route.path.startsWith('/messages'),
+                }"
+              >
+                <i class="fas fa-comments"></i>
+                <span class="text-sm">Messages</span>
+                <span
+                  v-if="unreadMessagesCount > 0"
+                  class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+                ></span>
+              </NuxtLink>
+
+              <button
+                @click="handleLogout"
+                class="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="text-sm">Logout</span>
+              </button>
+            </template>
+            <!-- Non-authenticated users -->
+            <template v-else>
+              <NuxtLink
+                to="/login"
+                class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Login
+              </NuxtLink>
+              <NuxtLink
+                to="/register"
+                class="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                Sign Up
+              </NuxtLink>
+            </template>
           </div>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="pt-16 pb-20 lg:pb-0">
+    <main :class="isAuthenticated ? 'pt-16 pb-20 lg:pb-0' : 'pt-16'">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
     </main>
 
-    <!-- Bottom Navigation - Mobile - Only show when authenticated -->
+    <!-- Bottom Navigation - Mobile Only, Authenticated Users -->
     <nav
       v-if="isAuthenticated"
       class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 lg:hidden"
@@ -131,7 +165,6 @@
           <span>Family</span>
         </NuxtLink>
 
-        <!-- Capsules Link - Mobile -->
         <NuxtLink
           to="/capsules"
           class="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
@@ -179,7 +212,6 @@ const showHeader = ref(true);
 const headerIcon = ref("fa-home");
 const headerTitle = ref("FamilySpace");
 const headerSubtitle = ref("");
-const showMessagesBadge = ref(true);
 const unreadMessagesCount = ref(0);
 
 const updateHeaderConfig = (path) => {
@@ -188,49 +220,46 @@ const updateHeaderConfig = (path) => {
       icon: "fa-home",
       title: "FamilySpace",
       subtitle: "",
-      badge: true,
     },
     "/messages": {
       icon: "fa-comments",
       title: "Messages",
       subtitle: "",
-      badge: false,
     },
     "/calendar": {
       icon: "fa-calendar-alt",
       title: "Calendar",
       subtitle: "Plan your moments",
-      badge: true,
     },
     "/family": {
       icon: "fa-users",
       title: "Family Members",
       subtitle: "",
-      badge: true,
     },
     "/capsules": {
       icon: "fa-clock",
       title: "Memory Capsules",
       subtitle: "Future messages",
-      badge: true,
+    },
+    "/profile": {
+      icon: "fa-user",
+      title: "Profile Settings",
+      subtitle: "",
     },
     "/login": {
       icon: "fa-home",
       title: "FamilySpace",
       subtitle: "",
-      badge: false,
     },
     "/signup": {
       icon: "fa-home",
       title: "FamilySpace",
       subtitle: "",
-      badge: false,
     },
     "/": {
       icon: "fa-home",
       title: "FamilySpace",
       subtitle: "",
-      badge: false,
     },
   };
 
@@ -241,7 +270,6 @@ const updateHeaderConfig = (path) => {
   headerIcon.value = config.icon;
   headerTitle.value = config.title;
   headerSubtitle.value = config.subtitle;
-  showMessagesBadge.value = config.badge;
 };
 
 const fetchUnreadMessages = async () => {
@@ -286,7 +314,6 @@ watch(
       headerIcon.value = "fa-home";
       headerTitle.value = "FamilySpace";
       headerSubtitle.value = "";
-      showMessagesBadge.value = false;
     }
   }
 );

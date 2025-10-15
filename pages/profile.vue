@@ -1,45 +1,60 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <!-- Loading State -->
+    <div
+      v-if="isLoading"
+      class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center"
+    >
+      <div class="text-center">
+        <div class="relative w-20 h-20 mx-auto mb-4">
+          <div
+            class="absolute inset-0 border-4 border-blue-200 rounded-full"
+          ></div>
+          <div
+            class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
+          ></div>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+          Loading your profile...
+        </h2>
+        <p class="text-gray-600">Please wait a moment</p>
+      </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-      <!-- Profile Header Card -->
+    <main
+      class="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 pb-24 md:pb-8"
+    >
+      <!-- Profile Header -->
       <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 mb-8"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
       >
-        <div class="flex flex-col sm:flex-row items-center gap-8">
-          <!-- Avatar Section -->
-          <div class="flex flex-col items-center gap-4">
-            <div class="relative group">
-              <avatar
-                :avatar-url="authStore.avatarUrl"
-                :user-initial="userInitial"
-                :size="120"
-                :no-upload="false"
-                class="hover:ring-4 hover:ring-blue-100 transition-all duration-300 group-hover:scale-105 rounded-2xl"
-                @avatar-updated="handleAvatarUpdate"
-              />
-              <div
-                class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
-              >
-                <i class="fas fa-check text-white text-xs"></i>
-              </div>
+        <div class="flex flex-col items-center text-center gap-4 sm:gap-6">
+          <div class="relative group">
+            <Avatar
+              :avatar-url="authStore.avatarUrl"
+              :user-initial="userInitial"
+              :size="96"
+              :no-upload="false"
+              class="hover:ring-4 hover:ring-blue-100 transition-all duration-300 group-hover:scale-105 rounded-2xl"
+              @avatar-updated="handleAvatarUpdate"
+            />
+            <div
+              class="absolute -bottom-2 -right-2 w-7 h-7 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
+            >
+              <i class="fas fa-check text-white text-xs"></i>
             </div>
           </div>
 
-          <!-- Basic Info -->
-          <div class="flex-1 text-center sm:text-left">
-            <h2 class="text-3xl font-bold text-gray-900 mb-3">
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
               {{ authStore.name || "Your Name" }}
-            </h2>
-            <div
-              class="flex items-center justify-center sm:justify-start gap-2 text-gray-600 mb-4 text-lg"
-            >
-              <i class="fas fa-envelope text-blue-500"></i>
-              <span>{{ authStore.email }}</span>
-            </div>
-            <div
-              class="flex flex-wrap items-center justify-center sm:justify-start gap-3"
-            >
+            </h1>
+            <p class="text-base sm:text-lg text-gray-600 mb-4">
+              {{ authStore.email }}
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-3">
               <div
                 class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full"
               >
@@ -49,11 +64,12 @@
                 </span>
               </div>
               <div
+                v-if="authStore.familyName"
                 class="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full"
               >
                 <i class="fas fa-home text-green-600 text-sm"></i>
                 <span class="font-medium text-gray-700">{{
-                  authStore.familyName || "No Family"
+                  authStore.familyName
                 }}</span>
               </div>
               <div
@@ -65,49 +81,42 @@
               </div>
             </div>
           </div>
-          <div class="flex-1 text-center sm:text-left">
-            <h2 class="text-3xl font-bold text-gray-900 mb-3">
-              {{ authStore.name || "Your Name" }}
-            </h2>
-            <div
-              class="flex items-center justify-center sm:justify-start gap-2 text-gray-600 mb-4 text-lg"
+
+          <div class="flex flex-wrap justify-center gap-3">
+            <NuxtLink
+              :to="`/user/${authStore.userId}`"
+              class="inline-flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium border border-blue-200"
             >
-              <i class="fas fa-envelope text-blue-500"></i>
-              <span>{{ authStore.email }}</span>
-            </div>
-
-            <div class="flex justify-center sm:justify-start mb-4">
-              <NuxtLink
-                :to="`/user/${authStore.userId}`"
-                class="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium border border-blue-200"
-              >
-                <i class="fas fa-eye text-sm"></i>
-                View Public Profile
-              </NuxtLink>
-            </div>
-
-            <div
-              class="flex flex-wrap items-center justify-center sm:justify-start gap-3"
-            ></div>
+              <i class="fas fa-eye text-sm"></i>
+              View Public Profile
+            </NuxtLink>
+            <NuxtLink
+              to="/dashboard"
+              class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all duration-200 font-medium border border-gray-200"
+            >
+              <i class="fas fa-arrow-left text-sm"></i>
+              Back to Dashboard
+            </NuxtLink>
           </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
         <!-- Left Column - Personal Information -->
-        <div class="xl:col-span-2 space-y-8">
+        <div class="xl:col-span-2 space-y-6 md:space-y-8">
           <!-- Personal Information -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
           >
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center"
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0"
               >
                 <i class="fas fa-user text-white text-lg"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-lg md:text-xl font-semibold text-gray-900">
                   Personal Information
                 </h3>
                 <p class="text-gray-500 text-sm">
@@ -117,7 +126,7 @@
             </div>
 
             <form @submit.prevent="updateProfile" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
                   <label
                     for="name"
@@ -156,7 +165,7 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
                   <label
                     for="birthday"
@@ -250,93 +259,22 @@
               </button>
             </form>
           </div>
-
-          <!-- Danger Zone -->
-          <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-6">
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center"
-              >
-                <i class="fas fa-exclamation-triangle text-white text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">Danger Zone</h3>
-                <p class="text-gray-500 text-sm">Irreversible actions</p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="border border-red-200 rounded-xl p-5 bg-red-50/50">
-                <div class="flex items-center gap-3 mb-3">
-                  <div
-                    class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"
-                  >
-                    <i class="fas fa-sign-out-alt text-red-600"></i>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-gray-900">Leave Family</h4>
-                    <p class="text-sm text-gray-600">
-                      Remove yourself from your current family
-                    </p>
-                  </div>
-                </div>
-                <button
-                  @click="leaveFamily"
-                  class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  :disabled="leaving"
-                >
-                  <i
-                    class="fas fa-sign-out-alt text-sm"
-                    :class="{ 'animate-spin': leaving }"
-                  ></i>
-                  {{ leaving ? "Leaving..." : "Leave Family" }}
-                </button>
-              </div>
-
-              <div class="border border-red-200 rounded-xl p-5 bg-red-50/50">
-                <div class="flex items-center gap-3 mb-3">
-                  <div
-                    class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"
-                  >
-                    <i class="fas fa-trash text-red-600"></i>
-                  </div>
-                  <div>
-                    <h4 class="font-semibold text-gray-900">Delete Account</h4>
-                    <p class="text-sm text-gray-600">
-                      Permanently delete your account and data
-                    </p>
-                  </div>
-                </div>
-                <button
-                  @click="deleteAccount"
-                  class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  :disabled="deleting"
-                >
-                  <i
-                    class="fas fa-trash text-sm"
-                    :class="{ 'animate-spin': deleting }"
-                  ></i>
-                  {{ deleting ? "Deleting..." : "Delete Account" }}
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Right Column - Security & Settings -->
-        <div class="space-y-8">
+        <div class="space-y-6 md:space-y-8">
           <!-- Security & Privacy -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
           >
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0"
               >
                 <i class="fas fa-shield-alt text-white text-lg"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-lg md:text-xl font-semibold text-gray-900">
                   Security & Privacy
                 </h3>
                 <p class="text-gray-500 text-sm">
@@ -351,7 +289,7 @@
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center gap-3">
                     <div
-                      class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                      class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"
                     >
                       <i class="fas fa-key text-green-600"></i>
                     </div>
@@ -364,7 +302,7 @@
                   </div>
                   <button
                     @click="showPasswordForm = !showPasswordForm"
-                    class="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
+                    class="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium flex-shrink-0"
                   >
                     <i class="fas fa-edit text-sm"></i>
                     {{ showPasswordForm ? "Cancel" : "Change" }}
@@ -454,7 +392,7 @@
               <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
                 <div class="flex items-center gap-3 mb-4">
                   <div
-                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"
+                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
                   >
                     <i class="fas fa-eye text-purple-600"></i>
                   </div>
@@ -465,12 +403,13 @@
                     </p>
                   </div>
                   <label
-                    class="relative inline-flex items-center cursor-pointer"
+                    class="relative inline-flex items-center cursor-pointer flex-shrink-0"
                   >
                     <input
                       type="checkbox"
                       v-model="profileForm.permissions.privateMode"
                       class="sr-only peer"
+                      @change="updatePrivacyMode"
                     />
                     <div
                       class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"
@@ -483,7 +422,7 @@
               <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
                   >
                     <i class="fas fa-user-tag text-blue-600"></i>
                   </div>
@@ -494,7 +433,7 @@
                     </p>
                   </div>
                   <span
-                    class="px-4 py-2 text-sm font-semibold rounded-xl capitalize"
+                    class="px-4 py-2 text-sm font-semibold rounded-xl capitalize flex-shrink-0"
                     :class="{
                       'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
                         authStore.permissions.role === 'admin',
@@ -511,16 +450,16 @@
 
           <!-- Account Status -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
           >
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center"
+                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0"
               >
                 <i class="fas fa-info-circle text-white text-lg"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-lg md:text-xl font-semibold text-gray-900">
                   Account Status
                 </h3>
                 <p class="text-gray-500 text-sm">Your account information</p>
@@ -554,60 +493,80 @@
               </div>
             </div>
           </div>
-          <!-- Family Members -->
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-red-200 p-6 md:p-8"
+      >
+        <div class="flex items-center gap-3 mb-6">
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0"
           >
-            <div class="flex items-center gap-3 mb-6">
+            <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-lg md:text-xl font-semibold text-gray-900">
+              Danger Zone
+            </h3>
+            <p class="text-gray-500 text-sm">Irreversible actions</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div class="border border-red-200 rounded-xl p-5 bg-red-50/50">
+            <div class="flex items-center gap-3 mb-3">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center"
+                class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0"
               >
-                <i class="fas fa-users text-white text-lg"></i>
+                <i class="fas fa-sign-out-alt text-red-600"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Family Members
-                </h3>
-                <p class="text-gray-500 text-sm">View other family profiles</p>
+                <h4 class="font-semibold text-gray-900">Leave Family</h4>
+                <p class="text-sm text-gray-600">
+                  Remove yourself from your current family
+                </p>
               </div>
             </div>
-
-            <div class="space-y-3">
-              <div
-                v-for="member in otherFamilyMembers"
-                :key="member.userId"
-                class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors duration-200 cursor-pointer group"
-                @click="goToUserProfile(member.userId)"
-              >
-                <div
-                  class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors"
-                >
-                  <span class="text-sm font-medium text-blue-600">
-                    {{
-                      member.name ? member.name.charAt(0).toUpperCase() : "?"
-                    }}
-                  </span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="font-medium text-gray-900 truncate text-sm">
-                    {{ member.name || member.email }}
-                  </p>
-                  <p class="text-xs text-gray-500 capitalize">
-                    {{ member.role }}
-                  </p>
-                </div>
-                <i
-                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-blue-500 transition-colors"
-                ></i>
-              </div>
-            </div>
-
-            <NuxtLink
-              :to="`/family/${authStore.familyId}`"
-              class="block text-center mt-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-medium border border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-all duration-200"
+            <button
+              @click="leaveFamily"
+              class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              :disabled="leaving"
             >
-              View All Family Members
-            </NuxtLink>
+              <i
+                class="fas fa-sign-out-alt text-sm"
+                :class="{ 'animate-spin': leaving }"
+              ></i>
+              {{ leaving ? "Leaving..." : "Leave Family" }}
+            </button>
+          </div>
+
+          <div class="border border-red-200 rounded-xl p-5 bg-red-50/50">
+            <div class="flex items-center gap-3 mb-3">
+              <div
+                class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-trash text-red-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">Delete Account</h4>
+                <p class="text-sm text-gray-600">
+                  Permanently delete your account and data
+                </p>
+              </div>
+            </div>
+            <button
+              @click="deleteAccount"
+              class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              :disabled="deleting"
+            >
+              <i
+                class="fas fa-trash text-sm"
+                :class="{ 'animate-spin': deleting }"
+              ></i>
+              {{ deleting ? "Deleting..." : "Delete Account" }}
+            </button>
           </div>
         </div>
       </div>
@@ -685,6 +644,7 @@ const passwordForm = ref({
 });
 
 // UI state
+const isLoading = ref(true);
 const saving = ref(false);
 const updatingPassword = ref(false);
 const leaving = ref(false);
@@ -693,6 +653,7 @@ const showPasswordForm = ref(false);
 const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
+const updatingPrivacy = ref(false);
 
 const userInitial = computed(() =>
   authStore.name ? authStore.name.charAt(0).toUpperCase() : "?"
@@ -724,14 +685,6 @@ const isPasswordFormValid = computed(() => {
   );
 });
 
-const familyMembers = computed(() => authStore.familyMembers || []);
-
-const otherFamilyMembers = computed(() => {
-  return familyMembers.value
-    .filter((member) => member.userId !== authStore.userId)
-    .slice(0, 3); // Show max 3 other members
-});
-
 const calculateMinor = (birthday) => {
   if (!birthday) return false;
   const birthDate = new Date(birthday);
@@ -758,10 +711,6 @@ const formatJoinDate = (timestamp) => {
   } catch {
     return "Unknown";
   }
-};
-
-const goToUserProfile = (userId) => {
-  router.push(`/user/${userId}`);
 };
 
 const showToast = (message, type = "success") => {
@@ -833,6 +782,34 @@ const updateProfile = async () => {
   }
 };
 
+const updatePrivacyMode = async () => {
+  if (updatingPrivacy.value) return;
+  updatingPrivacy.value = true;
+
+  const newPrivateMode = profileForm.value.permissions.privateMode;
+  const previousPrivateMode = authStore.permissions.privateMode;
+
+  try {
+    // Optimistically update store
+    authStore.permissions.privateMode = newPrivateMode;
+
+    await updateDoc(doc(db, "users", authStore.userId), {
+      "permissions.privateMode": newPrivateMode,
+      updatedAt: new Date(),
+    });
+
+    showToast("Privacy settings updated successfully", "success");
+  } catch (error) {
+    console.error("Error updating privacy mode:", error);
+    // Revert on failure
+    profileForm.value.permissions.privateMode = previousPrivateMode;
+    authStore.permissions.privateMode = previousPrivateMode;
+    showToast("Failed to update privacy settings: " + error.message, "error");
+  } finally {
+    updatingPrivacy.value = false;
+  }
+};
+
 const updatePassword = async () => {
   if (!isPasswordFormValid.value) {
     if (passwordForm.value.new !== passwordForm.value.confirm) {
@@ -893,11 +870,6 @@ const cancelPasswordUpdate = () => {
 const handleAvatarUpdate = (newAvatarUrl) => {
   authStore.avatarUrl = newAvatarUrl;
   showToast("Profile photo updated successfully", "success");
-};
-
-const triggerAvatarUpload = () => {
-  // Implementation depends on Avatar component
-  console.log("Trigger avatar upload");
 };
 
 const leaveFamily = async () => {
@@ -969,6 +941,7 @@ onMounted(async () => {
   }
 
   initializeForm();
+  isLoading.value = false;
 });
 
 useHead({
