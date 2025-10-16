@@ -1,12 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <div
+    class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50"
+  >
     <!-- Loading State -->
     <div
       v-if="isLoading"
-      class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 z-50 flex items-center justify-center"
     >
       <div class="text-center">
-        <div class="relative w-20 h-20 mx-auto mb-4">
+        <div class="relative w-20 h-20 mx-auto mb-6">
           <div
             class="absolute inset-0 border-4 border-blue-200 rounded-full"
           ></div>
@@ -14,44 +16,67 @@
             class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
           ></div>
         </div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">
-          Loading your dashboard...
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+          Loading FamilySpace
         </h2>
-        <p class="text-gray-600">Please wait a moment</p>
+        <p class="text-sm md:text-base text-gray-600">Please wait...</p>
       </div>
     </div>
 
     <!-- Main Content -->
-    <main
-      class="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 pb-24 md:pb-8"
-    >
-      <!-- Welcome Section -->
-      <DashboardHeading />
+    <main class="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-8 pb-24 md:pb-8">
+      <!-- Family Header - Warm Welcome -->
+      <div class="text-center space-y-4 py-8">
+        <div class="flex items-center justify-center gap-4">
+          <div
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-orange-200"
+          >
+            <i class="fas fa-home text-orange-500"></i>
+            <span class="text-sm font-medium text-gray-700">{{
+              authStore.familyName || "Your Family Space"
+            }}</span>
+          </div>
+          <NuxtLink
+            to="/profile"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 hover:border-gray-300 transition-all"
+          >
+            <i class="fas fa-user text-gray-600"></i>
+            <span class="text-sm font-medium text-gray-700">Profile</span>
+          </NuxtLink>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-bold text-gray-900">
+          Welcome Home!
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          {{ getGreeting() }}
+        </p>
+      </div>
 
       <!-- Pending Join Request Alert -->
       <div
         v-if="hasPendingJoinRequest && !authStore.familyId"
-        class="bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-6 animate-fadeIn"
+        class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-6 md:p-8 shadow-lg animate-fadeIn"
       >
-        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div class="flex flex-col sm:flex-row items-center gap-6">
           <div
-            class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0"
+            class="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg"
           >
-            <i class="fas fa-clock text-amber-600 text-xl"></i>
+            <i class="fas fa-hourglass-half text-white text-2xl"></i>
           </div>
           <div class="text-center sm:text-left flex-1">
-            <h3 class="text-base md:text-lg font-semibold text-amber-900 mb-1">
-              Join Request Pending
+            <h3 class="text-xl font-bold text-gray-900 mb-2">
+              Waiting to Join the Family
             </h3>
-            <p class="text-amber-700 text-sm mb-4">
-              Your request to join <strong>{{ pendingFamilyName }}</strong> is
-              waiting for admin approval.
+            <p class="text-gray-700 mb-4">
+              Your request to join
+              <strong class="text-amber-900">{{ pendingFamilyName }}</strong> is
+              being reviewed by the family admin.
             </p>
-            <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex flex-col sm:flex-row gap-3">
               <button
                 @click="checkRequestStatus"
                 :disabled="checkingStatus"
-                class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-all disabled:opacity-50"
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-xl hover:bg-amber-700 transition-all shadow-md disabled:opacity-50"
               >
                 <i
                   class="fas fa-sync-alt"
@@ -62,12 +87,9 @@
               <button
                 @click="cancelJoinRequest"
                 :disabled="cancelingRequest"
-                class="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all disabled:opacity-50"
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-white text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all border-2 border-red-200 disabled:opacity-50"
               >
-                <i
-                  class="fas fa-times"
-                  :class="{ 'animate-spin': cancelingRequest }"
-                ></i>
+                <i class="fas fa-times"></i>
                 {{ cancelingRequest ? "Canceling..." : "Cancel Request" }}
               </button>
             </div>
@@ -75,117 +97,173 @@
         </div>
       </div>
 
-      <!-- Stats Grid - Compact on Mobile -->
+      <!-- Quick Stats - Family Style -->
       <div
         v-if="authStore.familyId"
-        class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4"
+        class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
       >
-        <!-- Today's Events -->
         <div
-          class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200/60 p-4 md:p-6"
+          class="bg-white rounded-3xl shadow-md border-2 border-rose-100 p-6 hover:shadow-xl transition-all"
         >
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-xs md:text-sm text-gray-600">Today's Events</p>
-            <i class="fas fa-calendar text-blue-500 text-base md:text-lg"></i>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-rose-400 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-calendar-day text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="text-3xl font-bold text-gray-900">
+                {{ todaysEventsCount }}
+              </p>
+              <p class="text-sm text-gray-600 font-medium">Today's Plans</p>
+            </div>
           </div>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900">
-            {{ todaysEventsCount }}
-          </p>
         </div>
 
-        <!-- Upcoming Birthdays -->
         <div
-          class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200/60 p-4 md:p-6"
+          class="bg-white rounded-3xl shadow-md border-2 border-purple-100 p-6 hover:shadow-xl transition-all"
         >
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-xs md:text-sm text-gray-600">Next 30 Days</p>
-            <i
-              class="fas fa-birthday-cake text-pink-500 text-base md:text-lg"
-            ></i>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-birthday-cake text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="text-3xl font-bold text-gray-900">
+                {{ upcomingBirthdaysCount }}
+              </p>
+              <p class="text-sm text-gray-600 font-medium">
+                Upcoming Birthdays
+              </p>
+            </div>
           </div>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900">
-            {{ upcomingBirthdaysCount }}
-          </p>
         </div>
 
-        <!-- Unread Messages -->
         <div
-          class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200/60 p-4 md:p-6"
+          class="bg-white rounded-3xl shadow-md border-2 border-orange-100 p-6 hover:shadow-xl transition-all"
         >
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-xs md:text-sm text-gray-600">Messages</p>
-            <i class="fas fa-envelope text-purple-500 text-base md:text-lg"></i>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-orange-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-comment-dots text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="text-3xl font-bold text-gray-900">
+                {{ unreadMessagesCount }}
+              </p>
+              <p class="text-sm text-gray-600 font-medium">New Messages</p>
+            </div>
           </div>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900">
-            {{ unreadMessagesCount }}
-          </p>
+        </div>
+
+        <div
+          class="bg-white rounded-3xl shadow-md border-2 border-emerald-100 p-6 hover:shadow-xl transition-all"
+        >
+          <div class="flex flex-col items-center text-center gap-3">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg"
+            >
+              <i class="fas fa-users text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="text-3xl font-bold text-gray-900">
+                {{ familyMembers.length }}
+              </p>
+              <p class="text-sm text-gray-600 font-medium">Family Members</p>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Main Content Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        <!-- Left Column: Events & Messages -->
-        <div class="lg:col-span-2 space-y-6 md:space-y-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-8">
           <!-- Upcoming Events -->
           <div
             v-if="authStore.familyId && authStore.status === 'active'"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
+            class="bg-white rounded-3xl shadow-lg border-2 border-blue-100 p-6 md:p-8"
           >
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-lg md:text-2xl font-bold text-gray-900">
-                <i class="fas fa-calendar-check text-blue-500 mr-3"></i>Upcoming
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6"
+            >
+              <h2
+                class="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2"
+              >
+                <i class="fas fa-calendar-check text-blue-500"></i>
+                <span>What's Coming Up</span>
               </h2>
               <NuxtLink
                 to="/calendar"
-                class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                class="text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 rounded-xl hover:bg-blue-100 transition-all text-sm whitespace-nowrap"
               >
-                View all
+                View Calendar
                 <i class="fas fa-arrow-right text-xs"></i>
               </NuxtLink>
             </div>
 
-            <div v-if="upcomingEvents.length > 0" class="space-y-3">
+            <div v-if="upcomingEvents.length > 0" class="space-y-4">
               <div
-                v-for="(event, idx) in upcomingEvents.slice(0, 4)"
+                v-for="event in upcomingEvents.slice(0, 4)"
                 :key="event.id"
-                class="flex items-start gap-4 p-3 md:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                class="flex items-start gap-4 p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl hover:shadow-md transition-all border border-blue-100"
               >
                 <div
-                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-semibold text-blue-600"
+                  class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 text-white shadow-lg"
                 >
-                  {{ new Date(event.startDate).getDate() }}
+                  <span class="text-2xl font-bold">{{
+                    new Date(event.startDate).getDate()
+                  }}</span>
+                  <span class="text-xs font-medium">{{
+                    new Date(event.startDate).toLocaleDateString("en-US", {
+                      month: "short",
+                    })
+                  }}</span>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p
-                    class="font-medium text-gray-900 text-sm md:text-base truncate"
-                  >
+                  <p class="font-bold text-gray-900 text-lg mb-1">
                     {{ event.title }}
                   </p>
-                  <p class="text-xs md:text-sm text-gray-500">
+                  <p class="text-gray-600 flex items-center gap-2">
+                    <i class="fas fa-clock text-sm"></i>
                     {{ formatEventDate(event.startDate) }}
                   </p>
                 </div>
               </div>
             </div>
-            <div v-else class="text-center py-8">
-              <p class="text-gray-500 text-sm">No upcoming events</p>
+            <div v-else class="text-center py-12">
+              <i class="fas fa-calendar-plus text-gray-300 text-5xl mb-4"></i>
+              <p class="text-gray-500">No upcoming events yet</p>
+              <NuxtLink
+                to="/calendar"
+                class="inline-block mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all"
+              >
+                Add Your First Event
+              </NuxtLink>
             </div>
           </div>
 
           <!-- Recent Messages -->
           <div
             v-if="authStore.familyId && recentConversations.length > 0"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
+            class="bg-white rounded-3xl shadow-lg border-2 border-purple-100 p-6 md:p-8"
           >
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-lg md:text-2xl font-bold text-gray-900">
-                <i class="fas fa-comments text-purple-500 mr-3"></i>Messages
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6"
+            >
+              <h2
+                class="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2"
+              >
+                <i class="fas fa-comments text-purple-500"></i>
+                <span>Family Chats</span>
               </h2>
               <NuxtLink
                 to="/messages"
-                class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                class="text-purple-600 hover:text-purple-700 font-medium flex items-center justify-center gap-2 px-4 py-2 bg-purple-50 rounded-xl hover:bg-purple-100 transition-all text-sm whitespace-nowrap"
               >
-                View all
+                View All
                 <i class="fas fa-arrow-right text-xs"></i>
               </NuxtLink>
             </div>
@@ -194,11 +272,11 @@
               <div
                 v-for="conversation in recentConversations.slice(0, 3)"
                 :key="conversation.userId"
-                class="flex items-center gap-3 p-3 md:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                class="flex items-center gap-4 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl hover:shadow-md transition-all cursor-pointer border border-purple-100"
                 @click="goToConversation(conversation.userId)"
               >
                 <div
-                  class="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
+                  class="w-14 h-14 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden shadow-lg"
                 >
                   <img
                     v-if="conversation.avatarUrl"
@@ -206,7 +284,7 @@
                     :alt="conversation.name"
                     class="w-full h-full object-cover"
                   />
-                  <span v-else class="text-xs font-bold text-blue-600">
+                  <span v-else class="text-xl font-bold text-white">
                     {{
                       conversation.name
                         ? conversation.name.charAt(0).toUpperCase()
@@ -216,14 +294,16 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between gap-2 mb-1">
-                    <p class="font-medium text-gray-900 text-sm truncate">
+                    <p class="font-bold text-gray-900 truncate">
                       {{ conversation.name }}
                     </p>
-                    <span class="text-xs text-gray-500 flex-shrink-0">
+                    <span
+                      class="text-xs text-gray-500 flex-shrink-0 bg-white px-2 py-1 rounded-lg"
+                    >
                       {{ formatTimeAgo(conversation.lastMessageTime) }}
                     </span>
                   </div>
-                  <p class="text-xs text-gray-600 truncate">
+                  <p class="text-sm text-gray-600 truncate">
                     {{ conversation.lastMessage }}
                   </p>
                 </div>
@@ -232,44 +312,78 @@
           </div>
         </div>
 
-        <!-- Right Column: Family & Setup -->
-        <div class="space-y-6 md:space-y-8">
-          <!-- Family Members -->
+        <!-- Right Column -->
+        <div class="space-y-8">
+          <!-- Family Circle -->
           <div
             v-if="authStore.familyId"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
+            class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-lg border-2 border-blue-200 p-8"
           >
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-lg md:text-2xl font-bold text-gray-900">
-                <i class="fas fa-users text-indigo-500 mr-2"></i>Family
+              <h2
+                class="text-2xl font-bold text-gray-900 flex items-center gap-3"
+              >
+                <i class="fas fa-users text-indigo-600"></i>
+                Our Family
               </h2>
               <span
-                class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full"
+                class="text-sm font-bold text-gray-700 bg-white px-4 py-2 rounded-full shadow-sm"
               >
-                {{ familyMembers.length }}
+                {{ familyMembers.length }} members
               </span>
             </div>
 
-            <div class="space-y-2 mb-6">
+            <div class="space-y-3 mb-6 max-h-64 overflow-y-auto">
               <div
-                v-for="member in familyMembers.slice(0, 5)"
+                v-for="member in familyMembers"
                 :key="member.userId"
-                class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer group"
+                class="flex items-center gap-3 p-3 bg-white rounded-2xl hover:shadow-md transition-all cursor-pointer group"
+                :class="{
+                  'ring-2 ring-amber-400 bg-amber-50': member.role === 'admin',
+                }"
                 @click="goToUserProfile(member.userId)"
               >
                 <div
-                  class="w-8 h-8 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600 flex-shrink-0"
+                  class="relative w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform overflow-hidden"
+                  :class="
+                    member.role === 'admin'
+                      ? 'bg-gradient-to-br from-amber-400 to-orange-500'
+                      : 'bg-gradient-to-br from-blue-400 to-indigo-500'
+                  "
                 >
-                  {{ member.name ? member.name.charAt(0).toUpperCase() : "?" }}
+                  <img
+                    v-if="member.avatarUrl"
+                    :src="member.avatarUrl"
+                    :alt="member.name"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-white font-bold text-lg">
+                    {{
+                      member.name ? member.name.charAt(0).toUpperCase() : "?"
+                    }}
+                  </span>
+                  <div
+                    v-if="member.role === 'admin'"
+                    class="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center shadow-lg"
+                  >
+                    <i class="fas fa-crown text-white text-xs"></i>
+                  </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate">
+                  <p class="font-semibold text-gray-900 truncate">
                     {{ member.name || member.email }}
                   </p>
                   <p
-                    v-if="member.role"
-                    class="text-xs text-gray-500 capitalize"
+                    class="text-xs text-gray-500 capitalize flex items-center gap-1"
                   >
+                    <i
+                      class="fas"
+                      :class="
+                        member.role === 'admin'
+                          ? 'fa-shield-alt text-amber-600'
+                          : 'fa-user'
+                      "
+                    ></i>
                     {{ member.role }}
                   </p>
                 </div>
@@ -278,32 +392,36 @@
 
             <NuxtLink
               :to="`/family/${authStore.familyId}`"
-              class="w-full py-2 px-4 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-sm font-medium text-center transition-colors"
+              class="block w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 rounded-2xl font-semibold text-center transition-all shadow-lg"
             >
-              View All Members
+              View Family Tree
             </NuxtLink>
           </div>
 
-          <!-- Birthday Setup Progress -->
+          <!-- Birthday Progress -->
           <div
             v-if="authStore.familyId"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
+            class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl shadow-lg border-2 border-purple-200 p-8"
           >
-            <h3 class="text-base md:text-lg font-bold text-gray-900 mb-4">
-              <i class="fas fa-check-circle text-green-500 mr-2"></i>Birthday
-              Setup
+            <h3
+              class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3"
+            >
+              <i class="fas fa-birthday-cake text-purple-500"></i>
+              Birthday Setup
             </h3>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
               <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-700">Profiles Complete</span>
-                <span class="text-sm font-bold text-gray-900">
+                <span class="text-gray-700 font-medium">Profiles Complete</span>
+                <span class="text-lg font-bold text-purple-600">
                   {{ membersWithBirthdays.length }}/{{ familyMembers.length }}
                 </span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
+              <div
+                class="w-full bg-purple-200 rounded-full h-4 overflow-hidden shadow-inner"
+              >
                 <div
-                  class="bg-gradient-to-r from-pink-500 to-rose-600 h-2 rounded-full transition-all duration-500"
+                  class="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500 shadow-lg"
                   :style="{
                     width: `${
                       familyMembers.length > 0
@@ -314,7 +432,7 @@
                   }"
                 ></div>
               </div>
-              <p class="text-xs text-gray-600 text-center">
+              <p class="text-sm text-gray-600 text-center font-medium">
                 {{
                   familyMembers.length > 0
                     ? Math.round(
@@ -322,78 +440,92 @@
                           100
                       )
                     : 0
-                }}% complete
+                }}% of family birthdays added
               </p>
             </div>
           </div>
 
-          <!-- Admin Invite Section -->
+          <!-- Admin Invite -->
           <div
             v-if="authStore.permissions.role === 'admin' && authStore.familyId"
-            class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 p-6 md:p-8"
+            class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl border-2 border-emerald-200 p-8 shadow-lg"
           >
-            <h3 class="text-base md:text-lg font-bold text-gray-900 mb-4">
-              <i class="fas fa-user-plus text-purple-600 mr-2"></i>Invite
-              Members
+            <h3
+              class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3"
+            >
+              <i class="fas fa-user-plus text-emerald-600"></i>
+              Invite Family Members
             </h3>
+
+            <p class="text-gray-600 mb-6 text-sm">
+              Share an invite link with your family
+            </p>
 
             <button
               @click="generateInviteLink"
               :disabled="generatingInvite"
-              class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all text-sm disabled:opacity-50"
+              class="w-full px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg disabled:opacity-50"
             >
               <i
                 class="fas fa-link mr-2"
                 :class="{ 'animate-spin': generatingInvite }"
               ></i>
-              {{ generatingInvite ? "Generating..." : "Generate Invite" }}
+              {{
+                generatingInvite ? "Creating Link..." : "Generate Invite Link"
+              }}
             </button>
 
-            <div v-if="inviteLink" class="mt-4 p-3 bg-white rounded-lg">
+            <div
+              v-if="inviteLink"
+              class="mt-4 p-4 bg-white rounded-2xl shadow-md"
+            >
               <input
                 type="text"
                 :value="inviteLink"
                 readonly
-                class="w-full text-xs px-2 py-2 border border-gray-300 rounded bg-gray-50 text-gray-900 focus:ring-2 focus:ring-purple-500"
+                class="w-full text-sm px-4 py-3 border-2 border-emerald-200 rounded-xl bg-gray-50 text-gray-900 focus:ring-2 focus:ring-emerald-500 font-mono"
                 @click="$event.target.select()"
               />
               <button
                 @click="copyInviteLink"
-                class="w-full mt-2 px-3 py-2 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-all"
+                class="w-full mt-3 px-4 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all"
               >
-                <i class="fas fa-copy mr-1"></i>
+                <i class="fas fa-copy mr-2"></i>
                 {{ copyButtonText }}
               </button>
             </div>
           </div>
 
-          <!-- Join Requests Badge -->
+          <!-- Join Requests -->
           <div
             v-if="
               authStore.permissions.role === 'admin' &&
               authStore.familyId &&
               joinRequests.length
             "
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
+            class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl shadow-lg border-2 border-amber-200 p-8"
           >
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base md:text-lg font-bold text-gray-900">
-                <i class="fas fa-inbox text-amber-500 mr-2"></i>Requests
+            <div class="flex items-center justify-between mb-6">
+              <h3
+                class="text-xl font-bold text-gray-900 flex items-center gap-3"
+              >
+                <i class="fas fa-bell text-amber-600"></i>
+                Join Requests
               </h3>
               <span
-                class="px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full font-medium"
+                class="px-4 py-2 bg-amber-200 text-amber-900 rounded-full font-bold shadow-sm"
               >
                 {{ joinRequests.length }}
               </span>
             </div>
 
-            <div class="space-y-2 max-h-48 overflow-y-auto">
+            <div class="space-y-3 max-h-64 overflow-y-auto">
               <div
                 v-for="request in joinRequests"
                 :key="request.id"
-                class="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg"
+                class="flex flex-col gap-3 p-4 bg-white rounded-2xl shadow-md"
               >
-                <p class="text-sm font-medium text-gray-900 truncate">
+                <p class="font-semibold text-gray-900 truncate">
                   {{ request.email }}
                 </p>
                 <div class="flex gap-2">
@@ -401,52 +533,69 @@
                     @click="
                       approveRequest(request.id, request.userId, request.email)
                     "
-                    class="flex-1 px-2 py-1.5 bg-green-600 text-white text-xs rounded font-medium hover:bg-green-700 transition-all"
+                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all"
                   >
-                    Approve
+                    <i class="fas fa-check mr-1"></i>
+                    Accept
                   </button>
                   <button
                     @click="denyRequest(request.id)"
-                    class="flex-1 px-2 py-1.5 bg-red-600 text-white text-xs rounded font-medium hover:bg-red-700 transition-all"
+                    class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all"
                   >
-                    Deny
+                    <i class="fas fa-times mr-1"></i>
+                    Decline
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Help & Support -->
+          <!-- Help Card -->
           <div
-            class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-200 p-6 md:p-8"
+            class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 p-8 shadow-lg"
           >
-            <h3 class="text-base md:text-lg font-bold text-gray-900 mb-4">
-              <i class="fas fa-circle-question text-blue-600 mr-2"></i>Help &
-              Support
+            <h3
+              class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3"
+            >
+              <i class="fas fa-question-circle text-blue-600"></i>
+              Need Help?
             </h3>
 
             <div class="space-y-3">
               <NuxtLink
                 to="/help"
-                class="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-blue-50 transition-colors"
+                class="flex items-center gap-4 p-4 bg-white rounded-2xl hover:shadow-md transition-all group"
               >
-                <i class="fas fa-book text-blue-600 text-lg"></i>
-                <div>
-                  <p class="text-sm font-medium text-gray-900">Documentation</p>
-                  <p class="text-xs text-gray-500">
-                    Learn how to use FamilySpace
-                  </p>
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform"
+                >
+                  <i class="fas fa-book text-white text-lg"></i>
                 </div>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-900">Guide</p>
+                  <p class="text-xs text-gray-500">Learn the basics</p>
+                </div>
+                <i
+                  class="fas fa-chevron-right text-gray-400 group-hover:text-gray-600"
+                ></i>
               </NuxtLink>
+
               <NuxtLink
                 to="/support"
-                class="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-blue-50 transition-colors"
+                class="flex items-center gap-4 p-4 bg-white rounded-2xl hover:shadow-md transition-all group"
               >
-                <i class="fas fa-headset text-blue-600 text-lg"></i>
-                <div>
-                  <p class="text-sm font-medium text-gray-900">Support</p>
-                  <p class="text-xs text-gray-500">Get help from our team</p>
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform"
+                >
+                  <i class="fas fa-headset text-white text-lg"></i>
                 </div>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-900">Support</p>
+                  <p class="text-xs text-gray-500">We're here to help</p>
+                </div>
+                <i
+                  class="fas fa-chevron-right text-gray-400 group-hover:text-gray-600"
+                ></i>
               </NuxtLink>
             </div>
           </div>
@@ -493,21 +642,21 @@ const ToastNotification = {
       class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
     >
       <div
-        class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
+        class="p-4 rounded-2xl shadow-xl border-2 backdrop-blur-sm"
         :class="{
-          'bg-green-50/95 text-green-800 border-green-200': type === 'success',
-          'bg-red-50/95 text-red-800 border-red-200': type === 'error',
+          'bg-green-50/95 text-green-800 border-green-300': type === 'success',
+          'bg-red-50/95 text-red-800 border-red-300': type === 'error',
         }"
       >
         <div class="flex items-center gap-3">
           <i
-            class="text-lg flex-shrink-0"
+            class="text-xl flex-shrink-0"
             :class="{
               'fas fa-check-circle text-green-500': type === 'success',
               'fas fa-exclamation-circle text-red-500': type === 'error',
             }"
           ></i>
-          <p class="font-medium flex-1">{{ message }}</p>
+          <p class="font-semibold flex-1">{{ message }}</p>
           <button @click="emit('hide')" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
             <i class="fas fa-times"></i>
           </button>
@@ -587,6 +736,15 @@ const unreadMessagesCount = computed(() => {
     0
   );
 });
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  const name = authStore.name || "there";
+
+  if (hour < 12) return `Good morning, ${name}! ☀️`;
+  if (hour < 18) return `Good afternoon, ${name}! 🌤️`;
+  return `Good evening, ${name}! 🌙`;
+};
 
 const formatTimeAgo = (timestamp) => {
   if (!timestamp) return "Never";

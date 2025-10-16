@@ -67,7 +67,7 @@
         <div
           class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
         >
-          <i class="fas fa-comments text-gray-400 text-2xl sm:text-3xl"></i>
+          <i class="fas fa-comment-dots text-gray-400 text-2xl sm:text-3xl"></i>
         </div>
         <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
           No messages yet
