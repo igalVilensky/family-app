@@ -1,9 +1,4 @@
-import type { CalendarEvent } from "~/stores/calendar";
-
 export const useCalendar = () => {
-  const authStore = useAuthStore();
-  const calendarStore = useCalendarStore();
-
   const calendarRef = ref();
   const isToday = ref(true);
 

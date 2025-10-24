@@ -3,12 +3,19 @@ import { getEventsByRange, updateRSVP } from "~/utils/firebase";
 export const useCalendarEvents = () => {
   const authStore = useAuthStore();
   const calendarStore = useCalendarStore();
+  const route = useRoute();
 
   const isRefreshing = ref(false);
   const refreshSuccess = ref(false);
 
+  // Get current family ID from route or auth store
+  const getCurrentFamilyId = () => {
+    return route.params.id || authStore.currentFamilyId;
+  };
+
   const refreshEvents = async () => {
-    if (!authStore.familyId) return;
+    const familyId = getCurrentFamilyId();
+    if (!familyId) return;
 
     isRefreshing.value = true;
     refreshSuccess.value = false;
@@ -26,12 +33,8 @@ export const useCalendarEvents = () => {
         0
       ).toISOString();
 
-      const calendarEvents: CalendarEvent[] = await getEventsByRange(
-        authStore.familyId,
-        start,
-        end
-      );
-      const birthdayEvents = generateBirthdayEvents();
+      const calendarEvents = await getEventsByRange(familyId, start, end);
+      const birthdayEvents = generateBirthdayEvents(familyId);
 
       calendarStore.events = [...calendarEvents, ...birthdayEvents];
       refreshSuccess.value = true;
@@ -45,8 +48,11 @@ export const useCalendarEvents = () => {
   };
 
   const setRSVP = async (eventId: string, status: string) => {
+    const familyId = getCurrentFamilyId();
+    if (!familyId) throw new Error("No family selected");
+
     try {
-      await updateRSVP(authStore.familyId, eventId, status);
+      await updateRSVP(familyId, eventId, status);
       await refreshEvents();
     } catch (error) {
       console.error("RSVP error:", error);
@@ -54,22 +60,15 @@ export const useCalendarEvents = () => {
     }
   };
 
-  const generateBirthdayEvents = () => {
-    // Implementation from original calendar.vue
-    const birthdayEvents: CalendarEvent[] = [];
+  const generateBirthdayEvents = (familyId: string) => {
+    const birthdayEvents = [];
     const currentYear = new Date().getFullYear();
-    interface FamilyMember {
-      userId: string;
-      name?: string;
-      email: string;
-      birthday?: string;
-    }
 
     const membersWithBirthdays = authStore.familyMembers.filter(
-      (member: FamilyMember) => member.birthday
+      (member) => member.birthday
     );
 
-    membersWithBirthdays.forEach((member: FamilyMember) => {
+    membersWithBirthdays.forEach((member) => {
       if (member.birthday) {
         try {
           const birthday = new Date(member.birthday);
@@ -92,7 +91,7 @@ export const useCalendarEvents = () => {
               allDay: true,
               attendees: [],
               creatorId: "system",
-              familyId: authStore.familyId!,
+              familyId: familyId,
               recurrence: "",
             });
           }

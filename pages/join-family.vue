@@ -45,7 +45,8 @@
             </div>
           </div>
 
-          <form @submit.prevent="searchFamilies" class="space-y-6">
+          <!-- FIX: Change to searchFamiliesHandler -->
+          <form @submit.prevent="searchFamiliesHandler" class="space-y-6">
             <!-- Search Input -->
             <div>
               <label
@@ -295,10 +296,8 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import { useNuxtApp } from "#app";
+import { searchFamilies, sendJoinRequest } from "~/utils/firebase";
 
-const { $firestore: db } = useNuxtApp();
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -323,7 +322,7 @@ const showToast = (message, type = "success") => {
   }, 4000);
 };
 
-const searchFamilies = async () => {
+const searchFamiliesHandler = async () => {
   if (!searchQuery.value.trim()) return;
 
   loading.value = true;
@@ -331,16 +330,10 @@ const searchFamilies = async () => {
   searched.value = true;
 
   try {
-    const q = query(
-      collection(db, "families"),
-      where("name", ">=", searchQuery.value),
-      where("name", "<=", searchQuery.value + "\uf8ff")
-    );
-    const querySnapshot = await getDocs(q);
-    searchResults.value = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    // Make sure we're passing the string value, not the event
+    const query = searchQuery.value.trim();
+
+    searchResults.value = await searchFamilies(query);
 
     if (searchResults.value.length === 0) {
       showToast(
@@ -357,7 +350,6 @@ const searchFamilies = async () => {
 };
 
 const requestToJoin = async (familyId, familyName) => {
-  // Check if user is authenticated
   if (!authStore.userId) {
     selectedFamilyId.value = familyId;
     selectedFamilyName.value = familyName;
@@ -367,20 +359,18 @@ const requestToJoin = async (familyId, familyName) => {
 
   loading.value = true;
   try {
-    await addDoc(collection(db, `families/${familyId}/requests`), {
-      userId: authStore.userId,
-      email: authStore.email,
-      name: authStore.name || authStore.email.split("@")[0],
-      requestedAt: new Date(),
-      status: "pending",
-    });
+    await sendJoinRequest(
+      familyId,
+      authStore.userId,
+      authStore.email,
+      authStore.name
+    );
 
     showToast(
       `Join request sent to ${familyName}! The family admin will review your request.`,
       "success"
     );
 
-    // Redirect to dashboard after a short delay
     setTimeout(() => {
       router.push("/dashboard");
     }, 2000);
@@ -446,7 +436,6 @@ useHead({
   }
 }
 
-/* Improve input focus states */
 input:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }

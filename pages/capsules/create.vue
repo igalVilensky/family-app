@@ -1,5 +1,53 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <!-- Family Header -->
+    <div class="bg-white/80 backdrop-blur-sm border-b border-gray-200/60">
+      <div class="max-w-7xl mx-auto px-4 py-4">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full text-sm font-medium text-blue-700"
+            >
+              <i class="fas fa-home text-blue-500"></i>
+              <span>{{
+                authStore.currentFamilyName || "Family Capsules"
+              }}</span>
+            </div>
+            <!-- Family Selector -->
+            <div
+              v-if="
+                authStore.hasFamily &&
+                Object.keys(authStore.families).length > 1
+              "
+              class="relative"
+            >
+              <select
+                v-model="selectedFamilyId"
+                @change="switchFamily"
+                class="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700 cursor-pointer appearance-none pr-8 hover:border-gray-400 transition-colors"
+              >
+                <option
+                  v-for="familyId in Object.keys(authStore.families)"
+                  :key="familyId"
+                  :value="familyId"
+                >
+                  {{ getFamilyName(familyId) }}
+                </option>
+              </select>
+              <i
+                class="fas fa-chevron-down absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"
+              ></i>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">
+            {{ familyMembers.length }} family members
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
@@ -16,7 +64,8 @@
             Create Memory Capsule
           </h1>
           <p class="text-gray-600 mt-2">
-            Send a private message to a family member for the future
+            Send a private message to a
+            {{ authStore.currentFamilyName || "family" }} member for the future
           </p>
         </div>
       </div>
@@ -49,9 +98,12 @@
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                   Send To *
                 </label>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div
+                  v-if="familyMembers.length > 0"
+                  class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
                   <button
-                    v-for="member in familyMembers"
+                    v-for="member in availableFamilyMembers"
                     :key="member.userId"
                     type="button"
                     @click="selectRecipient(member.userId)"
@@ -78,7 +130,7 @@
                         {{ member.name || member.email }}
                       </p>
                       <p class="text-xs text-gray-500 capitalize">
-                        {{ member.familyRole }}
+                        {{ member.role || "member" }}
                       </p>
                     </div>
                     <i
@@ -86,6 +138,10 @@
                       class="fas fa-check text-blue-500 text-sm flex-shrink-0"
                     ></i>
                   </button>
+                </div>
+                <div v-else class="text-center py-8">
+                  <i class="fas fa-users text-gray-300 text-4xl mb-3"></i>
+                  <p class="text-gray-500">No family members found</p>
                 </div>
                 <p class="text-xs text-gray-500 mt-2">
                   Choose who will receive this message. They won't see it until
@@ -385,7 +441,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "~/stores/auth";
 import { useCapsules } from "~/composables/useCapsules";
 
@@ -405,6 +461,7 @@ const familyMembers = ref([]);
 const showToastMessage = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
+const selectedFamilyId = ref(authStore.currentFamilyId);
 
 const capsuleTypes = [
   {
@@ -427,6 +484,12 @@ const minDate = computed(() => {
   const date = new Date();
   date.setDate(date.getDate() + 7);
   return date.toISOString().split("T")[0];
+});
+
+const availableFamilyMembers = computed(() => {
+  return familyMembers.value.filter(
+    (member) => member.userId !== authStore.userId
+  );
 });
 
 const selectedRecipientName = computed(() => {
@@ -456,23 +519,37 @@ const isFormValid = computed(() => {
   );
 });
 
-onMounted(async () => {
-  // Load family members
-  await authStore.loadFamilyMembers();
-  familyMembers.value = authStore.getFamilyMembers.filter(
-    (member) => member.userId !== authStore.userId
-  );
-
-  // Set default date (30 days from now)
-  const defaultDate = new Date();
-  defaultDate.setDate(defaultDate.getDate() + 30);
-  capsuleForm.value.deliveryDate = defaultDate.toISOString().split("T")[0];
-
-  // Auto-select first family member if available
-  if (familyMembers.value.length > 0) {
-    capsuleForm.value.recipientId = familyMembers.value[0].userId;
+// Methods
+const getFamilyName = (familyId) => {
+  if (familyId === authStore.currentFamilyId) {
+    return authStore.currentFamilyName || "Family";
   }
-});
+  return "Family";
+};
+
+const switchFamily = async () => {
+  try {
+    await authStore.setCurrentFamily(selectedFamilyId.value);
+    await loadFamilyMembers();
+    showToast(`Switched to ${authStore.currentFamilyName}`, "success");
+  } catch (error) {
+    console.error("Error switching family:", error);
+    showToast("Failed to switch family", "error");
+  }
+};
+
+const loadFamilyMembers = async () => {
+  await authStore.loadFamilyMembers();
+  familyMembers.value = authStore.familyMembers || [];
+
+  // Reset recipient selection
+  capsuleForm.value.recipientId = "";
+
+  // Auto-select first available family member
+  if (availableFamilyMembers.value.length > 0) {
+    capsuleForm.value.recipientId = availableFamilyMembers.value[0].userId;
+  }
+};
 
 function selectRecipient(userId) {
   capsuleForm.value.recipientId = userId;
@@ -517,4 +594,44 @@ function showToast(message, type = "success") {
     showToastMessage.value = false;
   }, 5000);
 }
+
+// Watch for family changes
+watch(
+  () => authStore.currentFamilyId,
+  (newFamilyId) => {
+    if (newFamilyId) {
+      selectedFamilyId.value = newFamilyId;
+      loadFamilyMembers();
+    }
+  }
+);
+
+onMounted(async () => {
+  await authStore.initAuth();
+  if (authStore.isAuthenticated && authStore.hasFamily) {
+    await loadFamilyMembers();
+
+    // Set default date (30 days from now)
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 30);
+    capsuleForm.value.deliveryDate = defaultDate.toISOString().split("T")[0];
+  }
+});
 </script>
+
+<style scoped>
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+</style>

@@ -1,5 +1,53 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <!-- Family Header -->
+    <div class="bg-white/80 backdrop-blur-sm border-b border-gray-200/60">
+      <div class="max-w-7xl mx-auto px-4 py-4">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full text-sm font-medium text-blue-700"
+            >
+              <i class="fas fa-home text-blue-500"></i>
+              <span>{{
+                authStore.currentFamilyName || "Family Capsules"
+              }}</span>
+            </div>
+            <!-- Family Selector -->
+            <div
+              v-if="
+                authStore.hasFamily &&
+                Object.keys(authStore.families).length > 1
+              "
+              class="relative"
+            >
+              <select
+                v-model="selectedFamilyId"
+                @change="switchFamily"
+                class="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700 cursor-pointer appearance-none pr-8 hover:border-gray-400 transition-colors"
+              >
+                <option
+                  v-for="familyId in Object.keys(authStore.families)"
+                  :key="familyId"
+                  :value="familyId"
+                >
+                  {{ getFamilyName(familyId) }}
+                </option>
+              </select>
+              <i
+                class="fas fa-chevron-down absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"
+              ></i>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">
+            {{ familyMembers.length }} family members
+          </div>
+        </div>
+      </div>
+    </div>
+
     <main class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
@@ -10,7 +58,13 @@
           <i class="fas fa-arrow-left text-sm"></i>
           Back to Capsule
         </NuxtLink>
-        <h1 class="text-2xl font-bold text-gray-900">Edit Capsule</h1>
+        <div class="text-right">
+          <h1 class="text-2xl font-bold text-gray-900">Edit Capsule</h1>
+          <p class="text-gray-600 mt-1">
+            Update your memory capsule for
+            {{ authStore.currentFamilyName || "family" }}
+          </p>
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -32,9 +86,12 @@
             <label class="block text-sm font-semibold text-gray-700 mb-3">
               Send To *
             </label>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              v-if="availableFamilyMembers.length > 0"
+              class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
               <button
-                v-for="member in familyMembers"
+                v-for="member in availableFamilyMembers"
                 :key="member.userId"
                 type="button"
                 @click="form.recipientId = member.userId"
@@ -59,7 +116,7 @@
                     {{ member.name || member.email }}
                   </p>
                   <p class="text-xs text-gray-500 capitalize">
-                    {{ member.familyRole }}
+                    {{ member.role || "member" }}
                   </p>
                 </div>
                 <i
@@ -67,6 +124,10 @@
                   class="fas fa-check text-blue-500 text-sm flex-shrink-0"
                 ></i>
               </button>
+            </div>
+            <div v-else class="text-center py-8">
+              <i class="fas fa-users text-gray-300 text-4xl mb-3"></i>
+              <p class="text-gray-500">No family members found</p>
             </div>
             <p class="text-xs text-gray-500 mt-2">
               Choose who will receive this message. They won't see it until the
@@ -206,7 +267,7 @@
             </button>
             <button
               type="submit"
-              :disabled="updating"
+              :disabled="updating || !isFormValid"
               class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <i
@@ -230,7 +291,8 @@
           Capsule Not Found
         </h3>
         <p class="text-gray-600 mb-6">
-          The capsule you're trying to edit doesn't exist.
+          The capsule you're trying to edit doesn't exist or you don't have
+          permission to edit it.
         </p>
         <NuxtLink
           to="/capsules"
@@ -277,7 +339,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { useCapsules } from "~/composables/useCapsules";
@@ -295,40 +357,51 @@ const showToast = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
 const familyMembers = ref([]);
+const selectedFamilyId = ref(authStore.currentFamilyId);
 
 const form = ref({
   title: "",
   content: "",
   deliveryDate: "",
-  type: "personal",
+  type: "text",
   recipientId: "",
 });
 
-const minDate = new Date().toISOString().split("T")[0];
+const minDate = computed(() => {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split("T")[0];
+});
 
 const capsuleTypes = [
   {
-    value: "personal",
-    label: "Personal",
-    description: "For yourself",
-    icon: "fas fa-user",
+    value: "text",
+    label: "Text Message",
+    description: "A personal written message",
+    icon: "fas fa-file-alt",
     class: "bg-gradient-to-br from-blue-500 to-cyan-600",
   },
   {
-    value: "shared",
-    label: "Shared",
-    description: "For someone else",
-    icon: "fas fa-share-alt",
-    class: "bg-gradient-to-br from-purple-500 to-pink-600",
+    value: "letter",
+    label: "Formal Letter",
+    description: "A structured letter format",
+    icon: "fas fa-envelope",
+    class: "bg-gradient-to-br from-purple-500 to-indigo-600",
   },
 ];
 
 // Computed properties
+const availableFamilyMembers = computed(() => {
+  return familyMembers.value.filter(
+    (member) => member.userId !== authStore.userId
+  );
+});
+
 const selectedRecipientName = computed(() => {
   const member = familyMembers.value.find(
     (m) => m.userId === form.value.recipientId
   );
-  return member ? member.name || member.email : "Recipient";
+  return member ? member.name || member.email : "a family member";
 });
 
 const daysUntilDelivery = computed(() => {
@@ -340,27 +413,55 @@ const daysUntilDelivery = computed(() => {
   return diffDays > 0 ? diffDays : 0;
 });
 
-onMounted(async () => {
-  await loadFamilyMembers();
-  await loadCapsule();
+const isFormValid = computed(() => {
+  return (
+    form.value.recipientId &&
+    form.value.title.trim() &&
+    form.value.content.trim() &&
+    form.value.deliveryDate &&
+    daysUntilDelivery.value >= 1
+  );
 });
 
-async function loadFamilyMembers() {
+// Methods
+const getFamilyName = (familyId) => {
+  if (familyId === authStore.currentFamilyId) {
+    return authStore.currentFamilyName || "Family";
+  }
+  return "Family";
+};
+
+const switchFamily = async () => {
+  try {
+    await authStore.setCurrentFamily(selectedFamilyId.value);
+    await loadFamilyMembers();
+    showToastMessage(`Switched to ${authStore.currentFamilyName}`, "success");
+  } catch (error) {
+    console.error("Error switching family:", error);
+    showToastMessage("Failed to switch family", "error");
+  }
+};
+
+const loadFamilyMembers = async () => {
   try {
     await authStore.loadFamilyMembers();
-    familyMembers.value = authStore.getFamilyMembers.filter(
-      (member) => member.userId !== authStore.userId
-    );
+    familyMembers.value = authStore.familyMembers || [];
   } catch (error) {
     console.error("Error loading family members:", error);
     showToastMessage("Error loading family members", "error");
   }
-}
+};
 
 async function loadCapsule() {
   try {
     loading.value = true;
     const foundCapsule = await fetchCapsuleById(capsuleId);
+
+    // Check if user can edit this capsule
+    if (foundCapsule.createdBy !== authStore.userId) {
+      throw new Error("You don't have permission to edit this capsule");
+    }
+
     capsule.value = foundCapsule;
 
     // Populate form with existing data
@@ -368,7 +469,7 @@ async function loadCapsule() {
       title: foundCapsule.title,
       content: foundCapsule.content,
       deliveryDate: formatDateForInput(foundCapsule.deliveryDate),
-      type: foundCapsule.type,
+      type: foundCapsule.type || "text",
       recipientId: foundCapsule.recipientId,
     };
   } catch (error) {
@@ -380,12 +481,17 @@ async function loadCapsule() {
 
 async function updateCapsule() {
   try {
+    if (!isFormValid.value) {
+      showToastMessage("Please fill in all required fields correctly", "error");
+      return;
+    }
+
     updating.value = true;
 
     // Transform the form data to match your Firebase structure
     const updateData = {
-      title: form.value.title,
-      content: form.value.content,
+      title: form.value.title.trim(),
+      content: form.value.content.trim(),
       deliveryDate: new Date(form.value.deliveryDate),
       type: form.value.type,
       recipientId: form.value.recipientId,
@@ -420,4 +526,40 @@ function showToastMessage(message, type = "success") {
     showToast.value = false;
   }, 5000);
 }
+
+// Watch for family changes
+watch(
+  () => authStore.currentFamilyId,
+  (newFamilyId) => {
+    if (newFamilyId) {
+      selectedFamilyId.value = newFamilyId;
+      loadCapsule();
+    }
+  }
+);
+
+onMounted(async () => {
+  await authStore.initAuth();
+  if (authStore.isAuthenticated && authStore.hasFamily) {
+    await loadFamilyMembers();
+    await loadCapsule();
+  }
+});
 </script>
+
+<style scoped>
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+</style>

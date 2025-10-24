@@ -1,5 +1,53 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <!-- Family Header -->
+    <div class="bg-white/80 backdrop-blur-sm border-b border-gray-200/60">
+      <div class="max-w-7xl mx-auto px-4 py-4">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full text-sm font-medium text-blue-700"
+            >
+              <i class="fas fa-home text-blue-500"></i>
+              <span>{{
+                authStore.currentFamilyName || "Family Capsules"
+              }}</span>
+            </div>
+            <!-- Family Selector -->
+            <div
+              v-if="
+                authStore.hasFamily &&
+                Object.keys(authStore.families).length > 1
+              "
+              class="relative"
+            >
+              <select
+                v-model="selectedFamilyId"
+                @change="switchFamily"
+                class="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700 cursor-pointer appearance-none pr-8 hover:border-gray-400 transition-colors"
+              >
+                <option
+                  v-for="familyId in Object.keys(authStore.families)"
+                  :key="familyId"
+                  :value="familyId"
+                >
+                  {{ getFamilyName(familyId) }}
+                </option>
+              </select>
+              <i
+                class="fas fa-chevron-down absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"
+              ></i>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">
+            {{ familyMembers.length }} family members
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
@@ -14,11 +62,13 @@
               Memory Capsules
             </h1>
             <p class="text-sm sm:text-base lg:text-lg text-gray-600">
-              Private messages to family members for the future
+              Private messages to
+              {{ authStore.currentFamilyName || "family" }} members for the
+              future
             </p>
           </div>
           <NuxtLink
-            v-if="authStore.isAuthenticated && authStore.familyId"
+            v-if="authStore.isAuthenticated && authStore.hasFamily"
             to="/capsules/create"
             class="flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
           >
@@ -56,7 +106,7 @@
 
       <!-- No Family State -->
       <div
-        v-else-if="!authStore.familyId"
+        v-else-if="!authStore.hasFamily"
         class="text-center py-8 sm:py-12 px-4"
       >
         <div
@@ -71,11 +121,11 @@
           You need to be part of a family to use memory capsules.
         </p>
         <NuxtLink
-          to="/join-family"
+          to="/family-setup"
           class="inline-flex items-center gap-2 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg text-sm sm:text-base"
         >
           <i class="fas fa-home text-xs sm:text-sm"></i>
-          Join a Family
+          Setup Family
         </NuxtLink>
       </div>
 
@@ -88,7 +138,7 @@
           class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600 mx-auto"
         ></div>
         <p class="text-sm sm:text-base text-gray-600 mt-4">
-          Loading your memory capsules...
+          Loading memory capsules for {{ authStore.currentFamilyName }}...
         </p>
       </div>
 
@@ -121,7 +171,7 @@
 
       <!-- Main Content -->
       <div v-else>
-        <!-- Stats Cards - Improved Mobile Layout -->
+        <!-- Stats Cards -->
         <div
           class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8"
         >
@@ -206,7 +256,7 @@
           </div>
         </div>
 
-        <!-- Tabs - Mobile Dropdown, Desktop Tabs -->
+        <!-- Tabs and Capsules Content -->
         <div
           class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6 mb-6 sm:mb-8"
         >
@@ -249,7 +299,7 @@
             </button>
           </div>
 
-          <!-- Capsules Grid - Better Mobile Spacing -->
+          <!-- Capsules Grid -->
           <div
             v-if="filteredCapsules.length > 0"
             class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
@@ -289,7 +339,7 @@
           </div>
         </div>
 
-        <!-- How It Works - Stack on Mobile -->
+        <!-- How It Works -->
         <div
           class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
         >
@@ -348,7 +398,7 @@
       </div>
     </main>
 
-    <!-- Toast Notification - Better Mobile Positioning -->
+    <!-- Toast Notification -->
     <div
       v-if="showToastMessage"
       class="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50 animate-slideIn"
@@ -385,7 +435,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useCapsules } from "~/composables/useCapsules";
 import { useAuthStore } from "~/stores/auth";
 
@@ -395,6 +445,7 @@ const {
   updateStatus,
   loading,
   error: capsulesError,
+  getCurrentFamilyId,
 } = useCapsules();
 
 const capsules = ref([]);
@@ -402,8 +453,11 @@ const activeTab = ref("sent");
 const showToastMessage = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
+const selectedFamilyId = ref(authStore.currentFamilyId);
 
-// Enhanced tabs with short labels for mobile
+// Computed
+const familyMembers = computed(() => authStore.familyMembers || []);
+
 const tabs = computed(() => [
   {
     id: "sent",
@@ -503,12 +557,24 @@ const filteredCapsules = computed(() => {
   }
 });
 
-onMounted(async () => {
-  await authStore.initAuth();
-  if (authStore.isAuthenticated && authStore.familyId) {
-    await loadCapsules();
+// Methods
+const getFamilyName = (familyId) => {
+  if (familyId === authStore.currentFamilyId) {
+    return authStore.currentFamilyName || "Family";
   }
-});
+  return "Family";
+};
+
+const switchFamily = async () => {
+  try {
+    await authStore.setCurrentFamily(selectedFamilyId.value);
+    await loadCapsules();
+    showToast(`Switched to ${authStore.currentFamilyName} capsules`, "success");
+  } catch (error) {
+    console.error("Error switching family:", error);
+    showToast("Failed to switch family", "error");
+  }
+};
 
 async function loadCapsules() {
   try {
@@ -546,18 +612,28 @@ function showToast(message, type = "success") {
     showToastMessage.value = false;
   }, 5000);
 }
+
+// Watch for family changes
+watch(
+  () => authStore.currentFamilyId,
+  (newFamilyId) => {
+    if (newFamilyId) {
+      selectedFamilyId.value = newFamilyId;
+      loadCapsules();
+    }
+  }
+);
+
+onMounted(async () => {
+  await authStore.initAuth();
+  if (authStore.isAuthenticated && authStore.hasFamily) {
+    await authStore.loadFamilyMembers();
+    await loadCapsules();
+  }
+});
 </script>
 
 <style scoped>
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
 @keyframes slideIn {
   from {
     transform: translateX(100%);

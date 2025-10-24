@@ -1,5 +1,6 @@
+// stores/auth.js
 import { defineStore } from "pinia";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNuxtApp } from "#app";
 
 export const useAuthStore = defineStore("auth", {
@@ -8,10 +9,10 @@ export const useAuthStore = defineStore("auth", {
     userId: null,
     email: null,
     name: null,
-    familyId: null,
-    familyName: null,
+    families: {},
+    currentFamilyId: null,
+    currentFamilyName: null,
     permissions: {
-      role: null,
       minor: false,
       privateMode: false,
     },
@@ -23,35 +24,53 @@ export const useAuthStore = defineStore("auth", {
     birthday: null,
     isInitialized: false,
     hasFirestoreUser: false,
-    authPromise: null, // Track the auth initialization promise
+    authPromise: null,
     familyMembers: [],
   }),
 
   getters: {
     isAuthenticated: (state) => !!state.userId,
-    isAdmin: (state) => state.permissions.role === "admin",
+    isAdmin: (state) =>
+      state.currentFamilyId
+        ? state.families[state.currentFamilyId]?.role === "admin"
+        : false,
     isMinor: (state) => state.permissions.minor,
     isPrivate: (state) => state.permissions.privateMode,
-    isProfileComplete: (state) => !!state.name && !!state.familyId,
+    isProfileComplete: (state) =>
+      !!state.name && Object.keys(state.families).length > 0,
     getFamilyMembers: (state) => state.familyMembers,
+    hasFamily: (state) => {
+      const hasFamily = Object.keys(state.families || {}).length > 0;
+      console.log("🔍 hasFamily getter called:", {
+        families: state.families,
+        count: Object.keys(state.families || {}).length,
+        result: hasFamily,
+      });
+      return hasFamily;
+    },
   },
 
   actions: {
     async loadFamilyMembers() {
-      if (!this.familyId) {
+      console.log(
+        "🔄 loadFamilyMembers called, currentFamilyId:",
+        this.currentFamilyId
+      );
+      if (!this.currentFamilyId) {
+        console.log("❌ No currentFamilyId, skipping loadFamilyMembers");
         return;
       }
 
       const { $firestore: db } = useNuxtApp();
       try {
-        const familyDocRef = doc(db, "families", this.familyId);
+        const familyDocRef = doc(db, "families", this.currentFamilyId);
         const familyDocSnap = await getDoc(familyDocRef);
 
         if (familyDocSnap.exists()) {
           const familyData = familyDocSnap.data();
           const members = familyData.members || [];
+          console.log("👨‍👩‍👧‍👦 Found family members:", members.length);
 
-          // Fetch complete user data for each member
           const membersWithDetails = await Promise.all(
             members.map(async (member) => {
               try {
@@ -70,95 +89,129 @@ export const useAuthStore = defineStore("auth", {
                     bio: userData.bio || null,
                   };
                 }
-                return member; // Return basic member data if user doc not found
+                return member;
               } catch (error) {
                 console.error(
                   `Error fetching user data for ${member.userId}:`,
                   error
                 );
-                return member; // Return basic member data on error
+                return member;
               }
             })
           );
 
           this.familyMembers = membersWithDetails;
+          console.log("✅ Family members loaded:", this.familyMembers.length);
+        } else {
+          console.log(
+            "❌ Family document not found for ID:",
+            this.currentFamilyId
+          );
         }
       } catch (error) {
-        console.error("Load family members error:", error);
+        console.error("❌ Load family members error:", error);
       }
     },
+
     async initAuth() {
-      // If already initialized, return the existing promise
+      console.log("🔄 initAuth called");
       if (this.authPromise) {
+        console.log("♻️ Returning existing auth promise");
         return this.authPromise;
       }
 
-      // If fully initialized, return immediately
       if (this.isInitialized && this.userId) {
+        console.log("✅ Already initialized, returning");
         return Promise.resolve();
       }
 
       const { $firestore: db, $auth: auth } = useNuxtApp();
       if (!db || !auth) {
-        console.error("Firestore or Auth unavailable");
+        console.error("❌ Firestore or Auth unavailable");
         this.isInitialized = true;
         return Promise.resolve();
       }
 
-      // Create a promise that resolves when auth is ready
       this.authPromise = new Promise((resolve) => {
         const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-          unsubscribe(); // Unsubscribe after first call
+          unsubscribe();
+          console.log("🔥 Auth state changed, user:", firebaseUser?.uid);
 
           try {
             if (firebaseUser) {
               this.user = firebaseUser;
               this.userId = firebaseUser.uid;
               this.email = firebaseUser.email;
+              console.log("👤 Firebase user authenticated:", this.userId);
 
-              // Try to fetch user document
               const userDocRef = doc(db, "users", firebaseUser.uid);
               const userDocSnap = await getDoc(userDocRef);
 
               if (userDocSnap.exists()) {
                 const userData = userDocSnap.data();
                 this.hasFirestoreUser = true;
+                console.log("📄 User document found:", userData);
 
                 this.name = userData.name || null;
-                this.familyId = userData.familyId || null;
+                this.families = userData.families || {};
                 this.phone = userData.phone || null;
                 this.bio = userData.bio || null;
                 this.avatarUrl = userData.avatarUrl || null;
                 this.birthday = userData.birthday || null;
                 this.status = userData.status || null;
+                this.familyRole = userData.familyRole || null;
 
-                // Fetch family name if family exists
-                if (userData.familyId) {
-                  const familyDocRef = doc(db, "families", userData.familyId);
+                console.log("🏠 Families data loaded:", this.families);
+                console.log(
+                  "🔢 Families count:",
+                  Object.keys(this.families).length
+                );
+
+                const familyKeys = Object.keys(this.families);
+                if (familyKeys.length > 0) {
+                  this.currentFamilyId = familyKeys[0];
+                  console.log(
+                    "🎯 Setting currentFamilyId to:",
+                    this.currentFamilyId
+                  );
+
+                  const familyDocRef = doc(
+                    db,
+                    "families",
+                    this.currentFamilyId
+                  );
                   const familyDocSnap = await getDoc(familyDocRef);
                   if (familyDocSnap.exists()) {
-                    this.familyName = familyDocSnap.data().name || null;
+                    this.currentFamilyName = familyDocSnap.data().name || null;
+                    console.log(
+                      "🏡 Setting currentFamilyName to:",
+                      this.currentFamilyName
+                    );
+                  } else {
+                    console.log(
+                      "❌ Family document not found for ID:",
+                      this.currentFamilyId
+                    );
                   }
+                } else {
+                  this.currentFamilyId = null;
+                  this.currentFamilyName = null;
+                  console.log("🚫 No families found in user data");
                 }
 
-                // Set permissions
-                this.familyRole = userData.familyRole || userData.role || null;
                 this.permissions = {
-                  role:
-                    userData.permissions?.role ||
-                    (userData.familyRole === "parent" ? "admin" : "member"),
-                  minor:
-                    userData.permissions?.minor ||
-                    userData.familyRole === "child",
+                  minor: userData.permissions?.minor || false,
                   privateMode: userData.permissions?.privateMode || false,
                 };
+
+                console.log("✅ Auth store initialized with family data");
               } else {
-                // User authenticated but no Firestore doc - this is normal for new users
+                console.log("📭 No user document found for:", this.userId);
                 this.hasFirestoreUser = false;
-                // Keep auth state but clear profile data
                 this.name = null;
-                this.familyId = null;
-                this.familyName = null;
+                this.families = {};
+                this.currentFamilyId = null;
+                this.currentFamilyName = null;
                 this.familyRole = null;
                 this.status = null;
                 this.phone = null;
@@ -166,18 +219,16 @@ export const useAuthStore = defineStore("auth", {
                 this.avatarUrl = null;
                 this.birthday = null;
                 this.permissions = {
-                  role: null,
                   minor: false,
                   privateMode: false,
                 };
               }
             } else {
-              // No user authenticated
+              console.log("🚪 No user authenticated, clearing auth");
               this.clearAuth();
             }
           } catch (error) {
-            console.error("Error in auth store init:", error);
-            // Don't clear everything on error - keep basic auth info
+            console.error("💥 Error in auth store init:", error);
             if (firebaseUser) {
               this.userId = firebaseUser.uid;
               this.email = firebaseUser.email;
@@ -187,6 +238,7 @@ export const useAuthStore = defineStore("auth", {
             }
           } finally {
             this.isInitialized = true;
+            console.log("🏁 Auth initialization complete");
             resolve();
           }
         });
@@ -196,14 +248,15 @@ export const useAuthStore = defineStore("auth", {
     },
 
     clearAuth() {
+      console.log("🧹 Clearing auth store");
       this.user = null;
       this.userId = null;
       this.email = null;
       this.name = null;
-      this.familyId = null;
-      this.familyName = null;
+      this.families = {};
+      this.currentFamilyId = null;
+      this.currentFamilyName = null;
       this.permissions = {
-        role: null,
         minor: false,
         privateMode: false,
       };
@@ -220,8 +273,8 @@ export const useAuthStore = defineStore("auth", {
     },
 
     updateAuthProfile(userData) {
+      console.log("📝 Updating auth profile:", userData);
       this.name = userData.name;
-      this.familyId = userData.familyId;
       this.familyRole = userData.familyRole;
       this.birthday = userData.birthday;
       this.phone = userData.phone;
@@ -230,10 +283,35 @@ export const useAuthStore = defineStore("auth", {
       this.status = userData.status || "active";
       this.hasFirestoreUser = true;
       this.permissions = {
-        role: userData.familyRole === "parent" ? "admin" : "member",
-        minor: userData.familyRole === "child",
-        privateMode: false,
+        role: userData.permissions.role,
+        minor: userData.permissions.minor,
+        privateMode: userData.permissions.privateMode,
       };
+      if (userData.familyId) {
+        this.families[userData.familyId] = {
+          membershipType: "core",
+          role: userData.permissions.role || "member",
+        };
+        this.currentFamilyId = userData.familyId;
+        this.currentFamilyName = userData.familyName;
+      }
+    },
+
+    setCurrentFamily(familyId) {
+      console.log("🔄 setCurrentFamily called:", familyId);
+      if (familyId in this.families) {
+        this.currentFamilyId = familyId;
+        const { $firestore: db } = useNuxtApp();
+        getDoc(doc(db, "families", familyId)).then((snap) => {
+          if (snap.exists()) {
+            this.currentFamilyName = snap.data().name || null;
+            console.log("✅ Current family set to:", this.currentFamilyName);
+          }
+        });
+        this.loadFamilyMembers();
+      } else {
+        console.log("❌ Family ID not found in user's families:", familyId);
+      }
     },
   },
 });

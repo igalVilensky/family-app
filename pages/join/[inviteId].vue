@@ -139,6 +139,24 @@
             </div>
           </div>
 
+          <!-- Already Member Warning -->
+          <div
+            v-if="isAlreadyMember"
+            class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"
+          >
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-triangle text-amber-600 text-lg"></i>
+              <div>
+                <p class="text-sm font-medium text-amber-900">
+                  Already a Member
+                </p>
+                <p class="text-xs text-amber-700">
+                  You're already a member of this family
+                </p>
+              </div>
+            </div>
+          </div>
+
           <!-- Invitation Status -->
           <div class="bg-blue-50 rounded-xl p-4 mb-6">
             <div class="flex items-center gap-3">
@@ -158,6 +176,7 @@
           <!-- Action Buttons -->
           <div class="space-y-4">
             <button
+              v-if="!isAlreadyMember"
               @click="acceptInvite"
               class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               :disabled="joining || !authStore.userId"
@@ -167,6 +186,15 @@
               <span class="text-lg">
                 {{ joining ? "Accepting Invitation..." : "Accept Invitation" }}
               </span>
+            </button>
+
+            <button
+              v-else
+              @click="goToFamily"
+              class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-home text-lg"></i>
+              <span class="text-lg">Go to Family</span>
             </button>
 
             <div
@@ -286,7 +314,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import {
@@ -296,6 +324,7 @@ import {
   collection,
   serverTimestamp,
   updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import { useNuxtApp } from "#app";
 
@@ -311,19 +340,38 @@ const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
 
+// Computed property to check if user is already a member
+const isAlreadyMember = computed(() => {
+  if (!invite.value || !authStore.families) return false;
+  return authStore.families[invite.value.familyId] !== undefined;
+});
+
 const fetchInvite = async () => {
   try {
     const inviteDoc = await getDoc(doc(db, "invites", route.params.inviteId));
     if (inviteDoc.exists()) {
       const inviteData = inviteDoc.data();
       const now = new Date();
+
+      // Check if invite is expired
       if (inviteData.expiresAt.toDate() < now) {
         error.value =
           "This invitation has expired. Please request a new one from the family admin.";
         invite.value = null;
         return;
       }
+
+      // Check if family still exists
+      const familyDoc = await getDoc(doc(db, "families", inviteData.familyId));
+      if (!familyDoc.exists()) {
+        error.value =
+          "The family associated with this invitation no longer exists.";
+        invite.value = null;
+        return;
+      }
+
       invite.value = {
+        id: inviteDoc.id,
         familyId: inviteData.familyId,
         familyName: inviteData.familyName,
         expiresAt: inviteData.expiresAt,
@@ -369,17 +417,14 @@ const acceptInvite = async () => {
     return;
   }
 
+  if (isAlreadyMember.value) {
+    showToast("You're already a member of this family!", "info");
+    return;
+  }
+
   joining.value = true;
   try {
-    // Update user document
-    await updateDoc(doc(db, "users", authStore.userId), {
-      familyId: invite.value.familyId,
-      role: "pending",
-      status: "pending",
-      updatedAt: new Date(),
-    });
-
-    // Send join request
+    // Send join request to the family
     await addDoc(collection(db, `families/${invite.value.familyId}/requests`), {
       userId: authStore.userId,
       email: authStore.email,
@@ -414,6 +459,14 @@ const acceptInvite = async () => {
     }
   } finally {
     joining.value = false;
+  }
+};
+
+const goToFamily = () => {
+  if (invite.value && invite.value.familyId) {
+    // Set as current family and redirect to dashboard
+    authStore.setCurrentFamily(invite.value.familyId);
+    router.push("/dashboard");
   }
 };
 

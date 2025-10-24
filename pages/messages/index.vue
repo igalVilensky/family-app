@@ -2,6 +2,16 @@
   <div>
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <!-- Family Header -->
+      <div v-if="currentFamilyName" class="mb-6 text-center">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          Messages
+        </h1>
+        <p class="text-gray-600">
+          Conversations with {{ currentFamilyName }} family members
+        </p>
+      </div>
+
       <!-- Loading State -->
       <div v-if="isLoading" class="text-center py-12">
         <div
@@ -24,7 +34,7 @@
           <!-- Avatar -->
           <div class="flex-shrink-0">
             <div
-              class="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center overflow-hidden border-2 border-white shadow-sm"
+              class="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center overflow-hidden border-2 border-white shadow-sm relative"
             >
               <img
                 v-if="conversation.avatarUrl"
@@ -37,6 +47,15 @@
                   conversation.name
                     ? conversation.name.charAt(0).toUpperCase()
                     : "?"
+                }}
+              </div>
+              <!-- Unread indicator -->
+              <div
+                v-if="conversation.unreadCount > 0"
+                class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold"
+              >
+                {{
+                  conversation.unreadCount > 9 ? "9+" : conversation.unreadCount
                 }}
               </div>
             </div>
@@ -52,7 +71,14 @@
                 {{ formatTimeAgo(conversation.lastMessageTime) }}
               </span>
             </div>
-            <p class="text-sm text-gray-600 truncate">
+            <p
+              class="text-sm truncate"
+              :class="
+                conversation.unreadCount > 0
+                  ? 'text-gray-900 font-medium'
+                  : 'text-gray-600'
+              "
+            >
               {{ conversation.lastMessage }}
             </p>
           </div>
@@ -73,8 +99,8 @@
           No messages yet
         </h3>
         <p class="text-gray-600 mb-6 max-w-sm mx-auto">
-          Start a conversation with family members by visiting their profiles
-          and sending them a message.
+          Start a conversation with {{ currentFamilyName || "family" }} members
+          by visiting their profiles and sending them a message.
         </p>
         <NuxtLink
           :to="familyLink"
@@ -89,7 +115,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { getAllConversations } from "~/utils/firebase";
@@ -99,6 +125,16 @@ const authStore = useAuthStore();
 
 const conversations = ref([]);
 const isLoading = ref(true);
+const debugInfo = ref("");
+
+// Computed properties for multi-family support
+const currentFamilyName = computed(() => authStore.currentFamilyName);
+const currentFamilyId = computed(() => authStore.currentFamilyId);
+
+const familyLink = computed(() => {
+  if (!currentFamilyId.value) return "/family-setup";
+  return `/family/${currentFamilyId.value}`;
+});
 
 const formatTimeAgo = (timestamp) => {
   if (!timestamp) return "Never";
@@ -123,22 +159,31 @@ const openConversation = (userId) => {
 
 const loadConversations = async () => {
   try {
-    conversations.value = await getAllConversations();
+    if (!currentFamilyId.value) {
+      conversations.value = [];
+      return;
+    }
+
+    conversations.value = await getAllConversations(currentFamilyId.value);
   } catch (error) {
     console.error("Error loading conversations:", error);
+    conversations.value = [];
   } finally {
     isLoading.value = false;
   }
 };
 
-const familyLink = computed(
-  () => authStore.familyId && `/family/${authStore.familyId}`
-);
+// Watch for family changes
+watch(currentFamilyId, (newFamilyId) => {
+  if (newFamilyId) {
+    loadConversations();
+  }
+});
 
 onMounted(async () => {
   await authStore.initAuth();
 
-  if (authStore.familyId) {
+  if (authStore.hasFamily && currentFamilyId.value) {
     await loadConversations();
   } else {
     isLoading.value = false;

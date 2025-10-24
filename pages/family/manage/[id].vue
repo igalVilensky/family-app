@@ -15,11 +15,8 @@
       </div>
     </div>
 
-    <!-- Access Denied -->
-    <div
-      v-else-if="!isAdmin"
-      class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
-    >
+    <!-- Error State -->
+    <div v-else-if="error" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-8">
         <div class="text-center">
           <div
@@ -28,389 +25,442 @@
             <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
           </div>
           <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Unable to Load Family
+          </h2>
+          <p class="text-gray-600 mb-6">{{ error }}</p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <NuxtLink
+              v-if="!authStore.hasFamily"
+              to="/family-setup"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-plus text-sm"></i>
+              Set Up Family
+            </NuxtLink>
+            <button
+              @click="fetchFamilyData"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white font-medium rounded-xl hover:bg-gray-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-redo text-sm"></i>
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Access Denied -->
+    <div
+      v-else-if="!hasAccess"
+      class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+    >
+      <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-8">
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4"
+          >
+            <i class="fas fa-lock text-amber-600 text-xl"></i>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
             Access Denied
           </h2>
           <p class="text-gray-600 mb-6">
-            Only family admins can access this page.
+            You don't have access to this family. Please check if you're a
+            member or request to join.
           </p>
-          <NuxtLink
-            :to="`/family/${familyId}`"
-            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-200"
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <NuxtLink
+              to="/dashboard"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-home text-sm"></i>
+              Back to Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/join-family"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-search text-sm"></i>
+              Find Families
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Not Admin -->
+    <div
+      v-else-if="!isAdmin"
+      class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+    >
+      <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-8">
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4"
           >
-            <i class="fas fa-home text-sm"></i>
-            Return to Family
-          </NuxtLink>
+            <i class="fas fa-user-shield text-amber-600 text-xl"></i>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Admin Access Required
+          </h2>
+          <p class="text-gray-600 mb-6">
+            You need to be an admin to manage family settings and members.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <NuxtLink
+              :to="`/family/${route.params.id}`"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-home text-sm"></i>
+              Back to Family
+            </NuxtLink>
+            <NuxtLink
+              to="/dashboard"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white font-medium rounded-xl hover:bg-gray-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-grid text-sm"></i>
+              Dashboard
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Main Content -->
-    <main v-else class="max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8">
-      <!-- Family Header -->
-      <div
-        class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-8 mb-4 sm:mb-8"
-      >
-        <div
-          class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-        >
-          <div class="flex items-center gap-3 sm:gap-4">
-            <div
-              class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0"
-            >
-              <i class="fas fa-users-cog text-white text-lg sm:text-2xl"></i>
-            </div>
-            <div>
-              <h2
-                class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900"
-              >
-                {{ familyData?.name || "Family Management" }}
-              </h2>
-              <p class="text-sm sm:text-base text-gray-600 mt-1">
-                Manage your family members and settings
-              </p>
-            </div>
-          </div>
-          <div
-            class="flex items-center gap-2 bg-blue-50 px-3 sm:px-4 py-2 rounded-full self-end sm:self-auto"
-          >
-            <i class="fas fa-users text-blue-600 text-sm"></i>
-            <span class="font-semibold text-blue-700 text-sm sm:text-base">
-              {{ familyData?.members?.length || 0 }} Members
-            </span>
-          </div>
+    <main v-else class="max-w-7xl mx-auto px-4 py-8">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Manage Family</h1>
+          <p class="text-gray-600 mt-2">
+            Manage members and settings for {{ familyData?.name }}
+          </p>
         </div>
+        <NuxtLink
+          :to="`/family/${route.params.id}`"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-medium rounded-xl border border-gray-300 hover:bg-gray-50 transition-all duration-200"
+        >
+          <i class="fas fa-arrow-left text-sm"></i>
+          Back to Family
+        </NuxtLink>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
         <!-- Left Column - Member Management -->
-        <div class="lg:col-span-2 space-y-4 sm:space-y-8">
-          <!-- Member List -->
+        <div class="xl:col-span-2 space-y-8">
+          <!-- Member Management -->
           <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
           >
-            <div class="flex items-center justify-between mb-4 sm:mb-6">
-              <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
                 >
-                  <i class="fas fa-users text-white text-base sm:text-lg"></i>
+                  <i class="fas fa-users-cog text-white text-lg"></i>
                 </div>
                 <div>
-                  <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
-                    Family Members
+                  <h3 class="text-xl font-semibold text-gray-900">
+                    Manage Members
                   </h3>
-                  <p class="text-gray-500 text-xs sm:text-sm">
-                    Manage member roles
+                  <p class="text-gray-500 text-sm">
+                    Add, remove, or change roles
                   </p>
                 </div>
               </div>
               <span
-                class="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-100 text-green-800 text-xs sm:text-sm rounded-full font-semibold"
+                class="px-4 py-2 bg-blue-100 text-blue-800 text-sm rounded-full font-semibold"
               >
-                {{ familyData?.members?.length || 0 }}
+                {{ familyData?.members?.length || 0 }} Members
               </span>
             </div>
 
-            <div class="space-y-3 sm:space-y-4">
+            <div class="space-y-4">
               <div
                 v-for="member in familyData?.members"
                 :key="member.userId"
-                class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200"
+                class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200"
               >
-                <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                  <div class="relative flex-shrink-0">
-                    <div
-                      class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"
-                    >
-                      <span
-                        class="text-white font-semibold text-sm sm:text-base"
-                      >
-                        {{ getMemberInitial(member) }}
-                      </span>
-                    </div>
-                    <div
-                      v-if="member.userId === authStore.userId"
-                      class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center"
-                    >
-                      <i
-                        class="fas fa-check text-white text-[8px] sm:text-xs"
-                      ></i>
-                    </div>
+                <div class="relative">
+                  <div
+                    class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0"
+                  >
+                    <span class="text-white font-semibold text-lg">
+                      {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
+                    </span>
                   </div>
-
-                  <div class="flex-1 min-w-0">
-                    <div
-                      class="flex items-center gap-2 flex-wrap mb-0.5 sm:mb-1"
-                    >
-                      <h4
-                        class="font-semibold text-gray-900 truncate text-sm sm:text-base"
-                      >
-                        {{ getMemberDisplayName(member) }}
-                      </h4>
-                      <span
-                        v-if="member.userId === authStore.userId"
-                        class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
-                      >
-                        You
-                      </span>
-                    </div>
-                    <p class="text-gray-600 truncate text-xs sm:text-sm">
-                      {{ member.email }}
-                    </p>
+                  <div
+                    v-if="member.userId === authStore.userId"
+                    class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center"
+                  >
+                    <i class="fas fa-check text-white text-xs"></i>
                   </div>
                 </div>
 
-                <div
-                  class="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2"
-                >
-                  <!-- Role Badge -->
-                  <span
-                    class="px-2 sm:px-3 py-1 text-xs sm:text-sm font-semibold rounded-lg whitespace-nowrap"
-                    :class="{
-                      'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
-                        member.role === 'admin',
-                      'bg-green-100 text-green-700': member.role === 'member',
-                    }"
-                  >
-                    {{ member.role === "admin" ? "Admin" : "Member" }}
-                  </span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap mb-1">
+                    <h4 class="font-semibold text-gray-900 truncate text-lg">
+                      {{ getMemberDisplayName(member) }}
+                    </h4>
+                    <span
+                      v-if="member.userId === authStore.userId"
+                      class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                    >
+                      You
+                    </span>
+                  </div>
+                  <p class="text-gray-600 truncate text-sm">
+                    {{ member.email }}
+                  </p>
+                </div>
 
-                  <!-- Action Menu Button -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                  <select
+                    :value="member.role"
+                    @change="
+                      updateMemberRole(member.userId, $event.target.value)
+                    "
+                    :disabled="member.userId === authStore.userId"
+                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="member">Member</option>
+                    <option value="admin">Admin</option>
+                  </select>
+
                   <button
                     v-if="member.userId !== authStore.userId"
-                    @click.stop="openMemberActionsModal(member)"
-                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+                    @click="removeMember(member.userId)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    title="Remove member"
                   >
-                    <i class="fas fa-ellipsis-v text-sm"></i>
+                    <i class="fas fa-times"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Empty State -->
-            <div
-              v-if="!familyData?.members?.length"
-              class="text-center py-12 text-gray-500"
-            >
-              <i class="fas fa-users text-4xl mb-4 text-gray-300"></i>
-              <p class="font-medium text-lg mb-2">No Members Yet</p>
-              <p class="text-sm">Start by inviting family members to join.</p>
-            </div>
-          </div>
+            <!-- Invite Section -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+              <div class="flex items-center gap-3 mb-4">
+                <div
+                  class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
+                >
+                  <i class="fas fa-user-plus text-white text-lg"></i>
+                </div>
+                <div>
+                  <h4 class="text-lg font-semibold text-gray-900">
+                    Invite Members
+                  </h4>
+                  <p class="text-gray-500 text-sm">
+                    Share invite link with family
+                  </p>
+                </div>
+              </div>
 
-          <!-- Danger Zone -->
-          <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-red-200 p-4 sm:p-6"
-          >
-            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-              <div
-                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center"
+              <button
+                @click="generateInviteLink"
+                class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-medium rounded-xl hover:from-purple-700 hover:to-indigo-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                :disabled="generatingInvite"
               >
                 <i
-                  class="fas fa-exclamation-triangle text-white text-base sm:text-lg"
+                  class="fas fa-link text-sm"
+                  :class="{ 'animate-spin': generatingInvite }"
                 ></i>
-              </div>
-              <div>
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
-                  Danger Zone
-                </h3>
-                <p class="text-gray-500 text-xs sm:text-sm">
-                  Irreversible actions
-                </p>
-              </div>
-            </div>
+                {{
+                  generatingInvite ? "Generating..." : "Generate Invite Link"
+                }}
+              </button>
 
-            <div class="space-y-3 sm:space-y-4">
-              <!-- Leave Family -->
               <div
-                v-if="!isLastAdmin"
-                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 bg-red-50 rounded-xl border border-red-200"
+                v-if="inviteLink"
+                class="mt-4 p-5 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200"
               >
-                <div class="flex-1">
-                  <h4 class="font-semibold text-gray-900 text-sm sm:text-base">
-                    Leave Family
-                  </h4>
-                  <p class="text-xs sm:text-sm text-gray-600 mt-1">
-                    Remove yourself from this family
-                  </p>
+                <label class="block text-sm font-semibold text-purple-900 mb-3">
+                  Share this invite link:
+                </label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    :value="inviteLink"
+                    readonly
+                    class="flex-1 px-4 py-3 border border-purple-300 rounded-xl bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    @click="$event.target.select()"
+                  />
+                  <button
+                    @click="copyInviteLink"
+                    class="flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all duration-200 font-semibold whitespace-nowrap"
+                  >
+                    <i class="fas fa-copy text-sm"></i>
+                    {{ copyButtonText }}
+                  </button>
                 </div>
-                <button
-                  @click="showLeaveFamilyModal = true"
-                  class="w-full sm:w-auto px-4 sm:px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
-                >
-                  Leave
-                </button>
-              </div>
-
-              <!-- Delete Family -->
-              <div
-                v-if="isLastAdmin"
-                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 bg-red-50 rounded-xl border border-red-200"
-              >
-                <div class="flex-1">
-                  <h4 class="font-semibold text-gray-900 text-sm sm:text-base">
-                    Delete Family
-                  </h4>
-                  <p class="text-xs sm:text-sm text-gray-600 mt-1">
-                    Permanently delete this family and all its data
-                  </p>
-                </div>
-                <button
-                  @click="showDeleteFamilyModal = true"
-                  class="w-full sm:w-auto px-4 sm:px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
-                >
-                  Delete
-                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right Column - Actions & Stats -->
-        <div class="space-y-4 sm:space-y-8">
-          <!-- Quick Actions -->
+        <!-- Right Column - Settings -->
+        <div class="space-y-8">
+          <!-- Family Settings -->
           <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
           >
-            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center"
+                class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center"
               >
-                <i class="fas fa-bolt text-white text-base sm:text-lg"></i>
+                <i class="fas fa-cog text-white text-lg"></i>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
-                  Quick Actions
+                <h3 class="text-xl font-semibold text-gray-900">
+                  Family Settings
                 </h3>
-                <p class="text-gray-500 text-xs sm:text-sm hidden sm:block">
-                  Family management tools
-                </p>
+                <p class="text-gray-500 text-sm">Manage your family</p>
               </div>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
               <button
-                @click="showEditNameModal = true"
-                class="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left bg-blue-50 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all duration-200 group"
+                @click="editFamilyName"
+                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 hover:shadow-sm"
               >
                 <div
-                  class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-edit text-blue-600 text-base sm:text-lg"></i>
+                  <i class="fas fa-edit text-blue-600 text-lg"></i>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <div class="font-semibold text-gray-900 text-sm sm:text-base">
+                <div class="flex-1">
+                  <div class="font-semibold text-gray-900">
                     Edit Family Name
                   </div>
-                  <div class="text-xs text-gray-500 hidden sm:block">
+                  <div class="text-xs text-gray-500">
                     Update family display name
                   </div>
                 </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
               </button>
 
               <button
-                @click="generateInviteLink"
-                class="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left bg-purple-50 rounded-xl border border-purple-200 hover:bg-purple-100 transition-all duration-200 group"
+                @click="showTransferOwnership = true"
+                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 hover:shadow-sm"
               >
                 <div
-                  class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i
-                    class="fas fa-link text-purple-600 text-base sm:text-lg"
-                  ></i>
+                  <i class="fas fa-exchange-alt text-amber-600 text-lg"></i>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <div class="font-semibold text-gray-900 text-sm sm:text-base">
-                    Invite Members
+                <div class="flex-1">
+                  <div class="font-semibold text-gray-900">
+                    Transfer Ownership
                   </div>
-                  <div class="text-xs text-gray-500 hidden sm:block">
-                    Generate invite link
+                  <div class="text-xs text-gray-500">
+                    Transfer admin rights to another member
                   </div>
                 </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
               </button>
-            </div>
 
-            <!-- Invite Link -->
-            <div
-              v-if="inviteLink"
-              class="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200"
-            >
-              <label
-                class="block text-xs sm:text-sm font-semibold text-purple-900 mb-2"
+              <button
+                @click="showDeleteFamily = true"
+                class="w-full flex items-center gap-4 p-4 text-left bg-red-50 rounded-xl border border-red-200 hover:bg-red-100 transition-all duration-200 hover:shadow-sm"
               >
-                Invite Link:
-              </label>
-              <div class="flex flex-col gap-2">
-                <input
-                  type="text"
-                  :value="inviteLink"
-                  readonly
-                  class="w-full px-3 py-2 border border-purple-300 rounded-lg bg-white text-gray-900 text-xs sm:text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  @click="$event.target.select()"
-                />
-                <button
-                  @click="copyInviteLink"
-                  class="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium whitespace-nowrap text-sm"
+                <div
+                  class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-copy text-xs"></i>
-                  {{ copyButtonText }}
-                </button>
-              </div>
+                  <i class="fas fa-trash text-red-600 text-lg"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="font-semibold text-gray-900">Delete Family</div>
+                  <div class="text-xs text-gray-500">
+                    Permanently delete this family
+                  </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+              </button>
             </div>
           </div>
 
           <!-- Family Stats -->
           <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
           >
-            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center"
               >
-                <i class="fas fa-chart-bar text-white text-base sm:text-lg"></i>
+                <i class="fas fa-chart-bar text-white text-lg"></i>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
+                <h3 class="text-xl font-semibold text-gray-900">
                   Family Stats
                 </h3>
-                <p class="text-gray-500 text-xs sm:text-sm hidden sm:block">
-                  Member overview
-                </p>
+                <p class="text-gray-500 text-sm">Overview</p>
               </div>
             </div>
 
-            <div class="space-y-3 sm:space-y-4">
+            <div class="space-y-4">
               <div
                 class="flex items-center justify-between p-3 bg-blue-50 rounded-xl"
               >
-                <span class="font-medium text-gray-700 text-sm sm:text-base"
-                  >Total Members</span
-                >
-                <span class="text-lg sm:text-xl font-bold text-gray-900">
-                  {{ familyData?.members?.length || 0 }}
-                </span>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                  >
+                    <i class="fas fa-users text-blue-600"></i>
+                  </div>
+                  <span class="font-medium text-gray-700">Total Members</span>
+                </div>
+                <span class="text-xl font-bold text-gray-900">{{
+                  familyData?.members?.length || 0
+                }}</span>
               </div>
 
               <div
                 class="flex items-center justify-between p-3 bg-purple-50 rounded-xl"
               >
-                <span class="font-medium text-gray-700 text-sm sm:text-base"
-                  >Admins</span
-                >
-                <span class="text-lg sm:text-xl font-bold text-gray-900">
-                  {{ adminCount }}
-                </span>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"
+                  >
+                    <i class="fas fa-user-shield text-purple-600"></i>
+                  </div>
+                  <span class="font-medium text-gray-700">Admins</span>
+                </div>
+                <span class="text-xl font-bold text-gray-900">{{
+                  getAdminCount()
+                }}</span>
               </div>
 
               <div
                 class="flex items-center justify-between p-3 bg-green-50 rounded-xl"
               >
-                <span class="font-medium text-gray-700 text-sm sm:text-base"
-                  >Members</span
-                >
-                <span class="text-lg sm:text-xl font-bold text-gray-900">
-                  {{ memberCount }}
-                </span>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                  >
+                    <i class="fas fa-user text-green-600"></i>
+                  </div>
+                  <span class="font-medium text-gray-700">Members</span>
+                </div>
+                <span class="text-xl font-bold text-gray-900">{{
+                  getMemberCount()
+                }}</span>
+              </div>
+
+              <div
+                class="flex items-center justify-between p-3 bg-amber-50 rounded-xl"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center"
+                  >
+                    <i class="fas fa-calendar text-amber-600"></i>
+                  </div>
+                  <span class="font-medium text-gray-700">Created</span>
+                </div>
+                <span class="text-sm font-bold text-gray-900">{{
+                  formatDate(familyData?.createdAt)
+                }}</span>
               </div>
             </div>
           </div>
@@ -418,242 +468,64 @@
       </div>
     </main>
 
-    <!-- Modals -->
-    <!-- Edit Family Name Modal -->
+    <!-- Transfer Ownership Modal -->
     <div
-      v-if="showEditNameModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showEditNameModal = false"
+      v-if="showTransferOwnership"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
     >
-      <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
-      >
-        <div class="flex items-center gap-3 mb-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">
+          Transfer Ownership
+        </h3>
+        <p class="text-gray-600 mb-6">
+          Select a member to transfer admin rights to. You will become a regular
+          member.
+        </p>
+
+        <div class="space-y-3 mb-6">
           <div
-            class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
-          >
-            <i class="fas fa-edit text-blue-600 text-lg"></i>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900">Edit Family Name</h3>
-        </div>
-
-        <input
-          v-model="newFamilyName"
-          type="text"
-          placeholder="Enter new family name"
-          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-6"
-          @keyup.enter="editFamilyName"
-        />
-
-        <div class="flex gap-3">
-          <button
-            @click="showEditNameModal = false"
-            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            @click="editFamilyName"
-            class="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
-          >
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Member Actions Modal -->
-    <div
-      v-if="showMemberActionsModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showMemberActionsModal = false"
-    >
-      <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
-      >
-        <div class="flex items-center gap-3 mb-6">
-          <div
-            class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"
-          >
-            <span class="text-white font-semibold text-lg">
-              {{ getMemberInitial(selectedMember) }}
-            </span>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900">
-              {{ getMemberDisplayName(selectedMember) }}
-            </h3>
-            <p class="text-sm text-gray-500">{{ selectedMember?.email }}</p>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <button
-            @click="
-              showChangeRoleModal = true;
-              showMemberActionsModal = false;
-            "
-            class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-xl transition-colors"
+            v-for="member in familyData?.members?.filter(
+              (m) => m.userId !== authStore.userId && m.role === 'member'
+            )"
+            :key="member.userId"
+            class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer"
+            @click="selectedNewAdmin = member.userId"
           >
             <div
-              class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+              class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-semibold"
             >
-              <i class="fas fa-user-cog text-blue-600"></i>
+              {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
             </div>
-            <div>
-              <div class="font-semibold text-gray-900">Change Role</div>
-              <div class="text-xs text-gray-500">Promote or demote member</div>
+            <div class="flex-1">
+              <div class="font-medium text-gray-900">
+                {{ getMemberDisplayName(member) }}
+              </div>
+              <div class="text-sm text-gray-500">{{ member.email }}</div>
             </div>
-          </button>
-
-          <button
-            @click="
-              showRemoveMemberModal = true;
-              showMemberActionsModal = false;
-            "
-            class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-50 rounded-xl transition-colors"
-          >
             <div
-              class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"
+              class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center"
             >
-              <i class="fas fa-user-times text-red-600"></i>
+              <div
+                v-if="selectedNewAdmin === member.userId"
+                class="w-2 h-2 bg-blue-600 rounded-full"
+              ></div>
             </div>
-            <div>
-              <div class="font-semibold text-red-600">Remove Member</div>
-              <div class="text-xs text-gray-500">Remove from family</div>
-            </div>
-          </button>
-        </div>
-
-        <button
-          @click="showMemberActionsModal = false"
-          class="w-full mt-4 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-
-    <!-- Change Role Modal -->
-    <div
-      v-if="showChangeRoleModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showChangeRoleModal = false"
-    >
-      <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
-      >
-        <div class="flex items-center gap-3 mb-4">
-          <div
-            class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"
-          >
-            <i class="fas fa-user-cog text-purple-600 text-lg"></i>
           </div>
-          <h3 class="text-xl font-bold text-gray-900">Change Role</h3>
         </div>
-
-        <p class="text-gray-600 mb-6">
-          Change
-          <strong>{{ getMemberDisplayName(selectedMember) }}'s</strong> role to
-          <strong>{{
-            selectedMember?.role === "admin" ? "Member" : "Admin"
-          }}</strong
-          >?
-        </p>
 
         <div class="flex gap-3">
           <button
-            @click="showChangeRoleModal = false"
-            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+            @click="showTransferOwnership = false"
+            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
           <button
-            @click="changeMemberRole"
-            class="flex-1 px-4 py-3 bg-purple-600 text-white font-medium rounded-xl hover:bg-purple-700 transition-colors"
+            @click="transferOwnership"
+            :disabled="!selectedNewAdmin"
+            class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Change Role
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Remove Member Modal -->
-    <div
-      v-if="showRemoveMemberModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showRemoveMemberModal = false"
-    >
-      <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
-      >
-        <div class="flex items-center gap-3 mb-4">
-          <div
-            class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center"
-          >
-            <i class="fas fa-user-times text-red-600 text-lg"></i>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900">Remove Member</h3>
-        </div>
-
-        <p class="text-gray-600 mb-6">
-          Are you sure you want to remove
-          <strong>{{ getMemberDisplayName(selectedMember) }}</strong> from the
-          family? This action cannot be undone.
-        </p>
-
-        <div class="flex gap-3">
-          <button
-            @click="showRemoveMemberModal = false"
-            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            @click="removeMember"
-            class="flex-1 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-colors"
-          >
-            Remove
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Leave Family Modal -->
-    <div
-      v-if="showLeaveFamilyModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showLeaveFamilyModal = false"
-    >
-      <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
-      >
-        <div class="flex items-center gap-3 mb-4">
-          <div
-            class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center"
-          >
-            <i class="fas fa-sign-out-alt text-orange-600 text-lg"></i>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900">Leave Family</h3>
-        </div>
-
-        <p class="text-gray-600 mb-6">
-          Are you sure you want to leave this family? You will need to be
-          re-invited to join again.
-        </p>
-
-        <div class="flex gap-3">
-          <button
-            @click="showLeaveFamilyModal = false"
-            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            @click="leaveFamily"
-            class="flex-1 px-4 py-3 bg-orange-600 text-white font-medium rounded-xl hover:bg-orange-700 transition-colors"
-          >
-            Leave
+            Transfer
           </button>
         </div>
       </div>
@@ -661,40 +533,54 @@
 
     <!-- Delete Family Modal -->
     <div
-      v-if="showDeleteFamilyModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showDeleteFamilyModal = false"
+      v-if="showDeleteFamily"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
     >
-      <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
-      >
-        <div class="flex items-center gap-3 mb-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6">
+        <div class="text-center mb-6">
           <div
-            class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center"
+            class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4"
           >
-            <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
           </div>
-          <h3 class="text-xl font-bold text-gray-900">Delete Family</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">
+            Delete Family
+          </h3>
+          <p class="text-gray-600">
+            This action cannot be undone. All family data will be permanently
+            deleted.
+          </p>
         </div>
 
-        <p class="text-gray-600 mb-6">
-          This will <strong>permanently delete</strong> this family and all its
-          data. This action cannot be undone. Are you absolutely sure?
-        </p>
+        <div class="space-y-4">
+          <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                v-model="confirmDelete"
+                class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+              />
+              <span class="text-sm text-red-800 font-medium">
+                I understand this action cannot be undone
+              </span>
+            </label>
+          </div>
 
-        <div class="flex gap-3">
-          <button
-            @click="showDeleteFamilyModal = false"
-            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            @click="deleteFamily"
-            class="flex-1 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-colors"
-          >
-            Delete Forever
-          </button>
+          <div class="flex gap-3">
+            <button
+              @click="showDeleteFamily = false"
+              class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="deleteFamily"
+              :disabled="!confirmDelete"
+              class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Delete Family
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -702,7 +588,7 @@
     <!-- Toast Notification -->
     <div
       v-if="showToastMessage"
-      class="fixed top-4 right-4 left-4 sm:left-auto z-50 max-w-sm w-full sm:w-auto px-4 animate-slideIn"
+      class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
     >
       <div
         class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
@@ -720,9 +606,7 @@
               'fas fa-exclamation-circle text-red-500': toastType === 'error',
             }"
           ></i>
-          <p class="font-medium flex-1 text-sm sm:text-base">
-            {{ toastMessage }}
-          </p>
+          <p class="font-medium flex-1">{{ toastMessage }}</p>
           <button
             @click="showToastMessage = false"
             class="flex-shrink-0 text-gray-400 hover:text-gray-600"
@@ -736,22 +620,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   doc,
   getDoc,
   updateDoc,
-  arrayRemove,
   deleteDoc,
+  arrayRemove,
+  arrayUnion,
 } from "firebase/firestore";
 import { useAuthStore } from "~/stores/auth";
 import { useNuxtApp } from "#app";
 import { generateInvite } from "~/utils/firebase";
-import { useFamilyMembers } from "~/composables/useFamilyMembers";
 
 const { $firestore: db } = useNuxtApp();
-const { fetchMembersWithUserData } = useFamilyMembers();
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -759,7 +642,7 @@ const authStore = useAuthStore();
 // Data
 const familyData = ref(null);
 const loading = ref(true);
-const familyId = ref("");
+const error = ref("");
 
 // UI State
 const inviteLink = ref("");
@@ -768,30 +651,25 @@ const copyButtonText = ref("Copy");
 const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
+const showTransferOwnership = ref(false);
+const showDeleteFamily = ref(false);
+const selectedNewAdmin = ref(null);
+const confirmDelete = ref(false);
 
-// Modal State
-const showEditNameModal = ref(false);
-const showMemberActionsModal = ref(false);
-const showChangeRoleModal = ref(false);
-const showRemoveMemberModal = ref(false);
-const showLeaveFamilyModal = ref(false);
-const showDeleteFamilyModal = ref(false);
-const selectedMember = ref(null);
-const newFamilyName = ref("");
+// Computed properties for multi-family support
+const currentFamilyId = computed(() => route.params.id);
+const hasAccess = computed(() => {
+  if (!currentFamilyId.value || !authStore.families) return false;
+  return currentFamilyId.value in authStore.families;
+});
 
-// Computed
-const isAdmin = computed(() => authStore.permissions.role === "admin");
-const adminCount = computed(
-  () => familyData.value?.members?.filter((m) => m.role === "admin").length || 0
-);
-const memberCount = computed(
-  () =>
-    familyData.value?.members?.filter((m) => m.role === "member").length || 0
-);
-const isLastAdmin = computed(() => {
-  const admins =
-    familyData.value?.members?.filter((m) => m.role === "admin") || [];
-  return admins.length === 1 && admins[0].userId === authStore.userId;
+const userFamilyRole = computed(() => {
+  if (!hasAccess.value) return null;
+  return authStore.families[currentFamilyId.value]?.role || "member";
+});
+
+const isAdmin = computed(() => {
+  return userFamilyRole.value === "admin";
 });
 
 const showToast = (message, type = "success") => {
@@ -807,235 +685,134 @@ const showToast = (message, type = "success") => {
 const fetchFamilyData = async () => {
   try {
     loading.value = true;
-    familyId.value = route.params.id;
+    error.value = "";
 
-    if (!familyId.value || familyId.value === "null") {
-      showToast("No family specified", "error");
+    const familyId = currentFamilyId.value;
+
+    if (!familyId || familyId === "null") {
+      error.value = "No family specified.";
       return;
     }
 
-    const docRef = doc(db, "families", familyId.value);
+    // Check if user has access to this family
+    if (!hasAccess.value) {
+      error.value = "You don't have access to this family.";
+      loading.value = false;
+      return;
+    }
+
+    const docRef = doc(db, "families", familyId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const familyDataRaw = docSnap.data();
-      const membersWithUserData = await fetchMembersWithUserData(
-        familyDataRaw.members || []
-      );
-
-      familyData.value = {
-        ...familyDataRaw,
-        members: membersWithUserData,
-      };
+      familyData.value = docSnap.data();
     } else {
-      showToast("Family not found", "error");
+      error.value = "Family not found";
     }
   } catch (err) {
+    const errorMessage =
+      err?.message || err?.toString() || "An unknown error occurred";
+    error.value = "Failed to load family data: " + errorMessage;
     console.error("Error fetching family data:", err);
-    showToast("Failed to load family data", "error");
   } finally {
     loading.value = false;
   }
 };
 
 const getMemberDisplayName = (member) => {
-  if (!member) return "Unknown Member";
   if (member.name) return member.name;
+  if (member.email) return member.email.split("@")[0];
   return "Unknown Member";
 };
 
-const getMemberInitial = (member) => {
-  return getMemberDisplayName(member).charAt(0).toUpperCase();
+const getAdminCount = () => {
+  return (
+    familyData.value?.members?.filter((m) => m.role === "admin").length || 0
+  );
 };
 
-const openMemberActionsModal = (member) => {
-  selectedMember.value = member;
-  showMemberActionsModal.value = true;
+const getMemberCount = () => {
+  return (
+    familyData.value?.members?.filter((m) => m.role === "member").length || 0
+  );
 };
 
-const changeMemberRole = async () => {
-  if (!selectedMember.value) return;
-
-  const newRole = selectedMember.value.role === "admin" ? "member" : "admin";
-
+const formatDate = (timestamp) => {
+  if (!timestamp) return "Unknown";
   try {
-    showChangeRoleModal.value = false;
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "Unknown";
+  }
+};
 
-    // Update member role in family
-    const updatedMembers = familyData.value.members.map((m) =>
-      m.userId === selectedMember.value.userId ? { ...m, role: newRole } : m
+const updateMemberRole = async (userId, newRole) => {
+  try {
+    const familyRef = doc(db, "families", currentFamilyId.value);
+    const updatedMembers = familyData.value.members.map((member) =>
+      member.userId === userId ? { ...member, role: newRole } : member
     );
 
-    await updateDoc(doc(db, "families", familyId.value), {
+    await updateDoc(familyRef, {
       members: updatedMembers,
     });
 
-    // Update user's permissions if they're in the family
-    await updateDoc(doc(db, "users", selectedMember.value.userId), {
-      "permissions.role": newRole,
-      familyRole: newRole === "admin" ? "parent" : "member",
-    });
-
     familyData.value.members = updatedMembers;
-    showToast(`Role updated to ${newRole}`, "success");
-    selectedMember.value = null;
+    showToast("Member role updated successfully", "success");
   } catch (error) {
-    console.error("Error changing role:", error);
-    showToast("Failed to change role", "error");
+    console.error("Error updating member role:", error);
+    showToast("Failed to update member role", "error");
   }
 };
 
-const removeMember = async () => {
-  if (!selectedMember.value) return;
-
-  try {
-    showRemoveMemberModal.value = false;
-
-    // Find the exact member object from the family data (as stored in Firestore)
-    const exactMember = familyData.value.members.find(
-      (m) => m.userId === selectedMember.value.userId
-    );
-
-    if (!exactMember) {
-      showToast("Member not found in family", "error");
-      return;
-    }
-
-    // Create a clean member object with only the properties that exist in Firestore
-    const cleanMember = {
-      userId: exactMember.userId,
-      email: exactMember.email,
-      role: exactMember.role,
-    };
-
-    // Remove member from family using the clean object
-    await updateDoc(doc(db, "families", familyId.value), {
-      members: arrayRemove(cleanMember),
-    });
-
-    // Update user's family data
-    await updateDoc(doc(db, "users", selectedMember.value.userId), {
-      familyId: null,
-      familyName: null,
-      familyRole: null,
-      status: null,
-      updatedAt: new Date(),
-    });
-
-    // Refresh family data to get the updated members list
-    await fetchFamilyData();
-
-    showToast("Member removed successfully", "success");
-    selectedMember.value = null;
-  } catch (error) {
-    console.error("Error removing member:", {
-      error: error.message,
-      code: error.code,
-      member: selectedMember.value,
-    });
-    showToast("Failed to remove member: " + error.message, "error");
-  }
-};
-
-const leaveFamily = async () => {
-  try {
-    showLeaveFamilyModal.value = false;
-
-    const currentUserMember = familyData.value.members.find(
-      (m) => m.userId === authStore.userId
-    );
-
-    if (currentUserMember) {
-      // Remove yourself from family
-      await updateDoc(doc(db, "families", familyId.value), {
-        members: arrayRemove(currentUserMember),
-      });
-
-      // Update your own user data
-      await updateDoc(doc(db, "users", authStore.userId), {
-        familyId: null,
-        familyName: null,
-        familyRole: null,
-        status: null,
-      });
-
-      // Update auth store
-      authStore.familyId = null;
-      authStore.familyName = null;
-      authStore.familyRole = null;
-      authStore.status = null;
-
-      showToast("You have left the family", "success");
-      router.push("/dashboard");
-    }
-  } catch (error) {
-    console.error("Error leaving family:", error);
-    showToast("Failed to leave family", "error");
-  }
-};
-
-const deleteFamily = async () => {
-  try {
-    showDeleteFamilyModal.value = false;
-
-    // Remove family reference from all members
-    const updatePromises = familyData.value.members.map((member) =>
-      updateDoc(doc(db, "users", member.userId), {
-        familyId: null,
-        familyName: null,
-        familyRole: null,
-        status: null,
-      })
-    );
-
-    await Promise.all(updatePromises);
-
-    // Delete the family document
-    await deleteDoc(doc(db, "families", familyId.value));
-
-    // Update auth store for current user
-    authStore.familyId = null;
-    authStore.familyName = null;
-    authStore.familyRole = null;
-    authStore.status = null;
-
-    showToast("Family deleted successfully", "success");
-    router.push("/dashboard");
-  } catch (error) {
-    console.error("Error deleting family:", error);
-    showToast("Failed to delete family", "error");
-  }
-};
-
-const editFamilyName = async () => {
-  if (!newFamilyName.value || newFamilyName.value.trim() === "") {
-    showToast("Please enter a valid name", "error");
+const removeMember = async (userId) => {
+  if (
+    !confirm("Are you sure you want to remove this member from the family?")
+  ) {
     return;
   }
 
   try {
-    showEditNameModal.value = false;
+    const familyRef = doc(db, "families", currentFamilyId.value);
+    const userRef = doc(db, "users", userId);
 
-    await updateDoc(doc(db, "families", familyId.value), {
-      name: newFamilyName.value.trim(),
-      updatedAt: new Date(),
+    // Remove from family members
+    const updatedMembers = familyData.value.members.filter(
+      (member) => member.userId !== userId
+    );
+    await updateDoc(familyRef, {
+      members: updatedMembers,
     });
 
-    familyData.value.name = newFamilyName.value.trim();
-    authStore.familyName = newFamilyName.value.trim();
-    showToast("Family name updated successfully", "success");
+    // Remove family from user's families
+    await updateDoc(userRef, {
+      [`families.${currentFamilyId.value}`]: arrayRemove(),
+    });
+
+    familyData.value.members = updatedMembers;
+    showToast("Member removed successfully", "success");
   } catch (error) {
-    console.error("Error updating family name:", error);
-    showToast("Failed to update family name", "error");
+    console.error("Error removing member:", error);
+    showToast("Failed to remove member", "error");
   }
 };
 
 const generateInviteLink = async () => {
+  if (!isAdmin.value) {
+    showToast("Only admins can generate invite links", "error");
+    return;
+  }
+
   generatingInvite.value = true;
   try {
     const baseUrl = "https://my-nest.netlify.app";
     const inviteId = await generateInvite(
-      familyId.value,
+      currentFamilyId.value,
       familyData.value?.name,
       authStore.userId
     );
@@ -1043,7 +820,7 @@ const generateInviteLink = async () => {
     showToast("Invite link generated successfully", "success");
   } catch (error) {
     console.error("Error generating invite link:", error);
-    showToast("Failed to generate invite link", "error");
+    showToast("Failed to generate invite link: " + error.message, "error");
   } finally {
     generatingInvite.value = false;
   }
@@ -1063,16 +840,105 @@ const copyInviteLink = async () => {
   }
 };
 
+const editFamilyName = async () => {
+  const newName = prompt(
+    "Enter new family name:",
+    familyData.value?.name || ""
+  );
+  if (!newName || newName.trim() === "") return;
+
+  try {
+    await updateDoc(doc(db, "families", currentFamilyId.value), {
+      name: newName.trim(),
+      updatedAt: new Date(),
+    });
+
+    familyData.value.name = newName.trim();
+    showToast("Family name updated successfully", "success");
+  } catch (error) {
+    console.error("Error updating family name:", error);
+    showToast("Failed to update family name", "error");
+  }
+};
+
+const transferOwnership = async () => {
+  if (!selectedNewAdmin.value) return;
+
+  try {
+    const familyRef = doc(db, "families", currentFamilyId.value);
+
+    // Update roles in family
+    const updatedMembers = familyData.value.members.map((member) => {
+      if (member.userId === selectedNewAdmin.value) {
+        return { ...member, role: "admin" };
+      } else if (member.userId === authStore.userId) {
+        return { ...member, role: "member" };
+      }
+      return member;
+    });
+
+    await updateDoc(familyRef, {
+      members: updatedMembers,
+    });
+
+    // Update user documents
+    const currentUserRef = doc(db, "users", authStore.userId);
+    const newAdminRef = doc(db, "users", selectedNewAdmin.value);
+
+    await updateDoc(currentUserRef, {
+      [`families.${currentFamilyId.value}.role`]: "member",
+    });
+
+    await updateDoc(newAdminRef, {
+      [`families.${currentFamilyId.value}.role`]: "admin",
+    });
+
+    familyData.value.members = updatedMembers;
+    showTransferOwnership.value = false;
+    selectedNewAdmin.value = null;
+    showToast("Ownership transferred successfully", "success");
+
+    // Refresh auth store to get updated role
+    await authStore.initAuth();
+  } catch (error) {
+    console.error("Error transferring ownership:", error);
+    showToast("Failed to transfer ownership", "error");
+  }
+};
+
+const deleteFamily = async () => {
+  if (!confirmDelete.value) return;
+
+  try {
+    const familyRef = doc(db, "families", currentFamilyId.value);
+
+    // Remove family from all members
+    const updatePromises = familyData.value.members.map(async (member) => {
+      const userRef = doc(db, "users", member.userId);
+      await updateDoc(userRef, {
+        [`families.${currentFamilyId.value}`]: arrayRemove(),
+      });
+    });
+
+    await Promise.all(updatePromises);
+    await deleteDoc(familyRef);
+
+    showToast("Family deleted successfully", "success");
+    showDeleteFamily.value = false;
+
+    // Redirect to dashboard
+    router.push("/dashboard");
+  } catch (error) {
+    console.error("Error deleting family:", error);
+    showToast("Failed to delete family", "error");
+  }
+};
+
 onMounted(async () => {
   await authStore.initAuth();
 
-  if (!authStore.familyId) {
+  if (!authStore.hasFamily) {
     router.push("/family-setup");
-    return;
-  }
-
-  if (!isAdmin.value) {
-    router.push(`/family/${authStore.familyId}`);
     return;
   }
 
@@ -1080,7 +946,7 @@ onMounted(async () => {
 });
 
 useHead({
-  title: "FamilySpace - Manage Family",
+  title: computed(() => `Manage - ${familyData.value?.name || "Family"}`),
 });
 
 definePageMeta({
@@ -1113,21 +979,6 @@ definePageMeta({
   }
   to {
     transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.animate-scaleIn {
-  animation: scaleIn 0.2s ease-out;
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
     opacity: 1;
   }
 }

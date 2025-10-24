@@ -30,7 +30,7 @@
           <p class="text-gray-600 mb-6">{{ error }}</p>
           <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <NuxtLink
-              v-if="!authStore.familyId"
+              v-if="!authStore.hasFamily"
               to="/family-setup"
               class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
             >
@@ -44,6 +44,45 @@
               <i class="fas fa-redo text-sm"></i>
               Try Again
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Access Denied -->
+    <div
+      v-else-if="!hasAccess"
+      class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+    >
+      <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-8">
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4"
+          >
+            <i class="fas fa-lock text-amber-600 text-xl"></i>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Access Denied
+          </h2>
+          <p class="text-gray-600 mb-6">
+            You don't have access to this family. Please check if you're a
+            member or request to join.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <NuxtLink
+              to="/dashboard"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-home text-sm"></i>
+              Back to Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/join-family"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <i class="fas fa-search text-sm"></i>
+              Find Families
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -85,6 +124,15 @@
               <span class="font-medium text-gray-700"
                 >Created {{ formatDate(familyData?.createdAt) }}</span
               >
+            </div>
+            <div
+              v-if="userFamilyRole"
+              class="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full"
+            >
+              <i class="fas fa-user-tag text-purple-600"></i>
+              <span class="font-medium text-gray-700 capitalize">{{
+                userFamilyRole
+              }}</span>
             </div>
           </div>
         </div>
@@ -184,11 +232,8 @@
               </div>
             </div>
 
-            <!-- Invite Section (Parents Only) -->
-            <div
-              v-if="authStore.permissions.role === 'admin'"
-              class="mt-8 pt-6 border-t border-gray-200"
-            >
+            <!-- Invite Section (Admins Only) -->
+            <div v-if="isAdmin" class="mt-8 pt-6 border-t border-gray-200">
               <div class="flex items-center gap-3 mb-4">
                 <div
                   class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
@@ -336,10 +381,10 @@
                   >
                     <i class="fas fa-user-shield text-purple-600"></i>
                   </div>
-                  <span class="font-medium text-gray-700">Parents</span>
+                  <span class="font-medium text-gray-700">Admins</span>
                 </div>
                 <span class="text-xl font-bold text-gray-900">{{
-                  getParentCount()
+                  getAdminCount()
                 }}</span>
               </div>
 
@@ -452,9 +497,9 @@
             </div>
           </div>
 
-          <!-- Settings (Parents Only) -->
+          <!-- Settings (Admins Only) -->
           <div
-            v-if="authStore.permissions.role === 'admin'"
+            v-if="isAdmin"
             class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
           >
             <div class="flex items-center gap-3 mb-6">
@@ -579,6 +624,22 @@ const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
 
+// Computed properties for multi-family support
+const currentFamilyId = computed(() => route.params.id);
+const hasAccess = computed(() => {
+  if (!currentFamilyId.value || !authStore.families) return false;
+  return currentFamilyId.value in authStore.families;
+});
+
+const userFamilyRole = computed(() => {
+  if (!hasAccess.value) return null;
+  return authStore.families[currentFamilyId.value]?.role || "member";
+});
+
+const isAdmin = computed(() => {
+  return userFamilyRole.value === "admin";
+});
+
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
   toastType.value = type;
@@ -594,10 +655,17 @@ const fetchFamilyData = async () => {
     loading.value = true;
     error.value = "";
 
-    const familyId = route.params.id;
+    const familyId = currentFamilyId.value;
 
     if (!familyId || familyId === "null") {
-      error.value = "No family assigned. Please set up or join a family.";
+      error.value = "No family specified.";
+      return;
+    }
+
+    // Check if user has access to this family
+    if (!hasAccess.value) {
+      error.value = "You don't have access to this family.";
+      loading.value = false;
       return;
     }
 
@@ -625,7 +693,7 @@ const getMemberDisplayName = (member) => {
   return "Unknown Member";
 };
 
-const getParentCount = () => {
+const getAdminCount = () => {
   return (
     familyData.value?.members?.filter((m) => m.role === "admin").length || 0
   );
@@ -651,17 +719,16 @@ const formatDate = (timestamp) => {
   }
 };
 
-// Add this method for navigation to user profiles
 const goToUserProfile = (userId) => {
   if (userId === authStore.userId) {
-    router.push("/profile"); // Goes to editable profile page
+    router.push("/profile");
   } else {
-    router.push(`/user/${userId}`); // Goes to view-only profile page
+    router.push(`/user/${userId}`);
   }
 };
 
 const generateInviteLink = async () => {
-  if (authStore.permissions.role !== "admin") {
+  if (!isAdmin.value) {
     showToast("Only admins can generate invite links", "error");
     return;
   }
@@ -670,8 +737,8 @@ const generateInviteLink = async () => {
   try {
     const baseUrl = "https://my-nest.netlify.app";
     const inviteId = await generateInvite(
-      authStore.familyId,
-      authStore.familyName,
+      currentFamilyId.value,
+      familyData.value?.name,
       authStore.userId
     );
     inviteLink.value = `${baseUrl}/join/${inviteId}`;
@@ -706,13 +773,12 @@ const editFamilyName = async () => {
   if (!newName || newName.trim() === "") return;
 
   try {
-    await updateDoc(doc(db, "families", route.params.id), {
+    await updateDoc(doc(db, "families", currentFamilyId.value), {
       name: newName.trim(),
       updatedAt: new Date(),
     });
 
     familyData.value.name = newName.trim();
-    authStore.familyName = newName.trim();
     showToast("Family name updated successfully", "success");
   } catch (error) {
     console.error("Error updating family name:", error);
@@ -723,11 +789,12 @@ const editFamilyName = async () => {
 onMounted(async () => {
   await authStore.initAuth();
 
-  if (!authStore.familyId) {
+  if (!authStore.hasFamily) {
     router.push("/family-setup");
-  } else {
-    await fetchFamilyData();
+    return;
   }
+
+  await fetchFamilyData();
 });
 
 useHead({

@@ -55,6 +55,31 @@
           class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8"
         >
           <form @submit.prevent="handleRegister" class="space-y-6">
+            <!-- Name Field -->
+            <div>
+              <label
+                for="name"
+                class="block text-sm font-semibold text-gray-700 mb-3"
+              >
+                Full Name *
+              </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-user text-gray-400 text-lg"></i>
+                </div>
+                <input
+                  type="text"
+                  id="name"
+                  v-model="name"
+                  class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-400"
+                  placeholder="Your full name"
+                  required
+                  :disabled="loading"
+                />
+              </div>
+            </div>
             <!-- Email Field -->
             <div>
               <label
@@ -127,66 +152,6 @@
                   {{ getPasswordStrengthText }}
                 </span>
               </div>
-            </div>
-
-            <!-- Create Family Option -->
-            <div>
-              <label
-                for="createFamily"
-                class="block text-sm font-semibold text-gray-700 mb-3"
-              >
-                Family Setup
-              </label>
-              <div class="relative">
-                <div
-                  class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
-                >
-                  <i class="fas fa-home text-gray-400 text-lg"></i>
-                </div>
-                <select
-                  id="createFamily"
-                  v-model="createFamily"
-                  class="w-full pl-12 pr-10 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 appearance-none bg-white hover:border-gray-400 cursor-pointer"
-                  :disabled="loading"
-                >
-                  <option value="yes">Create a new family</option>
-                  <option value="no">Join a family later</option>
-                </select>
-                <div
-                  class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none"
-                >
-                  <i class="fas fa-chevron-down text-gray-400"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- Family Name Field (Conditional) -->
-            <div v-if="createFamily === 'yes'" class="animate-fadeIn">
-              <label
-                for="familyName"
-                class="block text-sm font-semibold text-gray-700 mb-3"
-              >
-                Family Name
-              </label>
-              <div class="relative">
-                <div
-                  class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
-                >
-                  <i class="fas fa-users text-gray-400 text-lg"></i>
-                </div>
-                <input
-                  type="text"
-                  id="familyName"
-                  v-model="familyName"
-                  class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-400"
-                  placeholder="e.g., The Smith Family"
-                  required
-                  :disabled="loading"
-                />
-              </div>
-              <p class="text-xs text-gray-500 mt-2">
-                This will be your family's display name
-              </p>
             </div>
 
             <!-- Error Message -->
@@ -290,6 +255,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { registerUser } from "~/utils/firebase";
+import { getAuth } from "firebase/auth";
 
 definePageMeta({
   middleware: "auth",
@@ -298,6 +264,7 @@ definePageMeta({
 const authStore = useAuthStore();
 const router = useRouter();
 const familyName = ref("");
+const name = ref("");
 const email = ref("");
 const password = ref("");
 const createFamily = ref("no");
@@ -307,6 +274,7 @@ const showPassword = ref(false);
 
 const isFormValid = computed(() => {
   return (
+    name.value.trim() !== "" &&
     email.value.trim() !== "" &&
     password.value.trim() !== "" &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) &&
@@ -352,10 +320,9 @@ const getPasswordStrengthText = computed(() => {
   };
   return texts[strength] || "";
 });
-
 const handleRegister = async () => {
   if (!isFormValid.value) {
-    error.value = "Please fill all fields correctly";
+    error.value = "Please fill all required fields correctly";
     return;
   }
 
@@ -363,21 +330,25 @@ const handleRegister = async () => {
   error.value = "";
 
   try {
-    const response = await registerUser(
+    // Register user WITHOUT family creation
+    const result = await registerUser(
       email.value,
       password.value,
-      createFamily.value === "yes" ? familyName.value : null
+      name.value.trim()
     );
-    if (!response.success) {
-      throw new Error(response.message || "Registration failed");
+
+    if (result.success) {
+      // Refresh auth store
+      await authStore.initAuth();
+
+      // Always redirect to family-setup
+      router.push("/family-setup");
+    } else {
+      error.value = result.message || "Registration failed";
     }
-    await authStore.initAuth();
-    router.push("/family-setup");
   } catch (err) {
     console.error("Registration error:", err);
-    error.value = err.message.includes("permission")
-      ? "Permission denied. Please try again or contact support."
-      : err.message || "Failed to register. Please try again.";
+    error.value = err.message || "Failed to create account";
   } finally {
     loading.value = false;
   }

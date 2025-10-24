@@ -11,6 +11,7 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { ref, computed, watch } from "vue";
 
 const authStore = useAuthStore();
 const calendarStore = useCalendarStore();
@@ -68,6 +69,18 @@ const eventColors = [
   { name: "Orange", value: "orange", hex: "#f97316" },
   { name: "Gray", value: "gray", hex: "#6b7280" },
 ];
+
+// Watch for events changes to refresh calendar
+watch(
+  () => calendarStore.events,
+  () => {
+    if (calendarRef.value) {
+      const calendarApi = calendarRef.value.getApi();
+      calendarApi.refetchEvents();
+    }
+  },
+  { deep: true }
+);
 
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],

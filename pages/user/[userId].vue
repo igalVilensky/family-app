@@ -90,11 +90,16 @@
                 class="flex gap-2 sm:gap-3 justify-center lg:justify-start w-full lg:w-auto"
               >
                 <button
+                  v-if="canSendMessage"
                   @click="showMessageModal = true"
-                  class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg text-sm sm:text-base"
+                  :disabled="isSendingMessage"
+                  class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <i class="fas fa-envelope text-xs sm:text-sm"></i>
-                  <span>Message</span>
+                  <i
+                    class="fas fa-envelope text-xs sm:text-sm"
+                    :class="{ 'animate-spin': isSendingMessage }"
+                  ></i>
+                  <span>{{ isSendingMessage ? "Sending..." : "Message" }}</span>
                 </button>
                 <button
                   @click="toggleFavorite"
@@ -536,9 +541,10 @@
           </button>
           <button
             @click="sendMessageToUser"
-            class="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            :disabled="isSendingMessage || !messageText.trim()"
+            class="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send
+            {{ isSendingMessage ? "Sending..." : "Send" }}
           </button>
         </div>
       </div>
@@ -618,11 +624,21 @@ const toastMessage = ref("");
 const toastType = ref("success");
 const showMessageModal = ref(false);
 const messageText = ref("");
+const isSendingMessage = ref(false);
 
-// Computed properties (keep all your existing computed properties)
+// Computed properties for multi-family support
 const userInitial = computed(() =>
   userProfile.value.name ? userProfile.value.name.charAt(0).toUpperCase() : "?"
 );
+
+const canSendMessage = computed(() => {
+  return isSameFamily.value && authStore.userId !== userId.value;
+});
+
+const isSameFamily = computed(() => {
+  if (!authStore.currentFamilyId || !userProfile.value.families) return false;
+  return userProfile.value.families[authStore.currentFamilyId] !== undefined;
+});
 
 const upcomingEvents = computed(() => {
   const now = new Date();
@@ -668,7 +684,7 @@ const familyMembershipDuration = computed(() => {
 });
 
 const commonConnections = computed(() => {
-  if (!authStore.familyMembers || !userProfile.value.familyId) return [];
+  if (!authStore.familyMembers || !isSameFamily.value) return [];
   return authStore.familyMembers
     .filter(
       (member) =>
@@ -743,7 +759,7 @@ const formatBirthday = (birthdayString) => {
 
 const formatJoinDate = (timestamp) => {
   if (!timestamp) return "Unknown";
-  const date = timestamp.toDate();
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -800,17 +816,26 @@ const sendMessageToUser = async () => {
     return;
   }
 
+  if (!canSendMessage.value) {
+    showToast("Cannot send message to this user", "error");
+    return;
+  }
+
+  isSendingMessage.value = true;
+
   try {
     await sendMessage(userId.value, messageText.value);
     showMessageModal.value = false;
     showToast(`Message sent to ${userProfile.value.name}`, "success");
     messageText.value = "";
 
-    // Optionally redirect to conversation page
-    router.push(`/messages/${userId.value}`);
+    // Don't redirect automatically, let user choose to go to messages
+    // Optional: You can add a button to go to conversation
   } catch (error) {
     console.error("Send message error:", error);
     showToast(error.message || "Failed to send message", "error");
+  } finally {
+    isSendingMessage.value = false;
   }
 };
 
@@ -855,11 +880,11 @@ const fetchUserProfile = async () => {
 };
 
 const fetchUserEvents = async () => {
-  if (!userProfile.value.familyId) return;
+  if (!authStore.currentFamilyId) return;
 
   try {
     const eventsQuery = query(
-      collection(db, "families", userProfile.value.familyId, "events"),
+      collection(db, "families", authStore.currentFamilyId, "events"),
       orderBy("startDate", "desc")
     );
     const eventsSnapshot = await getDocs(eventsQuery);
@@ -888,13 +913,10 @@ onMounted(async () => {
   await authStore.initAuth();
 
   // Only redirect if user doesn't belong to any family at all
-  if (!authStore.familyId) {
+  if (!authStore.hasFamily) {
     router.push("/dashboard");
     return;
   }
-
-  // Allow users to view profiles even if status is not 'active'
-  // (like pending members who should still see family profiles)
 
   await Promise.all([
     fetchUserProfile(),
@@ -902,11 +924,8 @@ onMounted(async () => {
     checkFavoriteStatus(),
   ]);
 
-  // Check if the target user is in the same family
-  if (
-    userProfile.value.familyId &&
-    userProfile.value.familyId !== authStore.familyId
-  ) {
+  // Check if the target user is in the same current family
+  if (!isSameFamily.value) {
     showToast("You can only view profiles of family members", "error");
     router.push("/dashboard");
     return;

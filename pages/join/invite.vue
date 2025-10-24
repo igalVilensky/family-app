@@ -4,7 +4,7 @@
     <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200/60">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex items-center justify-between">
-          <NuxtLink to="/join-family" class="flex items-center gap-3 group">
+          <NuxtLink to="/" class="flex items-center gap-3 group">
             <div
               class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200"
             >
@@ -16,12 +16,21 @@
               FamilySpace
             </span>
           </NuxtLink>
-          <NuxtLink
-            to="/join-family"
-            class="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-          >
-            Back to Search
-          </NuxtLink>
+          <div class="flex items-center gap-4">
+            <NuxtLink
+              to="/join-family"
+              class="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              Search Families
+            </NuxtLink>
+            <NuxtLink
+              v-if="authStore.isAuthenticated"
+              to="/dashboard"
+              class="text-gray-600 hover:text-gray-800 font-medium transition-colors"
+            >
+              Dashboard
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </nav>
@@ -131,7 +140,7 @@
         </div>
 
         <!-- Alternative Options -->
-        <div class="text-center">
+        <div class="text-center space-y-4">
           <p class="text-gray-500 text-sm">
             Don't have a link?
             <NuxtLink
@@ -141,6 +150,21 @@
               Search for families instead
             </NuxtLink>
           </p>
+
+          <!-- Show create family option for authenticated users without families -->
+          <div
+            v-if="authStore.isAuthenticated && !authStore.hasFamily"
+            class="pt-4 border-t border-gray-200"
+          >
+            <p class="text-gray-500 text-sm mb-2">Or start your own family</p>
+            <NuxtLink
+              to="/family-setup"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all duration-200"
+            >
+              <i class="fas fa-plus text-sm"></i>
+              Create Family
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </main>
@@ -148,13 +172,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "~/stores/auth";
 
 const router = useRouter();
+const authStore = useAuthStore();
 const inviteLink = ref("");
 const loading = ref(false);
 const error = ref("");
+
+onMounted(async () => {
+  await authStore.initAuth();
+});
 
 const processInviteLink = () => {
   if (!inviteLink.value.trim()) return;
@@ -176,7 +206,8 @@ const processInviteLink = () => {
     router.push(`/join/${inviteId}`);
   } catch (err) {
     console.error("Error processing invite link:", err);
-    error.value = "Please enter a valid FamilySpace invitation link";
+    error.value =
+      "Please enter a valid FamilySpace invitation link. Make sure it starts with https://my-nest.netlify.app/join/";
   } finally {
     loading.value = false;
   }

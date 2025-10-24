@@ -49,7 +49,7 @@
               </NuxtLink>
 
               <NuxtLink
-                to="/calendar"
+                :to="calendarLink"
                 class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-blue-50 rounded-xl transition-all font-medium"
                 :class="{
                   'text-blue-600 bg-blue-100 shadow-sm':
@@ -73,7 +73,7 @@
               </NuxtLink>
 
               <NuxtLink
-                to="/capsules"
+                :to="capsulesLink"
                 class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-purple-50 rounded-xl transition-all font-medium"
                 :class="{
                   'text-purple-600 bg-purple-100 shadow-sm':
@@ -159,7 +159,7 @@
         </NuxtLink>
 
         <NuxtLink
-          to="/calendar"
+          :to="calendarLink"
           class="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all"
           :class="{ 'text-blue-600': route.path.startsWith('/calendar') }"
         >
@@ -189,7 +189,7 @@
         </NuxtLink>
 
         <NuxtLink
-          to="/capsules"
+          :to="capsulesLink"
           class="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all"
           :class="{ 'text-purple-600': route.path.startsWith('/capsules') }"
         >
@@ -239,9 +239,20 @@ const router = useRouter();
 // Use computed to reactively check authentication state
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
-const familyLink = computed(
-  () => authStore.familyId && `/family/${authStore.familyId}`
-);
+// Updated computed properties for multi-family support
+const familyLink = computed(() => {
+  if (!authStore.currentFamilyId) return "/family-setup";
+  return `/family/${authStore.currentFamilyId}`;
+});
+
+// FIX: Use generic routes instead of family-specific ones for calendar and capsules
+const calendarLink = computed(() => {
+  return "/calendar";
+});
+
+const capsulesLink = computed(() => {
+  return "/capsules";
+});
 
 const showHeader = ref(true);
 const headerIcon = ref("fa-home");
@@ -355,7 +366,7 @@ watch(
 
 onMounted(async () => {
   await authStore.initAuth();
-  if (authStore.familyId && authStore.status === "active") {
+  if (authStore.currentFamilyId && authStore.status === "active") {
     await fetchUnreadMessages();
   }
 });

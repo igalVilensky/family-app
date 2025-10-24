@@ -70,7 +70,7 @@
                   v-if="mode !== 'view'"
                   type="button"
                   @click="submitEvent"
-                  :disabled="!form.title || !form.startDate"
+                  :disabled="!form.title || !form.startDate || !currentFamilyId"
                   class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:scale-95"
                 >
                   {{
@@ -96,10 +96,16 @@
 import { deleteEvent, addEvent, updateEvent } from "~/utils/firebase";
 
 const authStore = useAuthStore();
+const route = useRoute();
 const { openEventModal, mode, currentEvent, closeModal, clickedDate } =
   useCalendarModal();
 const { form, resetForm } = useCalendarForm();
 const { refreshEvents } = useCalendarEvents();
+
+// Get current family ID from route or auth store
+const currentFamilyId = computed(() => {
+  return route.params.id || authStore.currentFamilyId;
+});
 
 watch(openEventModal, (newValue) => {
   if (newValue && mode.value === "create") {
@@ -151,15 +157,17 @@ const isCreator = computed(
 );
 
 const submitEvent = async () => {
+  const familyId = currentFamilyId.value;
+
   // Debug: log form values to see what's happening
   console.log("Form values:", {
     title: form.title,
     startDate: form.startDate,
-    familyId: authStore.familyId,
+    familyId: familyId,
     form: { ...form },
   });
 
-  if (!form.title || !form.startDate || !authStore.familyId) {
+  if (!form.title || !form.startDate || !familyId) {
     alert(
       `Missing ${
         form.eventType === "task" ? "task title" : "event title"
@@ -184,7 +192,7 @@ const submitEvent = async () => {
       ...form,
       startDate: startDateISO,
       endDate: endDateISO,
-      familyId: authStore.familyId,
+      familyId: familyId,
       creatorId:
         mode.value === "create"
           ? authStore.userId
@@ -208,7 +216,7 @@ const submitEvent = async () => {
         });
         eventData.rsvps = rsvps;
       }
-      await updateEvent(authStore.familyId, currentEvent.value.id, eventData);
+      await updateEvent(familyId, currentEvent.value.id, eventData);
     }
 
     await refreshEvents();
@@ -223,10 +231,12 @@ const submitEvent = async () => {
 };
 
 const confirmDelete = async () => {
+  const familyId = currentFamilyId.value;
   const itemType = form.eventType === "task" ? "task" : "event";
+
   if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
     try {
-      await deleteEvent(authStore.familyId, currentEvent.value.id);
+      await deleteEvent(familyId, currentEvent.value.id);
       await refreshEvents();
       closeModal();
     } catch (error) {

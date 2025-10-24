@@ -56,20 +56,21 @@
 
             <div class="flex flex-wrap items-center justify-center gap-3">
               <div
+                v-if="currentFamilyRole"
                 class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full"
               >
                 <i class="fas fa-users text-blue-600 text-sm"></i>
                 <span class="font-medium text-gray-700 capitalize">
-                  {{ authStore.familyRole || "Member" }}
+                  {{ currentFamilyRole }}
                 </span>
               </div>
               <div
-                v-if="authStore.familyName"
+                v-if="currentFamilyName"
                 class="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full"
               >
                 <i class="fas fa-home text-green-600 text-sm"></i>
                 <span class="font-medium text-gray-700">{{
-                  authStore.familyName
+                  currentFamilyName
                 }}</span>
               </div>
               <div
@@ -78,6 +79,15 @@
               >
                 <i class="fas fa-child text-amber-600 text-sm"></i>
                 <span class="font-medium text-gray-700">Minor</span>
+              </div>
+              <div
+                v-if="userFamilies.length > 1"
+                class="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full"
+              >
+                <i class="fas fa-layer-group text-purple-600 text-sm"></i>
+                <span class="font-medium text-gray-700"
+                  >{{ userFamilies.length }} Families</span
+                >
               </div>
             </div>
           </div>
@@ -97,6 +107,69 @@
               <i class="fas fa-arrow-left text-sm"></i>
               Back to Dashboard
             </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Family Selection (if user has multiple families) -->
+      <div
+        v-if="userFamilies.length > 1"
+        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
+      >
+        <div class="flex items-center gap-3 mb-6">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0"
+          >
+            <i class="fas fa-layer-group text-white text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-lg md:text-xl font-semibold text-gray-900">
+              Your Families
+            </h3>
+            <p class="text-gray-500 text-sm">
+              Switch between your family accounts
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            v-for="family in userFamilies"
+            :key="family.id"
+            class="border-2 rounded-xl p-4 transition-all duration-200 cursor-pointer hover:shadow-lg"
+            :class="
+              family.id === authStore.currentFamilyId
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
+            "
+            @click="switchFamily(family.id)"
+          >
+            <div class="flex items-center gap-3 mb-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-home text-white"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-gray-900 truncate">
+                  {{ family.name }}
+                </h4>
+                <p class="text-sm text-gray-600 capitalize">
+                  {{ family.userRole }}
+                </p>
+              </div>
+            </div>
+            <div
+              class="flex items-center justify-between text-xs text-gray-500"
+            >
+              <span>{{ family.memberCount }} members</span>
+              <span
+                v-if="family.id === authStore.currentFamilyId"
+                class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium"
+              >
+                Current
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -187,7 +260,7 @@
                     for="familyRole"
                     class="block text-sm font-semibold text-gray-700 mb-3"
                   >
-                    Role in Family *
+                    Primary Family Role *
                   </label>
                   <select
                     id="familyRole"
@@ -429,19 +502,19 @@
                   <div class="flex-1">
                     <h4 class="font-semibold text-gray-900">Account Role</h4>
                     <p class="text-sm text-gray-600">
-                      Your administrative permissions
+                      Your primary family permissions
                     </p>
                   </div>
                   <span
                     class="px-4 py-2 text-sm font-semibold rounded-xl capitalize flex-shrink-0"
                     :class="{
                       'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
-                        authStore.permissions.role === 'admin',
+                        currentFamilyRole === 'admin',
                       'bg-green-100 text-green-700':
-                        authStore.permissions.role === 'member',
+                        currentFamilyRole === 'member',
                     }"
                   >
-                    {{ authStore.permissions.role }}
+                    {{ currentFamilyRole || "member" }}
                   </span>
                 </div>
               </div>
@@ -478,9 +551,9 @@
               <div
                 class="flex items-center justify-between p-3 bg-green-50 rounded-xl"
               >
-                <span class="font-medium text-gray-700">Family Status</span>
-                <span class="font-semibold text-gray-900 capitalize">{{
-                  authStore.status || "Active"
+                <span class="font-medium text-gray-700">Family Count</span>
+                <span class="font-semibold text-gray-900">{{
+                  userFamilies.length
                 }}</span>
               </div>
               <div
@@ -523,14 +596,17 @@
                 <i class="fas fa-sign-out-alt text-red-600"></i>
               </div>
               <div>
-                <h4 class="font-semibold text-gray-900">Leave Family</h4>
+                <h4 class="font-semibold text-gray-900">
+                  Leave Current Family
+                </h4>
                 <p class="text-sm text-gray-600">
-                  Remove yourself from your current family
+                  Remove yourself from
+                  {{ currentFamilyName || "current family" }}
                 </p>
               </div>
             </div>
             <button
-              @click="leaveFamily"
+              @click="leaveCurrentFamily"
               class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               :disabled="leaving"
             >
@@ -616,7 +692,7 @@ import {
   reauthenticateWithCredential,
   getAuth,
 } from "firebase/auth";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, arrayRemove } from "firebase/firestore";
 import { useNuxtApp } from "#app";
 import Avatar from "~/components/Avatar.vue";
 
@@ -654,6 +730,24 @@ const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
 const updatingPrivacy = ref(false);
+
+// Computed properties for multi-family support
+const userFamilies = computed(() => {
+  if (!authStore.families) return [];
+  return Object.keys(authStore.families).map((familyId) => ({
+    id: familyId,
+    name: authStore.families[familyId]?.name || "Unknown Family",
+    userRole: authStore.families[familyId]?.role || "member",
+    memberCount: authStore.families[familyId]?.memberCount || 0,
+  }));
+});
+
+const currentFamilyId = computed(() => authStore.currentFamilyId);
+const currentFamilyName = computed(() => authStore.currentFamilyName);
+const currentFamilyRole = computed(() => {
+  if (!currentFamilyId.value || !authStore.families) return null;
+  return authStore.families[currentFamilyId.value]?.role || "member";
+});
 
 const userInitial = computed(() =>
   authStore.name ? authStore.name.charAt(0).toUpperCase() : "?"
@@ -737,6 +831,18 @@ const initializeForm = () => {
   };
 };
 
+const switchFamily = async (familyId) => {
+  if (familyId === authStore.currentFamilyId) return;
+
+  try {
+    authStore.setCurrentFamily(familyId);
+    showToast(`Switched to ${authStore.currentFamilyName}`, "success");
+  } catch (error) {
+    console.error("Error switching family:", error);
+    showToast("Failed to switch family", "error");
+  }
+};
+
 const updateProfile = async () => {
   if (!isProfileFormValid.value) {
     showToast("Please fill all required fields correctly", "error");
@@ -750,7 +856,7 @@ const updateProfile = async () => {
       birthday: profileForm.value.birthday,
       familyRole: profileForm.value.familyRole,
       permissions: {
-        role: authStore.permissions.role, // Preserve existing role
+        role: currentFamilyRole.value, // Use current family role
         minor: calculateMinor(profileForm.value.birthday),
         privateMode: profileForm.value.permissions.privateMode,
       },
@@ -872,10 +978,15 @@ const handleAvatarUpdate = (newAvatarUrl) => {
   showToast("Profile photo updated successfully", "success");
 };
 
-const leaveFamily = async () => {
+const leaveCurrentFamily = async () => {
+  if (!currentFamilyId.value) {
+    showToast("No current family selected", "error");
+    return;
+  }
+
   if (
     !confirm(
-      "Are you sure you want to leave your family? You'll need a new invite to rejoin."
+      `Are you sure you want to leave ${currentFamilyName.value}? You'll need a new invite to rejoin.`
     )
   ) {
     return;
@@ -883,21 +994,49 @@ const leaveFamily = async () => {
 
   leaving.value = true;
   try {
-    await updateDoc(doc(db, "users", authStore.userId), {
-      familyId: null,
-      familyName: null,
-      familyRole: null,
-      status: null,
+    const familyId = currentFamilyId.value;
+
+    // Remove user from family members
+    const familyRef = doc(db, "families", familyId);
+    const familyDoc = await getDoc(familyRef);
+
+    if (familyDoc.exists()) {
+      const familyData = familyDoc.data();
+      const updatedMembers = familyData.members.filter(
+        (member) => member.userId !== authStore.userId
+      );
+
+      await updateDoc(familyRef, {
+        members: updatedMembers,
+        updatedAt: new Date(),
+      });
+    }
+
+    // Remove family from user's families
+    const userRef = doc(db, "users", authStore.userId);
+    await updateDoc(userRef, {
+      [`families.${familyId}`]: arrayRemove(),
       updatedAt: new Date(),
     });
 
-    authStore.familyId = null;
-    authStore.familyName = null;
-    authStore.familyRole = null;
-    authStore.status = null;
+    // Update auth store
+    delete authStore.families[familyId];
 
-    showToast("Successfully left family", "success");
-    setTimeout(() => router.push("/dashboard"), 2000);
+    // Set new current family if available
+    const remainingFamilies = Object.keys(authStore.families);
+    if (remainingFamilies.length > 0) {
+      authStore.setCurrentFamily(remainingFamilies[0]);
+    } else {
+      authStore.currentFamilyId = null;
+      authStore.currentFamilyName = null;
+    }
+
+    showToast(`Successfully left ${currentFamilyName.value}`, "success");
+
+    // Refresh family members if we have a new current family
+    if (authStore.currentFamilyId) {
+      await authStore.loadFamilyMembers();
+    }
   } catch (error) {
     console.error("Error leaving family:", error);
     showToast("Failed to leave family: " + error.message, "error");
@@ -914,8 +1053,37 @@ const deleteAccount = async () => {
 
   deleting.value = true;
   try {
+    // Remove user from all families
+    const familyPromises = Object.keys(authStore.families || {}).map(
+      async (familyId) => {
+        const familyRef = doc(db, "families", familyId);
+        const familyDoc = await getDoc(familyRef);
+
+        if (familyDoc.exists()) {
+          const familyData = familyDoc.data();
+          const updatedMembers = familyData.members.filter(
+            (member) => member.userId !== authStore.userId
+          );
+
+          return updateDoc(familyRef, {
+            members: updatedMembers,
+            updatedAt: new Date(),
+          });
+        }
+      }
+    );
+
+    await Promise.all(familyPromises);
+
+    // Delete user document
     await deleteDoc(doc(db, "users", authStore.userId));
-    await authStore.user.delete();
+
+    // Delete Firebase auth user
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      await user.delete();
+    }
 
     authStore.clearAuth();
     router.push("/");
@@ -935,8 +1103,8 @@ onMounted(async () => {
     return;
   }
 
-  // Load family members if user has a family
-  if (authStore.familyId) {
+  // Load family members if user has a current family
+  if (authStore.currentFamilyId) {
     await authStore.loadFamilyMembers();
   }
 

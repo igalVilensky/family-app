@@ -25,7 +25,7 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-8 pb-24 md:pb-8">
-      <!-- Family Header - Warm Welcome -->
+      <!-- Family Header -->
       <div class="text-center space-y-4 py-8">
         <div class="flex items-center justify-center gap-4">
           <div
@@ -33,8 +33,32 @@
           >
             <i class="fas fa-home text-orange-500"></i>
             <span class="text-sm font-medium text-gray-700">{{
-              authStore.familyName || "Your Family Space"
+              authStore.currentFamilyName || "Your Family Space"
             }}</span>
+          </div>
+          <!-- Family Selector -->
+          <div
+            v-if="
+              authStore.hasFamily && Object.keys(authStore.families).length > 1
+            "
+            class="relative"
+          >
+            <select
+              v-model="selectedFamilyId"
+              @change="switchFamily"
+              class="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 hover:border-gray-300 transition-all appearance-none text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              <option
+                v-for="familyId in Object.keys(authStore.families)"
+                :key="familyId"
+                :value="familyId"
+              >
+                {{ getFamilyName(familyId) }}
+              </option>
+            </select>
+            <i
+              class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            ></i>
           </div>
           <NuxtLink
             to="/profile"
@@ -52,25 +76,24 @@
         </p>
       </div>
 
-      <!-- Pending Join Request Alert -->
+      <!-- Pending Join Request Status -->
       <div
-        v-if="hasPendingJoinRequest && !authStore.familyId"
+        v-if="hasPendingJoinRequest"
         class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-6 md:p-8 shadow-lg animate-fadeIn"
       >
         <div class="flex flex-col sm:flex-row items-center gap-6">
           <div
             class="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg"
           >
-            <i class="fas fa-hourglass-half text-white text-2xl"></i>
+            <i class="fas fa-clock text-white text-2xl"></i>
           </div>
           <div class="text-center sm:text-left flex-1">
             <h3 class="text-xl font-bold text-gray-900 mb-2">
-              Waiting to Join the Family
+              Join Request Pending
             </h3>
             <p class="text-gray-700 mb-4">
-              Your request to join
-              <strong class="text-amber-900">{{ pendingFamilyName }}</strong> is
-              being reviewed by the family admin.
+              Your request to join <strong>{{ pendingFamilyName }}</strong> is
+              pending approval from the family admin.
             </p>
             <div class="flex flex-col sm:flex-row gap-3">
               <button
@@ -78,18 +101,17 @@
                 :disabled="checkingStatus"
                 class="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-xl hover:bg-amber-700 transition-all shadow-md disabled:opacity-50"
               >
-                <i
-                  class="fas fa-sync-alt"
-                  :class="{ 'animate-spin': checkingStatus }"
-                ></i>
+                <i v-if="checkingStatus" class="fas fa-spinner fa-spin"></i>
+                <i v-else class="fas fa-sync-alt"></i>
                 {{ checkingStatus ? "Checking..." : "Check Status" }}
               </button>
               <button
                 @click="cancelJoinRequest"
                 :disabled="cancelingRequest"
-                class="flex items-center justify-center gap-2 px-6 py-3 bg-white text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all border-2 border-red-200 disabled:opacity-50"
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all border-2 border-gray-200 disabled:opacity-50"
               >
-                <i class="fas fa-times"></i>
+                <i v-if="cancelingRequest" class="fas fa-spinner fa-spin"></i>
+                <i v-else class="fas fa-times"></i>
                 {{ cancelingRequest ? "Canceling..." : "Cancel Request" }}
               </button>
             </div>
@@ -97,9 +119,100 @@
         </div>
       </div>
 
-      <!-- Quick Stats - Family Style -->
+      <!-- No Family Prompt -->
       <div
-        v-if="authStore.familyId"
+        v-if="!authStore.hasFamily && !hasPendingJoinRequest"
+        class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-6 md:p-8 shadow-lg animate-fadeIn"
+      >
+        <div class="flex flex-col sm:flex-row items-center gap-6">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg"
+          >
+            <i class="fas fa-home text-white text-2xl"></i>
+          </div>
+          <div class="text-center sm:text-left flex-1">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">
+              Start Your Family Space
+            </h3>
+            <p class="text-gray-700 mb-4">
+              You haven't set up a family yet. Create a new core family or join
+              one later from your settings.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <NuxtLink
+                to="/family-setup"
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-xl hover:bg-amber-700 transition-all shadow-md"
+              >
+                <i class="fas fa-users"></i>
+                Create Family
+              </NuxtLink>
+              <button
+                @click="skipFamilySetup"
+                class="flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all border-2 border-gray-200"
+              >
+                <i class="fas fa-arrow-right"></i>
+                Continue Without Family
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Join Requests for Admin -->
+      <div
+        v-if="authStore.isAdmin && joinRequests.length > 0"
+        class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-3xl p-6 md:p-8 shadow-lg"
+      >
+        <div class="flex items-center gap-4 mb-6">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center"
+          >
+            <i class="fas fa-user-plus text-white text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Join Requests</h3>
+            <p class="text-gray-600">Approve or deny family join requests</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            v-for="request in joinRequests"
+            :key="request.id"
+            class="flex items-center justify-between p-4 bg-white rounded-2xl border border-blue-200"
+          >
+            <div class="flex-1">
+              <p class="font-semibold text-gray-900">
+                {{ request.name || request.email }}
+              </p>
+              <p class="text-sm text-gray-500">{{ request.email }}</p>
+              <p class="text-xs text-blue-600">
+                {{ formatTimeAgo(request.requestedAt) }}
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <button
+                @click="
+                  approveRequest(request.id, request.userId, request.email)
+                "
+                class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-medium"
+              >
+                Approve
+              </button>
+              <button
+                @click="denyRequest(request.id)"
+                class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-medium"
+              >
+                Deny
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div
+        v-if="authStore.hasFamily"
         class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
       >
         <div
@@ -183,7 +296,7 @@
         <div class="lg:col-span-2 space-y-8">
           <!-- Upcoming Events -->
           <div
-            v-if="authStore.familyId && authStore.status === 'active'"
+            v-if="authStore.hasFamily && authStore.status === 'active'"
             class="bg-white rounded-3xl shadow-lg border-2 border-blue-100 p-6 md:p-8"
           >
             <div
@@ -247,7 +360,7 @@
 
           <!-- Recent Messages -->
           <div
-            v-if="authStore.familyId && recentConversations.length > 0"
+            v-if="authStore.hasFamily && recentConversations.length > 0"
             class="bg-white rounded-3xl shadow-lg border-2 border-purple-100 p-6 md:p-8"
           >
             <div
@@ -316,7 +429,7 @@
         <div class="space-y-8">
           <!-- Family Circle -->
           <div
-            v-if="authStore.familyId"
+            v-if="authStore.hasFamily"
             class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-lg border-2 border-blue-200 p-8"
           >
             <div class="flex items-center justify-between mb-6">
@@ -391,7 +504,7 @@
             </div>
 
             <NuxtLink
-              :to="`/family/${authStore.familyId}`"
+              :to="`/family/${authStore.currentFamilyId}`"
               class="block w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 rounded-2xl font-semibold text-center transition-all shadow-lg"
             >
               View Family Tree
@@ -400,7 +513,7 @@
 
           <!-- Birthday Progress -->
           <div
-            v-if="authStore.familyId"
+            v-if="authStore.hasFamily"
             class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl shadow-lg border-2 border-purple-200 p-8"
           >
             <h3
@@ -447,7 +560,7 @@
 
           <!-- Admin Invite -->
           <div
-            v-if="authStore.permissions.role === 'admin' && authStore.familyId"
+            v-if="authStore.isAdmin && authStore.hasFamily"
             class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl border-2 border-emerald-200 p-8 shadow-lg"
           >
             <h3
@@ -493,60 +606,6 @@
                 <i class="fas fa-copy mr-2"></i>
                 {{ copyButtonText }}
               </button>
-            </div>
-          </div>
-
-          <!-- Join Requests -->
-          <div
-            v-if="
-              authStore.permissions.role === 'admin' &&
-              authStore.familyId &&
-              joinRequests.length
-            "
-            class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl shadow-lg border-2 border-amber-200 p-8"
-          >
-            <div class="flex items-center justify-between mb-6">
-              <h3
-                class="text-xl font-bold text-gray-900 flex items-center gap-3"
-              >
-                <i class="fas fa-bell text-amber-600"></i>
-                Join Requests
-              </h3>
-              <span
-                class="px-4 py-2 bg-amber-200 text-amber-900 rounded-full font-bold shadow-sm"
-              >
-                {{ joinRequests.length }}
-              </span>
-            </div>
-
-            <div class="space-y-3 max-h-64 overflow-y-auto">
-              <div
-                v-for="request in joinRequests"
-                :key="request.id"
-                class="flex flex-col gap-3 p-4 bg-white rounded-2xl shadow-md"
-              >
-                <p class="font-semibold text-gray-900 truncate">
-                  {{ request.email }}
-                </p>
-                <div class="flex gap-2">
-                  <button
-                    @click="
-                      approveRequest(request.id, request.userId, request.email)
-                    "
-                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all"
-                  >
-                    <i class="fas fa-check mr-1"></i>
-                    Accept
-                  </button>
-                  <button
-                    @click="denyRequest(request.id)"
-                    class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all"
-                  >
-                    <i class="fas fa-times mr-1"></i>
-                    Decline
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -617,21 +676,19 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
-import { getAuth, signOut } from "firebase/auth";
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
+  query,
+  where,
   updateDoc,
   deleteDoc,
   arrayUnion,
-  getDoc,
-  query,
-  where,
 } from "firebase/firestore";
 import { useNuxtApp } from "#app";
 import { generateInvite, getEventsByRange } from "~/utils/firebase";
-import DashboardHeading from "~/components/dashboard/DashboardHeading.vue";
 
 const ToastNotification = {
   props: ["show", "message", "type"],
@@ -657,7 +714,7 @@ const ToastNotification = {
             }"
           ></i>
           <p class="font-semibold flex-1">{{ message }}</p>
-          <button @click="emit('hide')" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
+          <button @click="$emit('hide')" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -669,22 +726,26 @@ const ToastNotification = {
 const { $firestore: db } = useNuxtApp();
 const router = useRouter();
 const authStore = useAuthStore();
-const joinRequests = ref([]);
+
+// State
 const inviteLink = ref("");
 const generatingInvite = ref(false);
 const copyButtonText = ref("Copy");
 const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
-const hasPendingJoinRequest = ref(false);
-const pendingFamilyName = ref("");
-const pendingFamilyId = ref("");
-const checkingStatus = ref(false);
-const cancelingRequest = ref(false);
 const isLoading = ref(true);
 const events = ref([]);
 const recentConversations = ref([]);
+const selectedFamilyId = ref(authStore.currentFamilyId);
+const hasPendingJoinRequest = ref(false);
+const pendingFamilyId = ref("");
+const pendingFamilyName = ref("");
+const checkingStatus = ref(false);
+const cancelingRequest = ref(false);
+const joinRequests = ref([]);
 
+// Computed
 const familyMembers = computed(() => authStore.familyMembers || []);
 const membersWithBirthdays = computed(() =>
   familyMembers.value.filter((member) => member.birthday)
@@ -737,9 +798,11 @@ const unreadMessagesCount = computed(() => {
   );
 });
 
+// Functions
 const getGreeting = () => {
   const hour = new Date().getHours();
   const name = authStore.name || "there";
+  console.log(authStore);
 
   if (hour < 12) return `Good morning, ${name}! ☀️`;
   if (hour < 18) return `Good afternoon, ${name}! 🌤️`;
@@ -777,6 +840,13 @@ const formatEventDate = (dateStr) => {
   });
 };
 
+const getFamilyName = (familyId) => {
+  if (familyId === authStore.currentFamilyId) {
+    return authStore.currentFamilyName || "Family";
+  }
+  return "Family";
+};
+
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
   toastType.value = type;
@@ -788,7 +858,7 @@ const showToast = (message, type = "success") => {
 };
 
 const refreshEvents = async () => {
-  if (!authStore.familyId) return;
+  if (!authStore.currentFamilyId) return;
   try {
     const now = new Date();
     const start = new Date(
@@ -802,7 +872,7 @@ const refreshEvents = async () => {
       0
     ).toISOString();
     const calendarEvents = await getEventsByRange(
-      authStore.familyId,
+      authStore.currentFamilyId,
       start,
       end
     );
@@ -839,7 +909,6 @@ const generateBirthdayEvents = () => {
             endDate: eventDate.toISOString(),
             eventType: "birthday",
             color: "pink",
-            allDay: true,
             extendedProps: {
               isBirthday: true,
               memberId: member.userId,
@@ -859,141 +928,8 @@ const generateBirthdayEvents = () => {
   return birthdayEvents;
 };
 
-const checkRequestStatus = async () => {
-  checkingStatus.value = true;
-  try {
-    if (!pendingFamilyId.value) {
-      showToast("No pending request found", "error");
-      return;
-    }
-
-    const familyDoc = await getDoc(doc(db, "families", pendingFamilyId.value));
-    if (familyDoc.exists()) {
-      const familyData = familyDoc.data();
-      const isMember = familyData.members?.some(
-        (member) => member.userId === authStore.userId
-      );
-
-      if (isMember) {
-        await updateDoc(doc(db, "users", authStore.userId), {
-          status: "active",
-          updatedAt: new Date(),
-        });
-
-        authStore.status = "active";
-        hasPendingJoinRequest.value = false;
-
-        showToast(
-          "Your request has been approved! Welcome to the family.",
-          "success"
-        );
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        showToast("Your request is still pending approval.", "error");
-      }
-    }
-  } catch (error) {
-    console.error("Error checking request status:", error);
-    showToast("Failed to check request status", "error");
-  } finally {
-    checkingStatus.value = false;
-  }
-};
-
-const cancelJoinRequest = async () => {
-  if (
-    !confirm(
-      "Are you sure you want to cancel your join request? You'll need to request to join again if you change your mind."
-    )
-  ) {
-    return;
-  }
-
-  cancelingRequest.value = true;
-  try {
-    const requestsQuery = query(
-      collection(db, `families/${pendingFamilyId.value}/requests`),
-      where("userId", "==", authStore.userId)
-    );
-    const querySnapshot = await getDocs(requestsQuery);
-
-    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
-    await Promise.all(deletePromises);
-
-    await updateDoc(doc(db, "users", authStore.userId), {
-      familyId: null,
-      familyName: null,
-      status: null,
-      updatedAt: new Date(),
-    });
-
-    authStore.familyId = null;
-    authStore.familyName = null;
-    authStore.status = null;
-    hasPendingJoinRequest.value = false;
-    pendingFamilyId.value = "";
-    pendingFamilyName.value = "";
-
-    showToast("Join request canceled successfully", "success");
-  } catch (error) {
-    console.error("Error canceling join request:", error);
-    showToast("Failed to cancel join request", "error");
-  } finally {
-    cancelingRequest.value = false;
-  }
-};
-
-const fetchJoinRequests = async () => {
-  if (authStore.permissions.role === "admin" && authStore.familyId) {
-    try {
-      const querySnapshot = await getDocs(
-        collection(db, `families/${authStore.familyId}/requests`)
-      );
-      joinRequests.value = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-    } catch (error) {
-      console.error("Error fetching join requests:", error);
-      showToast("Failed to fetch join requests", "error");
-    }
-  }
-};
-
-const approveRequest = async (requestId, userId, email) => {
-  try {
-    await updateDoc(doc(db, "families", authStore.familyId), {
-      members: arrayUnion({ userId, role: "member", email }),
-    });
-    await deleteDoc(
-      doc(db, `families/${authStore.familyId}/requests`, requestId)
-    );
-    await fetchJoinRequests();
-    showToast("Request approved successfully", "success");
-  } catch (error) {
-    console.error("Error approving request:", error);
-    showToast("Failed to approve request: " + error.message, "error");
-  }
-};
-
-const denyRequest = async (requestId) => {
-  try {
-    await deleteDoc(
-      doc(db, `families/${authStore.familyId}/requests`, requestId)
-    );
-    await fetchJoinRequests();
-    showToast("Request denied successfully", "success");
-  } catch (error) {
-    console.error("Error denying request:", error);
-    showToast("Failed to deny request", "error");
-  }
-};
-
 const generateInviteLink = async () => {
-  if (authStore.permissions.role !== "admin") {
+  if (!authStore.isAdmin) {
     showToast("Only admins can generate invite links", "error");
     return;
   }
@@ -1001,8 +937,8 @@ const generateInviteLink = async () => {
   try {
     const baseUrl = "https://my-nest.netlify.app";
     const inviteId = await generateInvite(
-      authStore.familyId,
-      authStore.familyName,
+      authStore.currentFamilyId,
+      authStore.currentFamilyName,
       authStore.userId
     );
     inviteLink.value = `${baseUrl}/join/${inviteId}`;
@@ -1036,7 +972,7 @@ const goToConversation = (userId) => {
 };
 
 const fetchRecentConversations = async () => {
-  if (!authStore.familyId) return;
+  if (!authStore.currentFamilyId) return;
 
   try {
     const { getAllConversations } = await import("~/utils/firebase");
@@ -1046,26 +982,185 @@ const fetchRecentConversations = async () => {
   }
 };
 
-const checkForPendingRequests = async () => {
-  if (!authStore.userId || authStore.familyId) return;
-
+const switchFamily = async () => {
   try {
-    if (authStore.familyId && authStore.status !== "active") {
-      hasPendingJoinRequest.value = true;
-      pendingFamilyId.value = authStore.familyId;
+    await authStore.setCurrentFamily(selectedFamilyId.value);
+    await authStore.loadFamilyMembers();
+    await refreshEvents();
+    await fetchRecentConversations();
+    await fetchJoinRequests();
+    showToast(`Switched to ${authStore.currentFamilyName}`, "success");
+  } catch (error) {
+    console.error("Error switching family:", error);
+    showToast("Failed to switch family", "error");
+  }
+};
 
-      try {
-        const familyDoc = await getDoc(doc(db, "families", authStore.familyId));
-        if (familyDoc.exists()) {
-          pendingFamilyName.value = familyDoc.data().name || "Unknown Family";
-        }
-      } catch (error) {
-        console.error("Error fetching family name:", error);
-        pendingFamilyName.value = "Unknown Family";
+const skipFamilySetup = () => {
+  router.push("/dashboard");
+};
+
+// Join Request Functions
+const checkRequestStatus = async () => {
+  checkingStatus.value = true;
+  try {
+    if (!pendingFamilyId.value) {
+      showToast("No pending request found", "error");
+      return;
+    }
+
+    const familyDoc = await getDoc(doc(db, "families", pendingFamilyId.value));
+    if (familyDoc.exists()) {
+      const familyData = familyDoc.data();
+      const isMember = familyData.members?.some(
+        (member) => member.userId === authStore.userId
+      );
+
+      if (isMember) {
+        // Update user's families map for multi-family support
+        await updateDoc(doc(db, "users", authStore.userId), {
+          [`families.${pendingFamilyId.value}`]: {
+            membershipType: "core",
+            role: "member",
+          },
+          status: "active",
+          updatedAt: new Date(),
+        });
+
+        // Refresh auth store
+        await authStore.initAuth();
+        hasPendingJoinRequest.value = false;
+
+        showToast(
+          "Your request has been approved! Welcome to the family.",
+          "success"
+        );
+      } else {
+        showToast("Your request is still pending approval.", "error");
       }
     }
   } catch (error) {
-    console.error("Error checking for pending requests:", error);
+    console.error("Error checking request status:", error);
+    showToast("Failed to check request status", "error");
+  } finally {
+    checkingStatus.value = false;
+  }
+};
+
+const cancelJoinRequest = async () => {
+  if (
+    !confirm(
+      "Are you sure you want to cancel your join request? You'll need to request to join again if you change your mind."
+    )
+  ) {
+    return;
+  }
+
+  cancelingRequest.value = true;
+  try {
+    const requestsQuery = query(
+      collection(db, `families/${pendingFamilyId.value}/requests`),
+      where("userId", "==", authStore.userId)
+    );
+    const querySnapshot = await getDocs(requestsQuery);
+
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    hasPendingJoinRequest.value = false;
+    pendingFamilyId.value = "";
+    pendingFamilyName.value = "";
+
+    showToast("Join request canceled successfully", "success");
+  } catch (error) {
+    console.error("Error canceling join request:", error);
+    showToast("Failed to cancel join request", "error");
+  } finally {
+    cancelingRequest.value = false;
+  }
+};
+
+const fetchJoinRequests = async () => {
+  if (authStore.isAdmin && authStore.currentFamilyId) {
+    try {
+      const querySnapshot = await getDocs(
+        collection(db, `families/${authStore.currentFamilyId}/requests`)
+      );
+      joinRequests.value = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    } catch (error) {
+      console.error("Error fetching join requests:", error);
+      showToast("Failed to fetch join requests", "error");
+    }
+  }
+};
+
+const approveRequest = async (requestId, userId, email) => {
+  try {
+    await updateDoc(doc(db, "families", authStore.currentFamilyId), {
+      members: arrayUnion({ userId, role: "member", email }),
+    });
+
+    // Update user's families map
+    await updateDoc(doc(db, "users", userId), {
+      [`families.${authStore.currentFamilyId}`]: {
+        membershipType: "core",
+        role: "member",
+      },
+      status: "active",
+    });
+
+    await deleteDoc(
+      doc(db, `families/${authStore.currentFamilyId}/requests`, requestId)
+    );
+
+    await fetchJoinRequests();
+    await authStore.loadFamilyMembers();
+
+    showToast("Request approved successfully", "success");
+  } catch (error) {
+    console.error("Error approving request:", error);
+    showToast("Failed to approve request: " + error.message, "error");
+  }
+};
+
+const denyRequest = async (requestId) => {
+  try {
+    await deleteDoc(
+      doc(db, `families/${authStore.currentFamilyId}/requests`, requestId)
+    );
+    await fetchJoinRequests();
+    showToast("Request denied successfully", "success");
+  } catch (error) {
+    console.error("Error denying request:", error);
+    showToast("Failed to deny request", "error");
+  }
+};
+
+// Check for pending join requests
+const checkPendingRequests = async () => {
+  try {
+    // Check if user has any pending join requests
+    const userDoc = await getDoc(doc(db, "users", authStore.userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+
+      // For now, we'll check if user has any pending requests in any family
+      // This is a simplified approach - you might want to store pending request info in user document
+      const families = Object.keys(authStore.families || {});
+      if (families.length === 0) {
+        // User has no families, check if they have pending requests
+        // This would require storing pending request info in user document
+        // For now, we'll assume no pending requests if no families
+        hasPendingJoinRequest.value = false;
+      } else {
+        hasPendingJoinRequest.value = false;
+      }
+    }
+  } catch (error) {
+    console.error("Error checking pending requests:", error);
   }
 };
 
@@ -1077,17 +1172,14 @@ onMounted(async () => {
       return;
     }
 
-    if (!authStore.familyId || authStore.status !== "active") {
-      await checkForPendingRequests();
-    }
-
-    await authStore.loadFamilyMembers();
-    await fetchJoinRequests();
-
-    if (authStore.familyId && authStore.status === "active") {
+    if (authStore.hasFamily) {
+      await authStore.loadFamilyMembers();
       await refreshEvents();
       await fetchRecentConversations();
+      await fetchJoinRequests();
     }
+
+    await checkPendingRequests();
   } catch (error) {
     console.error("Error initializing dashboard:", error);
     showToast("Failed to load dashboard", "error");

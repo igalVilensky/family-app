@@ -1,5 +1,53 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <!-- Family Header -->
+    <div class="bg-white/80 backdrop-blur-sm border-b border-gray-200/60">
+      <div class="max-w-7xl mx-auto px-4 py-4">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full text-sm font-medium text-blue-700"
+            >
+              <i class="fas fa-home text-blue-500"></i>
+              <span>{{
+                authStore.currentFamilyName || "Family Capsules"
+              }}</span>
+            </div>
+            <!-- Family Selector -->
+            <div
+              v-if="
+                authStore.hasFamily &&
+                Object.keys(authStore.families).length > 1
+              "
+              class="relative"
+            >
+              <select
+                v-model="selectedFamilyId"
+                @change="switchFamily"
+                class="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-sm font-medium text-gray-700 cursor-pointer appearance-none pr-8 hover:border-gray-400 transition-colors"
+              >
+                <option
+                  v-for="familyId in Object.keys(authStore.families)"
+                  :key="familyId"
+                  :value="familyId"
+                >
+                  {{ getFamilyName(familyId) }}
+                </option>
+              </select>
+              <i
+                class="fas fa-chevron-down absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"
+              ></i>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">
+            {{ familyMembers.length }} family members
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
       <!-- Header -->
@@ -170,8 +218,9 @@
               Actions
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- In Mobile Actions Card -->
               <button
-                v-if="capsule.status === 'scheduled'"
+                v-if="capsule.status === 'scheduled' && canEditCapsule"
                 @click="editCapsule"
                 class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
               >
@@ -182,7 +231,7 @@
               </button>
 
               <button
-                v-if="capsule.status === 'scheduled'"
+                v-if="capsule.status === 'scheduled' && canCancelCapsule"
                 @click="cancelCapsule"
                 :disabled="cancelling"
                 class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
@@ -195,7 +244,10 @@
               </button>
 
               <button
-                v-if="capsule.status === 'cancelled'"
+                v-if="
+                  capsule.status === 'cancelled' &&
+                  capsule.createdByName === 'You'
+                "
                 @click="restoreCapsule"
                 :disabled="restoring"
                 class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
@@ -207,6 +259,7 @@
               </button>
 
               <button
+                v-if="capsule.createdByName === 'You'"
                 @click="createSimilar"
                 class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
               >
@@ -293,8 +346,9 @@
               <div class="bg-white rounded-2xl p-6 border border-gray-200/60">
                 <h3 class="font-semibold text-gray-900 mb-4">Actions</h3>
                 <div class="grid grid-cols-2 gap-4">
+                  <!-- In Desktop Actions -->
                   <button
-                    v-if="capsule.status === 'scheduled'"
+                    v-if="capsule.status === 'scheduled' && canEditCapsule"
                     @click="editCapsule"
                     class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
                   >
@@ -305,7 +359,7 @@
                   </button>
 
                   <button
-                    v-if="capsule.status === 'scheduled'"
+                    v-if="capsule.status === 'scheduled' && canCancelCapsule"
                     @click="cancelCapsule"
                     :disabled="cancelling"
                     class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
@@ -320,7 +374,10 @@
                   </button>
 
                   <button
-                    v-if="capsule.status === 'cancelled'"
+                    v-if="
+                      capsule.status === 'cancelled' &&
+                      capsule.createdByName === 'You'
+                    "
                     @click="restoreCapsule"
                     :disabled="restoring"
                     class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
@@ -334,6 +391,7 @@
                   </button>
 
                   <button
+                    v-if="capsule.createdByName === 'You'"
                     @click="createSimilar"
                     class="group flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
                   >
@@ -554,11 +612,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useCapsules } from "~/composables/useCapsules";
+import { useAuthStore } from "~/stores/auth";
 
 const route = useRoute();
+const authStore = useAuthStore();
 const capsuleId = route.params.id;
 const { fetchCapsuleById, updateStatus, calculateDaysUntil } = useCapsules();
 
@@ -570,6 +630,8 @@ const capsuleError = ref(null);
 const showToastMessage = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
+const selectedFamilyId = ref(authStore.currentFamilyId);
+const familyMembers = ref([]);
 
 const statusClass = computed(() => {
   if (!capsule.value) return "";
@@ -632,9 +694,47 @@ const daysUntilDelivery = computed(() => {
   return calculateDaysUntil(capsule.value.deliveryDate);
 });
 
-onMounted(async () => {
-  await loadCapsule();
+// Add this computed property in the script section
+const canEditCapsule = computed(() => {
+  if (!capsule.value) return false;
+  return (
+    capsule.value.createdByName === "You" ||
+    capsule.value.createdBy === authStore.userId
+  );
 });
+
+const canCancelCapsule = computed(() => {
+  if (!capsule.value) return false;
+  return (
+    capsule.value.canCancel ||
+    capsule.value.createdByName === "You" ||
+    capsule.value.createdBy === authStore.userId
+  );
+});
+
+// Methods
+const getFamilyName = (familyId) => {
+  if (familyId === authStore.currentFamilyId) {
+    return authStore.currentFamilyName || "Family";
+  }
+  return "Family";
+};
+
+const switchFamily = async () => {
+  try {
+    await authStore.setCurrentFamily(selectedFamilyId.value);
+    await loadCapsule();
+    showToast(`Switched to ${authStore.currentFamilyName}`, "success");
+  } catch (error) {
+    console.error("Error switching family:", error);
+    showToast("Failed to switch family", "error");
+  }
+};
+
+const loadFamilyMembers = async () => {
+  await authStore.loadFamilyMembers();
+  familyMembers.value = authStore.familyMembers || [];
+};
 
 async function loadCapsule() {
   try {
@@ -720,4 +820,40 @@ function showToast(message, type = "success") {
     showToastMessage.value = false;
   }, 5000);
 }
+
+// Watch for family changes
+watch(
+  () => authStore.currentFamilyId,
+  (newFamilyId) => {
+    if (newFamilyId) {
+      selectedFamilyId.value = newFamilyId;
+      loadCapsule();
+    }
+  }
+);
+
+onMounted(async () => {
+  await authStore.initAuth();
+  if (authStore.isAuthenticated && authStore.hasFamily) {
+    await loadFamilyMembers();
+    await loadCapsule();
+  }
+});
 </script>
+
+<style scoped>
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+</style>
