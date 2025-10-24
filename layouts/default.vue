@@ -110,8 +110,8 @@
                 <span class="text-sm">Logout</span>
               </button>
             </template>
-            <!-- Non-authenticated users -->
-            <template v-else>
+            <!-- Non-authenticated users - Hide on auth pages -->
+            <template v-else-if="!isAuthPage">
               <NuxtLink
                 to="/login"
                 class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
@@ -239,6 +239,10 @@ const router = useRouter();
 // Use computed to reactively check authentication state
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
+const isAuthPage = computed(() => {
+  return route.path === "/login" || route.path === "/register";
+});
+
 // Updated computed properties for multi-family support
 const familyLink = computed(() => {
   if (!authStore.currentFamilyId) return "/family-setup";
@@ -297,7 +301,7 @@ const updateHeaderConfig = (path) => {
       title: "FamilySpace",
       subtitle: "",
     },
-    "/signup": {
+    "/register": {
       icon: "fa-home",
       title: "FamilySpace",
       subtitle: "",

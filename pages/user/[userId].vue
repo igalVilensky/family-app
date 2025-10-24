@@ -1,39 +1,42 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <div
+    class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50"
+  >
     <!-- Loading State -->
     <div
       v-if="isLoading"
-      class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 z-50 flex items-center justify-center"
     >
       <div class="text-center">
-        <div class="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4">
+        <div class="relative w-20 h-20 mx-auto mb-6">
           <div
-            class="absolute inset-0 border-4 border-blue-200 rounded-full"
+            class="absolute inset-0 border-4 border-orange-200 rounded-full"
           ></div>
           <div
-            class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
+            class="absolute inset-0 border-4 border-orange-600 rounded-full border-t-transparent animate-spin"
           ></div>
         </div>
-        <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-          Loading profile...
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+          Loading Profile
         </h2>
+        <p class="text-gray-600">Getting user information...</p>
       </div>
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 pb-20 sm:pb-8">
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8 pb-24 md:pb-8">
       <!-- Profile Header -->
       <div
-        class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-8 mb-4 sm:mb-8"
+        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-6 md:p-8"
       >
         <div
-          class="flex flex-col lg:flex-row items-center lg:items-start gap-4 sm:gap-8"
+          class="flex flex-col lg:flex-row items-center lg:items-start gap-6 md:gap-8"
         >
           <!-- Avatar -->
           <div class="flex-shrink-0">
             <div class="relative">
               <div
-                class="w-24 h-24 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg"
+                class="w-28 h-28 md:w-36 md:h-36 rounded-3xl bg-gradient-to-br from-orange-100 to-rose-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-2xl"
               >
                 <img
                   v-if="userProfile.avatarUrl"
@@ -43,16 +46,16 @@
                 />
                 <div
                   v-else
-                  class="text-3xl sm:text-4xl font-bold text-blue-600"
+                  class="text-4xl md:text-5xl font-bold text-orange-600"
                 >
                   {{ userInitial }}
                 </div>
               </div>
               <div
                 v-if="isOnline"
-                class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
+                class="absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full border-4 border-white flex items-center justify-center shadow-lg"
               >
-                <i class="fas fa-check text-white text-[8px] sm:text-xs"></i>
+                <i class="fas fa-check text-white text-xs"></i>
               </div>
             </div>
           </div>
@@ -60,24 +63,28 @@
           <!-- Profile Info -->
           <div class="flex-1 text-center lg:text-left w-full">
             <div
-              class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 gap-4"
+              class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4"
             >
               <div class="w-full lg:w-auto">
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
                   {{ userProfile.name }}
                 </h1>
                 <div
-                  class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-4 text-gray-600 mb-4"
+                  class="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-3 md:gap-6 text-gray-600 mb-6"
                 >
-                  <div class="flex items-center gap-2">
-                    <i class="fas fa-users text-xs sm:text-sm"></i>
-                    <span class="text-sm sm:text-lg capitalize">
+                  <div
+                    class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full border-2 border-blue-200"
+                  >
+                    <i class="fas fa-users text-blue-600"></i>
+                    <span class="font-bold text-gray-800 capitalize">
                       {{ userProfile.familyRole || "Member" }}
                     </span>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <i class="fas fa-envelope text-xs sm:text-sm"></i>
-                    <span class="text-sm sm:text-lg break-all">{{
+                  <div
+                    class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2 rounded-full border-2 border-emerald-200"
+                  >
+                    <i class="fas fa-envelope text-emerald-600"></i>
+                    <span class="font-bold text-gray-800 break-all">{{
                       userProfile.email
                     }}</span>
                   </div>
@@ -87,29 +94,29 @@
               <!-- Action Buttons -->
               <div
                 v-if="authStore.userId !== userId"
-                class="flex gap-2 sm:gap-3 justify-center lg:justify-start w-full lg:w-auto"
+                class="flex gap-4 justify-center lg:justify-start w-full lg:w-auto"
               >
                 <button
                   v-if="canSendMessage"
                   @click="showMessageModal = true"
                   :disabled="isSendingMessage"
-                  class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   <i
-                    class="fas fa-envelope text-xs sm:text-sm"
+                    class="fas fa-envelope"
                     :class="{ 'animate-spin': isSendingMessage }"
                   ></i>
                   <span>{{ isSendingMessage ? "Sending..." : "Message" }}</span>
                 </button>
                 <button
                   @click="toggleFavorite"
-                  class="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all duration-200 text-sm sm:text-base"
+                  class="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
                 >
                   <i
-                    class="fas text-xs sm:text-sm"
+                    class="fas text-lg"
                     :class="
                       isFavorited
-                        ? 'fa-heart text-red-500'
+                        ? 'fa-heart text-rose-500'
                         : 'fa-heart text-gray-400'
                     "
                   ></i>
@@ -121,99 +128,103 @@
             <!-- Bio -->
             <div
               v-if="userProfile.bio"
-              class="bg-gray-50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6"
+              class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 md:p-6 mb-6 border-2 border-gray-200"
             >
-              <p class="text-gray-700 text-sm sm:text-lg leading-relaxed">
+              <p
+                class="text-gray-700 text-lg leading-relaxed font-medium italic"
+              >
                 "{{ userProfile.bio }}"
               </p>
             </div>
 
             <!-- Quick Stats -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
-                <div class="text-xl sm:text-2xl font-bold text-gray-900">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div
+                class="text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 p-4 hover:shadow-lg transition-all"
+              >
+                <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ userEvents.length }}
                 </div>
-                <div class="text-xs sm:text-sm text-gray-500">Events</div>
+                <div class="text-gray-600 font-bold">Events</div>
               </div>
-              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
-                <div class="text-xl sm:text-2xl font-bold text-gray-900">
+              <div
+                class="text-center bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 p-4 hover:shadow-lg transition-all"
+              >
+                <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ upcomingEventsCount }}
                 </div>
-                <div class="text-xs sm:text-sm text-gray-500">Upcoming</div>
+                <div class="text-gray-600 font-bold">Upcoming</div>
               </div>
-              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
-                <div class="text-xl sm:text-2xl font-bold text-gray-900">
+              <div
+                class="text-center bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 p-4 hover:shadow-lg transition-all"
+              >
+                <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ confirmedEventsCount }}
                 </div>
-                <div class="text-xs sm:text-sm text-gray-500">Confirmed</div>
+                <div class="text-gray-600 font-bold">Confirmed</div>
               </div>
-              <div class="text-center bg-gray-50 rounded-xl p-3 sm:p-4">
-                <div class="text-xl sm:text-2xl font-bold text-gray-900">
+              <div
+                class="text-center bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200 p-4 hover:shadow-lg transition-all"
+              >
+                <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ familyMembershipDuration }}
                 </div>
-                <div class="text-xs sm:text-sm text-gray-500">Months</div>
+                <div class="text-gray-600 font-bold">Months</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column - Events & Activity -->
-        <div class="lg:col-span-2 space-y-4 sm:space-y-8">
+        <div class="lg:col-span-2 space-y-8">
           <!-- Upcoming Events -->
           <div
             v-if="upcomingEvents.length > 0"
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8"
           >
-            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div class="flex items-center gap-4 mb-6">
               <div
-                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg"
               >
-                <i
-                  class="fas fa-calendar-alt text-white text-base sm:text-lg"
-                ></i>
+                <i class="fas fa-calendar-alt text-white text-xl"></i>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
+                <h3 class="text-2xl font-bold text-gray-900">
                   Upcoming Events
                 </h3>
-                <p class="text-gray-500 text-xs sm:text-sm">
+                <p class="text-gray-600 font-medium">
                   {{ userProfile.name }}'s schedule
                 </p>
               </div>
             </div>
 
-            <div class="space-y-3 sm:space-y-4">
+            <div class="space-y-4">
               <div
                 v-for="event in upcomingEvents"
                 :key="event.id"
-                class="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+                class="flex items-center gap-4 p-5 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
                 @click="viewEvent(event)"
               >
                 <div
-                  class="w-1 sm:w-3 h-10 sm:h-12 rounded-full flex-shrink-0"
-                  :style="`background-color: ${getEventColor(event)}`"
+                  class="w-3 h-12 rounded-full flex-shrink-0 shadow-md"
+                  :style="`background: ${getEventColor(event)}`"
                 ></div>
                 <div class="flex-1 min-w-0">
-                  <p
-                    class="font-semibold text-gray-900 truncate text-sm sm:text-base"
-                  >
+                  <p class="font-bold text-gray-900 truncate text-lg">
                     {{ event.title }}
                   </p>
                   <p
-                    class="text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-2"
+                    class="text-gray-600 flex flex-wrap items-center gap-3 font-medium"
                   >
-                    <span class="flex items-center gap-1">
-                      <i class="fas fa-clock text-[10px] sm:text-xs"></i>
+                    <span class="flex items-center gap-2">
+                      <i class="fas fa-clock text-emerald-600"></i>
                       {{ formatEventDate(event.startDate) }}
                     </span>
-                    <span v-if="event.location" class="flex items-center gap-1">
-                      <i
-                        class="fas fa-map-marker-alt text-[10px] sm:text-xs"
-                      ></i>
-                      <span class="truncate max-w-[120px] sm:max-w-none">{{
+                    <span v-if="event.location" class="flex items-center gap-2">
+                      <i class="fas fa-map-marker-alt text-rose-600"></i>
+                      <span class="truncate max-w-[120px] md:max-w-none">{{
                         event.location
                       }}</span>
                     </span>
@@ -221,7 +232,7 @@
                 </div>
                 <div
                   v-if="event.rsvps && event.rsvps[userId]"
-                  :class="`px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap ${getRSVPBadgeClass(
+                  :class="`px-4 py-2 rounded-2xl text-sm font-bold whitespace-nowrap shadow-md ${getRSVPBadgeClass(
                     event.rsvps[userId]
                   )}`"
                 >
@@ -235,7 +246,7 @@
 
             <NuxtLink
               to="/calendar"
-              class="block text-center mt-4 sm:mt-6 py-2.5 sm:py-3 text-blue-600 hover:text-blue-700 font-medium border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-all duration-200 text-sm sm:text-base"
+              class="block text-center mt-6 py-4 text-orange-600 hover:text-orange-700 font-bold border-2 border-dashed border-gray-300 rounded-2xl hover:border-orange-300 transition-all duration-200 text-lg hover:bg-orange-50"
             >
               View Full Calendar
             </NuxtLink>
@@ -243,42 +254,42 @@
 
           <!-- Recent Activity -->
           <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6 md:p-8"
           >
-            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div class="flex items-center gap-4 mb-6">
               <div
-                class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
+                class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
               >
-                <i class="fas fa-history text-white text-base sm:text-lg"></i>
+                <i class="fas fa-history text-white text-xl"></i>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
+                <h3 class="text-2xl font-bold text-gray-900">
                   Recent Activity
                 </h3>
-                <p class="text-gray-500 text-xs sm:text-sm">Latest actions</p>
+                <p class="text-gray-600 font-medium">Latest actions</p>
               </div>
             </div>
 
-            <div class="space-y-3 sm:space-y-4">
+            <div class="space-y-4">
               <div
                 v-for="activity in recentActivities"
                 :key="activity.id"
-                class="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200"
+                class="flex items-start gap-4 p-5 bg-gradient-to-r from-gray-50 to-purple-50 rounded-2xl border-2 border-gray-200 hover:shadow-lg transition-all"
               >
                 <div
-                  class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md"
                   :class="getActivityIconClass(activity.type)"
                 >
                   <i
                     :class="getActivityIcon(activity.type)"
-                    class="text-sm"
+                    class="text-lg"
                   ></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-gray-900 font-medium text-sm sm:text-base">
+                  <p class="text-gray-900 font-bold text-lg">
                     {{ activity.description }}
                   </p>
-                  <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                  <p class="text-gray-600 font-medium mt-2">
                     {{ formatTimeAgo(activity.timestamp) }}
                   </p>
                 </div>
@@ -286,42 +297,38 @@
 
               <div
                 v-if="recentActivities.length === 0"
-                class="text-center py-8 sm:py-12 text-gray-500"
+                class="text-center py-12 text-gray-500"
               >
-                <i
-                  class="fas fa-inbox text-2xl sm:text-3xl mb-3 text-gray-300"
-                ></i>
-                <p class="font-medium text-sm sm:text-base">
-                  No recent activity
-                </p>
-                <p class="text-xs sm:text-sm">Activity will appear here</p>
+                <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
+                <p class="font-bold text-xl">No recent activity</p>
+                <p class="text-lg font-medium">Activity will appear here</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Right Column - Personal Details -->
-        <div class="space-y-4 sm:space-y-8">
+        <div class="space-y-8">
           <!-- Personal Information -->
           <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-blue-200 p-6 md:p-8"
           >
-            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">
               Personal Information
             </h3>
 
-            <div class="space-y-3 sm:space-y-4">
-              <div class="flex items-center gap-3">
+            <div class="space-y-4">
+              <div
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200"
+              >
                 <div
-                  class="w-9 h-9 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md"
                 >
-                  <i class="fas fa-birthday-cake text-blue-600 text-sm"></i>
+                  <i class="fas fa-birthday-cake text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-xs sm:text-sm text-gray-500">Birthday</p>
-                  <p
-                    class="font-medium text-gray-900 text-sm sm:text-base truncate"
-                  >
+                  <p class="text-gray-600 font-bold">Birthday</p>
+                  <p class="font-bold text-gray-900 text-lg truncate">
                     {{
                       userProfile.birthday
                         ? formatBirthday(userProfile.birthday)
@@ -331,49 +338,51 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-3">
+              <div
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200"
+              >
                 <div
-                  class="w-9 h-9 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-md"
                 >
-                  <i class="fas fa-phone text-green-600 text-sm"></i>
+                  <i class="fas fa-phone text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-xs sm:text-sm text-gray-500">Phone</p>
-                  <p
-                    class="font-medium text-gray-900 text-sm sm:text-base truncate"
-                  >
+                  <p class="text-gray-600 font-bold">Phone</p>
+                  <p class="font-bold text-gray-900 text-lg truncate">
                     {{ userProfile.phone || "Not provided" }}
                   </p>
                 </div>
               </div>
 
-              <div class="flex items-center gap-3">
+              <div
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200"
+              >
                 <div
-                  class="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md"
                 >
-                  <i class="fas fa-user-tag text-purple-600 text-sm"></i>
+                  <i class="fas fa-user-tag text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-xs sm:text-sm text-gray-500">Family Role</p>
+                  <p class="text-gray-600 font-bold">Family Role</p>
                   <p
-                    class="font-medium text-gray-900 capitalize text-sm sm:text-base truncate"
+                    class="font-bold text-gray-900 text-lg capitalize truncate"
                   >
                     {{ userProfile.familyRole || "Member" }}
                   </p>
                 </div>
               </div>
 
-              <div class="flex items-center gap-3">
+              <div
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200"
+              >
                 <div
-                  class="w-9 h-9 sm:w-10 sm:h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-md"
                 >
-                  <i class="fas fa-calendar-plus text-amber-600 text-sm"></i>
+                  <i class="fas fa-calendar-plus text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-xs sm:text-sm text-gray-500">Member Since</p>
-                  <p
-                    class="font-medium text-gray-900 text-sm sm:text-base truncate"
-                  >
+                  <p class="text-gray-600 font-bold">Member Since</p>
+                  <p class="font-bold text-gray-900 text-lg truncate">
                     {{ formatJoinDate(userProfile.createdAt) }}
                   </p>
                 </div>
@@ -383,77 +392,75 @@
 
           <!-- Event Participation -->
           <div
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8"
           >
-            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">
               Event Participation
             </h3>
 
-            <div class="space-y-3 sm:space-y-4">
-              <div class="flex justify-between items-center">
-                <span class="text-xs sm:text-sm text-gray-600"
-                  >Total Events</span
-                >
-                <span
-                  class="font-semibold text-gray-900 text-sm sm:text-base"
-                  >{{ userEvents.length }}</span
-                >
+            <div class="space-y-4">
+              <div
+                class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200"
+              >
+                <span class="text-gray-700 font-bold">Total Events</span>
+                <span class="font-bold text-gray-900 text-xl">{{
+                  userEvents.length
+                }}</span>
               </div>
 
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <div class="flex justify-between items-center">
-                  <span
-                    class="text-xs sm:text-sm text-gray-600 flex items-center gap-2"
-                  >
-                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span class="text-gray-700 font-bold flex items-center gap-3">
+                    <div
+                      class="w-3 h-3 bg-green-500 rounded-full shadow-sm"
+                    ></div>
                     Confirmed
                   </span>
-                  <span
-                    class="font-semibold text-gray-900 text-sm sm:text-base"
-                    >{{ confirmedEventsCount }}</span
-                  >
+                  <span class="font-bold text-gray-900 text-xl">{{
+                    confirmedEventsCount
+                  }}</span>
                 </div>
 
                 <div class="flex justify-between items-center">
-                  <span
-                    class="text-xs sm:text-sm text-gray-600 flex items-center gap-2"
-                  >
-                    <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span class="text-gray-700 font-bold flex items-center gap-3">
+                    <div
+                      class="w-3 h-3 bg-yellow-500 rounded-full shadow-sm"
+                    ></div>
                     Maybe
                   </span>
-                  <span
-                    class="font-semibold text-gray-900 text-sm sm:text-base"
-                    >{{ maybeEventsCount }}</span
-                  >
+                  <span class="font-bold text-gray-900 text-xl">{{
+                    maybeEventsCount
+                  }}</span>
                 </div>
 
                 <div class="flex justify-between items-center">
-                  <span
-                    class="text-xs sm:text-sm text-gray-600 flex items-center gap-2"
-                  >
-                    <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span class="text-gray-700 font-bold flex items-center gap-3">
+                    <div
+                      class="w-3 h-3 bg-red-500 rounded-full shadow-sm"
+                    ></div>
                     Declined
                   </span>
-                  <span
-                    class="font-semibold text-gray-900 text-sm sm:text-base"
-                    >{{ declinedEventsCount }}</span
-                  >
+                  <span class="font-bold text-gray-900 text-xl">{{
+                    declinedEventsCount
+                  }}</span>
                 </div>
               </div>
 
               <!-- Participation Chart -->
-              <div class="mt-4 bg-gray-50 rounded-lg p-3 sm:p-4">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs sm:text-sm font-medium text-gray-700"
+              <div
+                class="mt-6 bg-gradient-to-r from-gray-50 to-emerald-50 rounded-2xl p-4 border-2 border-emerald-200"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <span class="font-bold text-gray-700"
                     >Participation Rate</span
                   >
-                  <span class="text-xs sm:text-sm font-bold text-gray-900"
+                  <span class="font-bold text-gray-900 text-xl"
                     >{{ participationRate }}%</span
                   >
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                   <div
-                    class="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
+                    class="bg-gradient-to-r from-emerald-500 to-teal-600 h-3 rounded-full transition-all duration-500 shadow-lg"
                     :style="{ width: `${participationRate}%` }"
                   ></div>
                 </div>
@@ -464,35 +471,33 @@
           <!-- Common Connections -->
           <div
             v-if="commonConnections.length > 0"
-            class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/60 p-4 sm:p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6 md:p-8"
           >
-            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">
               Common Connections
             </h3>
 
-            <div class="space-y-2 sm:space-y-3">
+            <div class="space-y-3">
               <div
                 v-for="member in commonConnections"
                 :key="member.userId"
-                class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200 cursor-pointer"
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-2xl border-2 border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer"
                 @click="goToUserProfile(member.userId)"
               >
                 <div
-                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+                  class="w-12 h-12 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-md"
                 >
-                  <span class="text-xs sm:text-sm font-medium text-blue-600">
+                  <span class="text-white font-bold text-lg">
                     {{
                       member.name ? member.name.charAt(0).toUpperCase() : "?"
                     }}
                   </span>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p
-                    class="text-xs sm:text-sm font-medium text-gray-900 truncate"
-                  >
+                  <p class="font-bold text-gray-900 text-lg truncate">
                     {{ member.name || member.email }}
                   </p>
-                  <p class="text-[10px] sm:text-xs text-gray-500 capitalize">
+                  <p class="text-gray-600 font-medium capitalize">
                     {{ member.role }}
                   </p>
                 </div>
@@ -510,18 +515,18 @@
       @click.self="showMessageModal = false"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-scaleIn"
+        class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full p-8 animate-scaleIn border-2 border-orange-200"
       >
-        <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-4 mb-6">
           <div
-            class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
+            class="w-14 h-14 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg"
           >
-            <i class="fas fa-envelope text-blue-600 text-lg"></i>
+            <i class="fas fa-envelope text-white text-xl"></i>
           </div>
-          <h3 class="text-xl font-bold text-gray-900">Send Message</h3>
+          <h3 class="text-2xl font-bold text-gray-900">Send Message</h3>
         </div>
 
-        <p class="text-gray-600 mb-4">
+        <p class="text-gray-600 mb-6 text-lg font-medium">
           Send a message to <strong>{{ userProfile.name }}</strong>
         </p>
 
@@ -529,20 +534,20 @@
           v-model="messageText"
           placeholder="Type your message..."
           rows="4"
-          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4 resize-none"
+          class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-6 resize-none font-medium text-lg hover:border-gray-300 transition-all"
         ></textarea>
 
-        <div class="flex gap-3">
+        <div class="flex gap-4">
           <button
             @click="showMessageModal = false"
-            class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+            class="flex-1 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
           >
             Cancel
           </button>
           <button
             @click="sendMessageToUser"
             :disabled="isSendingMessage || !messageText.trim()"
-            class="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex-1 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {{ isSendingMessage ? "Sending..." : "Send" }}
           </button>
@@ -553,32 +558,31 @@
     <!-- Toast Notification -->
     <div
       v-if="showToastMessage"
-      class="fixed top-4 right-4 left-4 sm:left-auto z-50 max-w-sm w-full sm:w-auto px-4 animate-slideIn"
+      class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
     >
       <div
-        class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
+        class="p-5 rounded-2xl shadow-xl border-2 backdrop-blur-sm"
         :class="{
-          'bg-green-50/95 text-green-800 border-green-200':
+          'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-300':
             toastType === 'success',
-          'bg-red-50/95 text-red-800 border-red-200': toastType === 'error',
+          'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-red-300':
+            toastType === 'error',
         }"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
           <i
-            class="text-lg flex-shrink-0"
+            class="text-xl flex-shrink-0"
             :class="{
               'fas fa-check-circle text-green-500': toastType === 'success',
               'fas fa-exclamation-circle text-red-500': toastType === 'error',
             }"
           ></i>
-          <p class="font-medium flex-1 text-sm sm:text-base">
-            {{ toastMessage }}
-          </p>
+          <p class="font-bold flex-1 text-lg">{{ toastMessage }}</p>
           <button
             @click="showToastMessage = false"
             class="flex-shrink-0 text-gray-400 hover:text-gray-600"
           >
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times text-lg"></i>
           </button>
         </div>
       </div>
@@ -781,10 +785,13 @@ const formatTimeAgo = (date) => {
 };
 
 const getRSVPBadgeClass = (status) => {
-  if (status === "yes") return "bg-green-100 text-green-800";
-  if (status === "no") return "bg-red-100 text-red-800";
-  if (status === "maybe") return "bg-yellow-100 text-yellow-800";
-  return "bg-gray-100 text-gray-800";
+  if (status === "yes")
+    return "bg-gradient-to-r from-green-500 to-emerald-600 text-white";
+  if (status === "no")
+    return "bg-gradient-to-r from-red-500 to-rose-600 text-white";
+  if (status === "maybe")
+    return "bg-gradient-to-r from-yellow-500 to-amber-600 text-white";
+  return "bg-gradient-to-r from-gray-500 to-gray-600 text-white";
 };
 
 const getActivityIcon = (type) => {
@@ -800,13 +807,15 @@ const getActivityIcon = (type) => {
 
 const getActivityIconClass = (type) => {
   const classes = {
-    rsvp: "bg-green-100 text-green-600",
-    event_created: "bg-blue-100 text-blue-600",
-    comment: "bg-purple-100 text-purple-600",
-    task_completed: "bg-emerald-100 text-emerald-600",
-    joined: "bg-amber-100 text-amber-600",
+    rsvp: "bg-gradient-to-br from-green-500 to-emerald-600 text-white",
+    event_created: "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+    comment: "bg-gradient-to-br from-purple-500 to-indigo-600 text-white",
+    task_completed: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white",
+    joined: "bg-gradient-to-br from-amber-500 to-orange-600 text-white",
   };
-  return classes[type] || "bg-gray-100 text-gray-600";
+  return (
+    classes[type] || "bg-gradient-to-br from-gray-500 to-gray-600 text-white"
+  );
 };
 
 // Basic messaging function

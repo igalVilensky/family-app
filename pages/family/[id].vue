@@ -1,47 +1,59 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <div
+    class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50"
+  >
     <!-- Loading State -->
-    <div v-if="loading" class="flex items-center justify-center py-20">
+    <div
+      v-if="loading"
+      class="fixed inset-0 bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 z-50 flex items-center justify-center"
+    >
       <div class="text-center">
-        <div class="relative w-16 h-16 mx-auto mb-4">
+        <div class="relative w-20 h-20 mx-auto mb-6">
           <div
-            class="absolute inset-0 border-4 border-blue-200 rounded-full"
+            class="absolute inset-0 border-4 border-orange-200 rounded-full"
           ></div>
           <div
-            class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
+            class="absolute inset-0 border-4 border-orange-600 rounded-full border-t-transparent animate-spin"
           ></div>
         </div>
-        <p class="text-gray-600">Loading family data...</p>
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+          Loading Family
+        </h2>
+        <p class="text-sm md:text-base text-gray-600">
+          Gathering family details...
+        </p>
       </div>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-8">
+    <div v-else-if="error" class="max-w-2xl mx-auto px-4 py-16">
+      <div
+        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-red-200 p-8"
+      >
         <div class="text-center">
           <div
-            class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-2xl mb-4"
+            class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl mb-6 shadow-lg"
           >
-            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
           </div>
-          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">
             Unable to Load Family
           </h2>
-          <p class="text-gray-600 mb-6">{{ error }}</p>
-          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <p class="text-gray-600 mb-6 text-lg">{{ error }}</p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <NuxtLink
               v-if="!authStore.hasFamily"
               to="/family-setup"
-              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+              class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1"
             >
-              <i class="fas fa-plus text-sm"></i>
+              <i class="fas fa-plus"></i>
               Set Up Family
             </NuxtLink>
             <button
               @click="fetchFamilyData"
-              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white font-medium rounded-xl hover:bg-gray-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+              class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
             >
-              <i class="fas fa-redo text-sm"></i>
+              <i class="fas fa-redo"></i>
               Try Again
             </button>
           </div>
@@ -50,37 +62,34 @@
     </div>
 
     <!-- Access Denied -->
-    <div
-      v-else-if="!hasAccess"
-      class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
-    >
-      <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-8">
+    <div v-else-if="!hasAccess" class="max-w-2xl mx-auto px-4 py-16">
+      <div
+        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-amber-300 p-8"
+      >
         <div class="text-center">
           <div
-            class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4"
+            class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl mb-6 shadow-lg"
           >
-            <i class="fas fa-lock text-amber-600 text-xl"></i>
+            <i class="fas fa-lock text-white text-2xl"></i>
           </div>
-          <h2 class="text-xl font-semibold text-gray-900 mb-2">
-            Access Denied
-          </h2>
-          <p class="text-gray-600 mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Access Denied</h2>
+          <p class="text-gray-600 mb-6 text-lg">
             You don't have access to this family. Please check if you're a
             member or request to join.
           </p>
-          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <NuxtLink
               to="/dashboard"
-              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+              class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1"
             >
-              <i class="fas fa-home text-sm"></i>
+              <i class="fas fa-home"></i>
               Back to Dashboard
             </NuxtLink>
             <NuxtLink
               to="/join-family"
-              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-medium rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+              class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
             >
-              <i class="fas fa-search text-sm"></i>
+              <i class="fas fa-search"></i>
               Find Families
             </NuxtLink>
           </div>
@@ -89,51 +98,47 @@
     </div>
 
     <!-- Main Content -->
-    <main v-else class="max-w-7xl mx-auto px-4 py-8">
+    <main v-else class="max-w-7xl mx-auto px-4 py-8 space-y-8 pb-24 md:pb-8">
       <!-- Family Header Card -->
       <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 mb-8"
+        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-8 md:p-12 text-center"
       >
-        <div class="text-center">
+        <div
+          class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-500 to-rose-600 rounded-3xl mb-8 shadow-2xl hover:scale-105 transition-transform duration-200"
+        >
+          <i class="fas fa-home text-white text-4xl"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          {{ familyData?.name || "Your Family" }}
+        </h1>
+        <p class="text-gray-600 mb-8 max-w-2xl mx-auto text-xl font-medium">
+          A private space for your family to connect and share memories
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-4 text-base">
           <div
-            class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl mb-6"
+            class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-3 rounded-full shadow-sm border-2 border-blue-200"
           >
-            <i class="fas fa-home text-white text-3xl"></i>
+            <i class="fas fa-users text-blue-600"></i>
+            <span class="font-bold text-gray-800"
+              >{{ familyData?.members?.length || 0 }} Members</span
+            >
           </div>
-          <h2 class="text-3xl font-bold text-gray-900 mb-3">
-            {{ familyData?.name || "Your Family" }}
-          </h2>
-          <p class="text-gray-600 mb-6 max-w-2xl mx-auto text-lg">
-            A private space for your family to connect and share memories
-          </p>
           <div
-            class="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500"
+            class="flex items-center gap-3 bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 rounded-full shadow-sm border-2 border-emerald-200"
           >
-            <div
-              class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full"
+            <i class="fas fa-calendar text-emerald-600"></i>
+            <span class="font-bold text-gray-800"
+              >Created {{ formatDate(familyData?.createdAt) }}</span
             >
-              <i class="fas fa-users text-blue-600"></i>
-              <span class="font-medium text-gray-700"
-                >{{ familyData?.members?.length || 0 }} Members</span
-              >
-            </div>
-            <div
-              class="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full"
-            >
-              <i class="fas fa-calendar text-green-600"></i>
-              <span class="font-medium text-gray-700"
-                >Created {{ formatDate(familyData?.createdAt) }}</span
-              >
-            </div>
-            <div
-              v-if="userFamilyRole"
-              class="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full"
-            >
-              <i class="fas fa-user-tag text-purple-600"></i>
-              <span class="font-medium text-gray-700 capitalize">{{
-                userFamilyRole
-              }}</span>
-            </div>
+          </div>
+          <div
+            v-if="userFamilyRole"
+            class="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-violet-50 px-5 py-3 rounded-full shadow-sm border-2 border-purple-200"
+          >
+            <i class="fas fa-user-tag text-purple-600"></i>
+            <span class="font-bold text-gray-800 capitalize">{{
+              userFamilyRole
+            }}</span>
           </div>
         </div>
       </div>
@@ -143,24 +148,24 @@
         <div class="xl:col-span-2 space-y-8">
           <!-- Family Members -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8"
           >
-            <div class="flex items-center justify-between mb-6">
-              <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center gap-4">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                  class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg"
                 >
-                  <i class="fas fa-users text-white text-lg"></i>
+                  <i class="fas fa-users text-white text-2xl"></i>
                 </div>
                 <div>
-                  <h3 class="text-xl font-semibold text-gray-900">
+                  <h3 class="text-2xl font-bold text-gray-900">
                     Family Members
                   </h3>
-                  <p class="text-gray-500 text-sm">Your family circle</p>
+                  <p class="text-gray-600 font-medium">Your family circle</p>
                 </div>
               </div>
               <span
-                class="px-4 py-2 bg-blue-100 text-blue-800 text-sm rounded-full font-semibold"
+                class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-lg font-bold rounded-2xl shadow-lg"
               >
                 {{ familyData?.members?.length || 0 }}
               </span>
@@ -170,52 +175,54 @@
               <div
                 v-for="member in familyData?.members"
                 :key="member.userId"
-                class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 hover:shadow-sm cursor-pointer group"
+                class="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200 hover:border-orange-300 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 cursor-pointer group"
                 @click="goToUserProfile(member.userId)"
               >
                 <div class="relative">
                   <div
-                    class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:from-blue-600 group-hover:to-purple-700 transition-all"
+                    class="w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200"
                   >
-                    <span class="text-white font-semibold text-lg">
+                    <span class="text-white font-bold text-xl">
                       {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
                     </span>
                   </div>
                   <div
                     v-if="member.userId === authStore.userId"
-                    class="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center"
+                    class="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full border-2 border-white flex items-center justify-center shadow-lg"
                   >
                     <i class="fas fa-check text-white text-xs"></i>
                   </div>
                 </div>
 
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 flex-wrap mb-1">
+                  <div class="flex items-center gap-3 flex-wrap mb-2">
                     <h4
-                      class="font-semibold text-gray-900 truncate text-lg group-hover:text-blue-600 transition-colors"
+                      class="font-bold text-gray-900 truncate text-xl group-hover:text-orange-600 transition-colors"
                     >
                       {{ getMemberDisplayName(member) }}
                     </h4>
                     <span
                       v-if="member.userId === authStore.userId"
-                      class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                      class="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm rounded-full font-bold shadow-sm"
                     >
                       You
                     </span>
                   </div>
-                  <p class="text-gray-600 truncate text-sm">
+                  <p class="text-gray-600 truncate text-base font-medium">
                     {{ member.email }}
                   </p>
                 </div>
 
-                <div class="flex items-center gap-3 flex-shrink-0">
+                <div class="flex items-center gap-4 flex-shrink-0">
                   <span
-                    class="px-4 py-2 text-sm font-semibold rounded-xl"
+                    class="px-5 py-3 text-base font-bold rounded-2xl shadow-md"
                     :class="{
                       'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
                         member.role === 'admin',
-                      'bg-green-100 text-green-700': member.role === 'member',
-                      'bg-gray-100 text-gray-700': !member.role,
+                      'bg-gradient-to-r from-emerald-500 to-teal-600 text-white':
+                        member.role === 'member',
+                      'bg-gradient-to-r from-gray-500 to-gray-600 text-white':
+                        !member.role,
                     }"
                   >
                     {{
@@ -226,25 +233,25 @@
                     }}
                   </span>
                   <i
-                    class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-blue-500 transition-colors"
+                    class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-orange-500 transition-colors transform group-hover:translate-x-1"
                   ></i>
                 </div>
               </div>
             </div>
 
             <!-- Invite Section (Admins Only) -->
-            <div v-if="isAdmin" class="mt-8 pt-6 border-t border-gray-200">
-              <div class="flex items-center gap-3 mb-4">
+            <div v-if="isAdmin" class="mt-8 pt-8 border-t-2 border-gray-200">
+              <div class="flex items-center gap-4 mb-6">
                 <div
-                  class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"
+                  class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
                 >
-                  <i class="fas fa-user-plus text-white text-lg"></i>
+                  <i class="fas fa-user-plus text-white text-xl"></i>
                 </div>
                 <div>
-                  <h4 class="text-lg font-semibold text-gray-900">
+                  <h4 class="text-xl font-bold text-gray-900">
                     Invite Members
                   </h4>
-                  <p class="text-gray-500 text-sm">
+                  <p class="text-gray-600 font-medium">
                     Share invite link with family
                   </p>
                 </div>
@@ -252,11 +259,11 @@
 
               <button
                 @click="generateInviteLink"
-                class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-medium rounded-xl hover:from-purple-700 hover:to-indigo-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                class="w-full flex items-center justify-center gap-4 px-8 py-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
                 :disabled="generatingInvite"
               >
                 <i
-                  class="fas fa-link text-sm"
+                  class="fas fa-link text-lg"
                   :class="{ 'animate-spin': generatingInvite }"
                 ></i>
                 {{
@@ -266,24 +273,24 @@
 
               <div
                 v-if="inviteLink"
-                class="mt-4 p-5 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200"
+                class="mt-6 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl border-2 border-purple-300 shadow-lg"
               >
-                <label class="block text-sm font-semibold text-purple-900 mb-3">
+                <label class="block text-lg font-bold text-purple-900 mb-4">
                   Share this invite link:
                 </label>
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col sm:flex-row gap-4">
                   <input
                     type="text"
                     :value="inviteLink"
                     readonly
-                    class="flex-1 px-4 py-3 border border-purple-300 rounded-xl bg-white text-gray-900 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    class="flex-1 px-5 py-4 border-2 border-purple-300 rounded-2xl bg-white text-gray-900 text-base focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-medium"
                     @click="$event.target.select()"
                   />
                   <button
                     @click="copyInviteLink"
-                    class="flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all duration-200 font-semibold whitespace-nowrap"
+                    class="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg transform hover:-translate-y-1 whitespace-nowrap"
                   >
-                    <i class="fas fa-copy text-sm"></i>
+                    <i class="fas fa-copy"></i>
                     {{ copyButtonText }}
                   </button>
                 </div>
@@ -293,42 +300,44 @@
 
           <!-- Coming Soon Banner -->
           <div
-            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-8"
+            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-300 p-8 shadow-lg"
           >
             <div class="text-center">
               <div
-                class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl mb-4"
+                class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl mb-6 shadow-2xl"
               >
-                <i class="fas fa-rocket text-white text-xl"></i>
+                <i class="fas fa-rocket text-white text-2xl"></i>
               </div>
-              <h3 class="text-2xl font-semibold text-gray-900 mb-3">
+              <h3 class="text-3xl font-bold text-gray-900 mb-4">
                 More Features Coming Soon!
               </h3>
-              <p class="text-gray-600 mb-6 max-w-2xl mx-auto text-lg">
+              <p
+                class="text-gray-600 mb-8 max-w-2xl mx-auto text-lg font-medium"
+              >
                 We're working on exciting features like shared photo albums,
                 family calendars, group chats, and memory timelines to make your
                 family experience even better.
               </p>
               <div
-                class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600"
+                class="flex flex-wrap items-center justify-center gap-6 text-base"
               >
                 <div
-                  class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm"
+                  class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-blue-200"
                 >
-                  <i class="fas fa-images text-blue-500 text-lg"></i>
-                  <span class="font-medium">Photo Albums</span>
+                  <i class="fas fa-images text-blue-500 text-xl"></i>
+                  <span class="font-bold text-gray-800">Photo Albums</span>
                 </div>
                 <div
-                  class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm"
+                  class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-emerald-200"
                 >
-                  <i class="fas fa-calendar-alt text-green-500 text-lg"></i>
-                  <span class="font-medium">Shared Calendar</span>
+                  <i class="fas fa-calendar-alt text-emerald-500 text-xl"></i>
+                  <span class="font-bold text-gray-800">Shared Calendar</span>
                 </div>
                 <div
-                  class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm"
+                  class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-purple-200"
                 >
-                  <i class="fas fa-history text-purple-500 text-lg"></i>
-                  <span class="font-medium">Memory Timeline</span>
+                  <i class="fas fa-history text-purple-500 text-xl"></i>
+                  <span class="font-bold text-gray-800">Memory Timeline</span>
                 </div>
               </div>
             </div>
@@ -339,83 +348,81 @@
         <div class="space-y-8">
           <!-- Family Stats -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-blue-200 p-6 md:p-8"
           >
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-4 mb-8">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center"
+                class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
               >
-                <i class="fas fa-chart-bar text-white text-lg"></i>
+                <i class="fas fa-chart-bar text-white text-xl"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Family Stats
-                </h3>
-                <p class="text-gray-500 text-sm">Overview</p>
+                <h3 class="text-2xl font-bold text-gray-900">Family Stats</h3>
+                <p class="text-gray-600 font-medium">Overview</p>
               </div>
             </div>
 
             <div class="space-y-4">
               <div
-                class="flex items-center justify-between p-3 bg-blue-50 rounded-xl"
+                class="flex items-center justify-between p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:shadow-lg transition-all"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                   <div
-                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+                    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md"
                   >
-                    <i class="fas fa-users text-blue-600"></i>
+                    <i class="fas fa-users text-white"></i>
                   </div>
-                  <span class="font-medium text-gray-700">Total Members</span>
+                  <span class="font-bold text-gray-800">Total Members</span>
                 </div>
-                <span class="text-xl font-bold text-gray-900">{{
+                <span class="text-2xl font-bold text-gray-900">{{
                   familyData?.members?.length || 0
                 }}</span>
               </div>
 
               <div
-                class="flex items-center justify-between p-3 bg-purple-50 rounded-xl"
+                class="flex items-center justify-between p-5 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200 hover:shadow-lg transition-all"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                   <div
-                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"
+                    class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-md"
                   >
-                    <i class="fas fa-user-shield text-purple-600"></i>
+                    <i class="fas fa-user-shield text-white"></i>
                   </div>
-                  <span class="font-medium text-gray-700">Admins</span>
+                  <span class="font-bold text-gray-800">Admins</span>
                 </div>
-                <span class="text-xl font-bold text-gray-900">{{
+                <span class="text-2xl font-bold text-gray-900">{{
                   getAdminCount()
                 }}</span>
               </div>
 
               <div
-                class="flex items-center justify-between p-3 bg-green-50 rounded-xl"
+                class="flex items-center justify-between p-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 hover:shadow-lg transition-all"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                   <div
-                    class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+                    class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md"
                   >
-                    <i class="fas fa-user text-green-600"></i>
+                    <i class="fas fa-user text-white"></i>
                   </div>
-                  <span class="font-medium text-gray-700">Members</span>
+                  <span class="font-bold text-gray-800">Members</span>
                 </div>
-                <span class="text-xl font-bold text-gray-900">{{
+                <span class="text-2xl font-bold text-gray-900">{{
                   getMemberCount()
                 }}</span>
               </div>
 
               <div
-                class="flex items-center justify-between p-3 bg-amber-50 rounded-xl"
+                class="flex items-center justify-between p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 hover:shadow-lg transition-all"
               >
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                   <div
-                    class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center"
+                    class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md"
                   >
-                    <i class="fas fa-calendar text-amber-600"></i>
+                    <i class="fas fa-calendar text-white"></i>
                   </div>
-                  <span class="font-medium text-gray-700">Created</span>
+                  <span class="font-bold text-gray-800">Created</span>
                 </div>
-                <span class="text-sm font-bold text-gray-900">{{
+                <span class="text-lg font-bold text-gray-900">{{
                   formatDate(familyData?.createdAt)
                 }}</span>
               </div>
@@ -424,75 +431,79 @@
 
           <!-- Quick Actions -->
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-amber-200 p-6 md:p-8"
           >
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-4 mb-8">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center"
+                class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg"
               >
-                <i class="fas fa-bolt text-white text-lg"></i>
+                <i class="fas fa-bolt text-white text-xl"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  Quick Actions
-                </h3>
-                <p class="text-gray-500 text-sm">Family tools</p>
+                <h3 class="text-2xl font-bold text-gray-900">Quick Actions</h3>
+                <p class="text-gray-600 font-medium">Family tools</p>
               </div>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
               <NuxtLink
                 to="/calendar"
-                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group hover:shadow-sm cursor-pointer"
+                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
               >
                 <div
-                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
                 >
-                  <i class="fas fa-calendar-alt text-blue-600 text-lg"></i>
+                  <i class="fas fa-calendar-alt text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-900">View Calendar</div>
-                  <div class="text-xs text-gray-500">See upcoming events</div>
+                  <div class="font-bold text-gray-900 text-lg">
+                    View Calendar
+                  </div>
+                  <div class="text-sm text-gray-600 font-medium">
+                    See upcoming events
+                  </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500 transition-colors"
+                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-blue-500 transition-colors transform group-hover:translate-x-1"
                 ></i>
               </NuxtLink>
 
               <button
-                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group"
+                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl border-2 border-gray-300 transition-all duration-300 group opacity-60 cursor-not-allowed"
                 disabled
               >
                 <div
-                  class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-photo-video text-gray-400 text-lg"></i>
+                  <i class="fas fa-photo-video text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-400">Share Memories</div>
-                  <div class="text-xs text-gray-400">Coming soon</div>
+                  <div class="font-bold text-gray-400 text-lg">
+                    Share Memories
+                  </div>
+                  <div class="text-sm text-gray-400 font-medium">
+                    Coming soon
+                  </div>
                 </div>
-                <i
-                  class="fas fa-lock text-gray-300 group-hover:text-gray-400"
-                ></i>
+                <i class="fas fa-lock text-gray-300 text-lg"></i>
               </button>
 
               <button
-                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group"
+                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl border-2 border-gray-300 transition-all duration-300 group opacity-60 cursor-not-allowed"
                 disabled
               >
                 <div
-                  class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-comments text-gray-400 text-lg"></i>
+                  <i class="fas fa-comments text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-400">Family Chat</div>
-                  <div class="text-xs text-gray-400">Coming soon</div>
+                  <div class="font-bold text-gray-400 text-lg">Family Chat</div>
+                  <div class="text-sm text-gray-400 font-medium">
+                    Coming soon
+                  </div>
                 </div>
-                <i
-                  class="fas fa-lock text-gray-300 group-hover:text-gray-400"
-                ></i>
+                <i class="fas fa-lock text-gray-300 text-lg"></i>
               </button>
             </div>
           </div>
@@ -500,62 +511,64 @@
           <!-- Settings (Admins Only) -->
           <div
             v-if="isAdmin"
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-rose-200 p-6 md:p-8"
           >
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-4 mb-8">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center"
+                class="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg"
               >
-                <i class="fas fa-cog text-white text-lg"></i>
+                <i class="fas fa-cog text-white text-xl"></i>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-2xl font-bold text-gray-900">
                   Family Settings
                 </h3>
-                <p class="text-gray-500 text-sm">Manage your family</p>
+                <p class="text-gray-600 font-medium">Manage your family</p>
               </div>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
               <button
                 @click="editFamilyName"
-                class="w-full flex items-center gap-4 p-4 text-left bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-all duration-200 group hover:shadow-sm"
+                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
               >
                 <div
-                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
                 >
-                  <i class="fas fa-edit text-blue-600 text-lg"></i>
+                  <i class="fas fa-edit text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-900">
+                  <div class="font-bold text-gray-900 text-lg">
                     Edit Family Name
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-sm text-gray-600 font-medium">
                     Update family display name
                   </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 group-hover:text-gray-600"
+                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-blue-500 transition-colors transform group-hover:translate-x-1"
                 ></i>
               </button>
 
               <NuxtLink
                 :to="`/family/manage/${route.params.id}`"
-                class="w-full flex items-center gap-4 p-4 text-left bg-blue-50 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all duration-200 group hover:shadow-sm"
+                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
               >
                 <div
-                  class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
                 >
-                  <i class="fas fa-users-cog text-blue-600 text-lg"></i>
+                  <i class="fas fa-users-cog text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-900">Manage Members</div>
-                  <div class="text-xs text-gray-500">
+                  <div class="font-bold text-gray-900 text-lg">
+                    Manage Members
+                  </div>
+                  <div class="text-sm text-gray-600 font-medium">
                     Add, remove, or change roles
                   </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500"
+                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-emerald-500 transition-colors transform group-hover:translate-x-1"
                 ></i>
               </NuxtLink>
             </div>
@@ -570,27 +583,28 @@
       class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
     >
       <div
-        class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
+        class="p-5 rounded-2xl shadow-xl border-2 backdrop-blur-sm"
         :class="{
-          'bg-green-50/95 text-green-800 border-green-200':
+          'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-300':
             toastType === 'success',
-          'bg-red-50/95 text-red-800 border-red-200': toastType === 'error',
+          'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-red-300':
+            toastType === 'error',
         }"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
           <i
-            class="text-lg flex-shrink-0"
+            class="text-xl flex-shrink-0"
             :class="{
               'fas fa-check-circle text-green-500': toastType === 'success',
               'fas fa-exclamation-circle text-red-500': toastType === 'error',
             }"
           ></i>
-          <p class="font-medium flex-1">{{ toastMessage }}</p>
+          <p class="font-bold flex-1 text-lg">{{ toastMessage }}</p>
           <button
             @click="showToastMessage = false"
             class="flex-shrink-0 text-gray-400 hover:text-gray-600"
           >
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times text-lg"></i>
           </button>
         </div>
       </div>

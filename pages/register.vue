@@ -1,25 +1,27 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <div
+    class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 pb-4"
+  >
     <!-- Main Content -->
     <main
-      class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12"
+      class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 md:py-12"
     >
       <div class="max-w-md w-full space-y-8">
         <!-- Welcome Section -->
         <div class="text-center">
           <div
-            class="w-20 h-20 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"
+            class="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-2xl mb-6 hover:scale-105 transition-transform duration-200"
           >
-            <i class="fas fa-users text-white text-2xl"></i>
+            <i class="fas fa-users text-white text-3xl"></i>
           </div>
-          <h2 class="text-3xl font-bold text-gray-900 mb-3">
+          <h2 class="text-4xl font-bold text-gray-900 mb-3">
             Join
             <span
-              class="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent"
+              class="bg-gradient-to-r from-orange-600 via-rose-600 to-purple-600 bg-clip-text text-transparent"
               >FamilySpace</span
             >
           </h2>
-          <p class="text-gray-600 text-lg">
+          <p class="text-gray-600 text-lg font-medium">
             Create your account and start your family journey
           </p>
         </div>
@@ -27,24 +29,22 @@
         <!-- Already Logged In State -->
         <div
           v-if="authStore.userId"
-          class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8 text-center"
+          class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-emerald-200 p-8 text-center"
         >
           <div
-            class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
             <i class="fas fa-check-circle text-white text-2xl"></i>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">
-            Welcome Back!
-          </h3>
-          <p class="text-gray-600 mb-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Welcome Back!</h3>
+          <p class="text-gray-600 mb-6 font-medium">
             You are already logged in to your account.
           </p>
           <NuxtLink
             to="/dashboard"
-            class="inline-flex items-center justify-center gap-3 px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-2xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1"
           >
-            <i class="fas fa-home text-sm"></i>
+            <i class="fas fa-home"></i>
             <span>Go to Dashboard</span>
           </NuxtLink>
         </div>
@@ -52,7 +52,7 @@
         <!-- Registration Form -->
         <div
           v-else
-          class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-8"
+          class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-8"
         >
           <form @submit.prevent="handleRegister" class="space-y-6">
             <!-- Name Field -->
@@ -73,20 +73,21 @@
                   type="text"
                   id="name"
                   v-model="name"
-                  class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-400"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-orange-300"
                   placeholder="Your full name"
                   required
                   :disabled="loading"
                 />
               </div>
             </div>
+
             <!-- Email Field -->
             <div>
               <label
                 for="email"
                 class="block text-sm font-semibold text-gray-700 mb-3"
               >
-                Email Address
+                Email Address *
               </label>
               <div class="relative">
                 <div
@@ -98,7 +99,7 @@
                   type="email"
                   id="email"
                   v-model="email"
-                  class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-400"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-orange-300"
                   placeholder="you@example.com"
                   required
                   :disabled="loading"
@@ -112,7 +113,7 @@
                 for="password"
                 class="block text-sm font-semibold text-gray-700 mb-3"
               >
-                Password
+                Password *
               </label>
               <div class="relative">
                 <div
@@ -124,7 +125,7 @@
                   :type="showPassword ? 'text' : 'password'"
                   id="password"
                   v-model="password"
-                  class="w-full pl-12 pr-12 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-400"
+                  class="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white hover:border-orange-300"
                   placeholder="Create a strong password"
                   required
                   :disabled="loading"
@@ -132,7 +133,7 @@
                 <button
                   type="button"
                   @click="showPassword = !showPassword"
-                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-600 transition-colors"
                   :disabled="loading"
                 >
                   <i
@@ -141,14 +142,15 @@
                   ></i>
                 </button>
               </div>
-              <div class="flex items-center gap-2 mt-2">
-                <div class="flex-1 bg-gray-200 rounded-full h-2">
+              <!-- Password Strength Meter -->
+              <div class="flex items-center gap-3 mt-3">
+                <div class="flex-1 bg-gray-200 rounded-full h-2 shadow-inner">
                   <div
-                    class="h-2 rounded-full transition-all duration-300"
+                    class="h-2 rounded-full transition-all duration-300 shadow-lg"
                     :class="getPasswordStrengthClass"
                   ></div>
                 </div>
-                <span class="text-xs font-medium text-gray-500">
+                <span class="text-xs font-bold text-gray-600 min-w-16">
                   {{ getPasswordStrengthText }}
                 </span>
               </div>
@@ -157,7 +159,7 @@
             <!-- Error Message -->
             <div
               v-if="error"
-              class="bg-red-50 border border-red-200 rounded-xl p-4 animate-slideIn"
+              class="bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-2xl p-4 animate-fadeIn"
             >
               <div class="flex items-center gap-3">
                 <i
@@ -170,13 +172,13 @@
             <!-- Submit Button -->
             <button
               type="submit"
-              class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
               :disabled="loading || !isFormValid"
             >
               <i v-if="loading" class="fas fa-spinner fa-spin text-lg"></i>
               <i v-else class="fas fa-user-plus text-lg"></i>
               <span class="text-lg">{{
-                loading ? "Creating Your Account..." : "Create Account"
+                loading ? "Creating Your Account..." : "Create Family Account"
               }}</span>
             </button>
           </form>
@@ -188,7 +190,7 @@
             </div>
             <div class="relative flex justify-center text-sm">
               <span class="px-4 bg-white text-gray-500 font-medium"
-                >Already part of a family?</span
+                >Already part of our family?</span
               >
             </div>
           </div>
@@ -196,7 +198,7 @@
           <!-- Login Link -->
           <NuxtLink
             to="/login"
-            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
           >
             <i class="fas fa-sign-in-alt text-lg"></i>
             <span class="text-lg">Sign In to Your Account</span>
@@ -204,19 +206,57 @@
         </div>
 
         <!-- Trust Indicators -->
-        <div class="text-center">
-          <div class="grid grid-cols-3 gap-4 text-xs text-gray-500">
-            <div class="flex items-center gap-2 justify-center">
-              <i class="fas fa-shield-alt text-green-500"></i>
-              <span>Secure</span>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div
+            class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border-2 border-green-100 p-4"
+          >
+            <i class="fas fa-shield-alt text-green-500 text-lg mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Secure</p>
+          </div>
+          <div
+            class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border-2 border-blue-100 p-4"
+          >
+            <i class="fas fa-lock text-blue-500 text-lg mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Private</p>
+          </div>
+          <div
+            class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border-2 border-purple-100 p-4"
+          >
+            <i class="fas fa-heart text-purple-500 text-lg mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Family-First</p>
+          </div>
+        </div>
+
+        <!-- Demo Account Info -->
+        <div
+          class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-6 text-center"
+        >
+          <div class="flex items-center justify-center gap-2 mb-3">
+            <i class="fas fa-sparkles text-amber-600 text-lg"></i>
+            <h4 class="font-bold text-amber-900">New to FamilySpace?</h4>
+          </div>
+          <p class="text-amber-700 text-sm mb-4 font-medium">
+            After creating your account, you'll be guided to set up your family
+            space.
+          </p>
+          <div
+            class="grid grid-cols-2 gap-3 text-xs text-amber-800 font-medium"
+          >
+            <div class="flex items-center gap-2">
+              <i class="fas fa-users text-amber-600"></i>
+              <span>Create Family</span>
             </div>
-            <div class="flex items-center gap-2 justify-center">
-              <i class="fas fa-lock text-blue-500"></i>
-              <span>Private</span>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-calendar text-amber-600"></i>
+              <span>Plan Events</span>
             </div>
-            <div class="flex items-center gap-2 justify-center">
-              <i class="fas fa-heart text-red-500"></i>
-              <span>Family-First</span>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-images text-amber-600"></i>
+              <span>Share Memories</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-comments text-amber-600"></i>
+              <span>Family Chat</span>
             </div>
           </div>
         </div>
@@ -225,26 +265,25 @@
 
     <!-- Footer -->
     <footer
-      class="bg-white/80 backdrop-blur-md border-t border-gray-200/60 py-8"
+      class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-gray-200 p-8 mx-4"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <div class="flex items-center justify-center gap-3 mb-4">
-            <div
-              class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center"
-            >
-              <i class="fas fa-home text-white text-sm"></i>
-            </div>
-            <span
-              class="text-lg font-bold bg-gradient-to-r from-gray-900 to-blue-700 bg-clip-text text-transparent"
-            >
-              FamilySpace
-            </span>
+      <div class="text-center">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-orange-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg"
+          >
+            <i class="fas fa-home text-white text-lg"></i>
           </div>
-          <p class="text-gray-500 text-sm">
-            © 2025 FamilySpace. Your private family digital home.
-          </p>
+          <span
+            class="text-xl font-bold bg-gradient-to-r from-orange-600 via-rose-600 to-purple-600 bg-clip-text text-transparent"
+          >
+            FamilySpace
+          </span>
         </div>
+        <p class="text-gray-600 font-medium">
+          Made with <i class="fas fa-heart text-rose-500"></i> for families
+          everywhere
+        </p>
       </div>
     </footer>
   </div>
@@ -255,7 +294,6 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 import { registerUser } from "~/utils/firebase";
-import { getAuth } from "firebase/auth";
 
 definePageMeta({
   middleware: "auth",
@@ -263,11 +301,9 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const router = useRouter();
-const familyName = ref("");
 const name = ref("");
 const email = ref("");
 const password = ref("");
-const createFamily = ref("no");
 const error = ref("");
 const loading = ref(false);
 const showPassword = ref(false);
@@ -278,9 +314,7 @@ const isFormValid = computed(() => {
     email.value.trim() !== "" &&
     password.value.trim() !== "" &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) &&
-    password.value.length >= 6 &&
-    (createFamily.value === "no" ||
-      (createFamily.value === "yes" && familyName.value.trim() !== ""))
+    password.value.length >= 6
   );
 });
 
@@ -320,6 +354,7 @@ const getPasswordStrengthText = computed(() => {
   };
   return texts[strength] || "";
 });
+
 const handleRegister = async () => {
   if (!isFormValid.value) {
     error.value = "Please fill all required fields correctly";
@@ -348,7 +383,18 @@ const handleRegister = async () => {
     }
   } catch (err) {
     console.error("Registration error:", err);
-    error.value = err.message || "Failed to create account";
+
+    if (err.message.includes("email-already-in-use")) {
+      error.value =
+        "An account with this email already exists. Please sign in instead.";
+    } else if (err.message.includes("weak-password")) {
+      error.value = "Password is too weak. Please choose a stronger password.";
+    } else if (err.message.includes("invalid-email")) {
+      error.value = "Please enter a valid email address.";
+    } else {
+      error.value =
+        err.message || "Failed to create account. Please try again.";
+    }
   } finally {
     loading.value = false;
   }
@@ -381,49 +427,26 @@ useHead({
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
   from {
-    opacity: 0;
     transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slideIn {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-10px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
-/* Custom select styling */
-select {
-  background-image: none;
-  cursor: pointer;
+input:focus {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
-select:focus {
-  outline: none;
-  outline-width: 2px;
-}
-
-/* Improve input focus states */
-input:focus,
-select:focus {
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+input[type="checkbox"]:focus {
+  outline: 2px solid rgb(249, 115, 22);
+  outline-offset: 2px;
 }
 </style>
