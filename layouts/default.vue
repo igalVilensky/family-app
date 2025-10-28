@@ -10,15 +10,20 @@
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex items-center justify-between h-16">
           <!-- Logo -->
+
+          <!-- Logo -->
           <NuxtLink
             to="/dashboard"
             class="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
           >
-            <div
-              class="w-10 h-10 bg-gradient-to-br from-orange-500 to-rose-600 rounded-xl flex items-center justify-center shadow-md"
-            >
-              <i class="fas text-white text-lg" :class="headerIcon"></i>
-            </div>
+            <!-- Logo Image -->
+            <img
+              src="/family-space-logo.png"
+              alt="Family Logo"
+              class="w-10 h-10 rounded-xl shadow-md object-cover"
+            />
+
+            <!-- Header Text -->
             <div>
               <h1 class="text-lg font-bold text-gray-900">
                 {{ headerTitle }}

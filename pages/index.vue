@@ -13,9 +13,15 @@
         <!-- App Icon/Logo -->
         <div class="mb-8">
           <div
-            class="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-2xl hover:scale-105 transition-transform duration-200"
+            class="w-24 h-24 mx-auto bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl p-[3px] shadow-2xl hover:scale-105 transition-transform duration-200"
           >
-            <i class="fas fa-home text-white text-3xl"></i>
+            <div class="w-full h-full rounded-xl overflow-hidden bg-white">
+              <img
+                src="/family-space-logo.png"
+                alt="FamilySpace Logo"
+                class="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
 
