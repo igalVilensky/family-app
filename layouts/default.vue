@@ -47,6 +47,17 @@
                 <i class="fas fa-home"></i>
                 <span class="text-sm">Home</span>
               </NuxtLink>
+              <NuxtLink
+                to="/feed"
+                class="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-rose-50 rounded-xl transition-all font-medium"
+                :class="{
+                  'text-rose-600 bg-rose-100 shadow-sm':
+                    route.path.startsWith('/feed'),
+                }"
+              >
+                <i class="fas fa-heart"></i>
+                <span class="text-sm">Feed</span>
+              </NuxtLink>
 
               <NuxtLink
                 :to="calendarLink"
@@ -156,6 +167,20 @@
             ></div>
           </div>
           <span>Home</span>
+        </NuxtLink>
+        <NuxtLink
+          to="/feed"
+          class="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-2 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all"
+          :class="{ 'text-rose-600': route.path.startsWith('/feed') }"
+        >
+          <div class="relative">
+            <i class="fas fa-heart text-xl"></i>
+            <div
+              v-if="route.path.startsWith('/feed')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-rose-600 rounded-full"
+            ></div>
+          </div>
+          <span>Feed</span>
         </NuxtLink>
 
         <NuxtLink
@@ -270,6 +295,11 @@ const updateHeaderConfig = (path) => {
       icon: "fa-home",
       title: "FamilySpace",
       subtitle: "Your family's home",
+    },
+    "/feed": {
+      icon: "fa-heart",
+      title: "Family Feed",
+      subtitle: "Your family hearth",
     },
     "/messages": {
       icon: "fa-comments",

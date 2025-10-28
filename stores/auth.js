@@ -169,11 +169,26 @@ export const useAuthStore = defineStore("auth", {
 
                 const familyKeys = Object.keys(this.families);
                 if (familyKeys.length > 0) {
-                  this.currentFamilyId = familyKeys[0];
-                  console.log(
-                    "🎯 Setting currentFamilyId to:",
-                    this.currentFamilyId
-                  );
+                  // FIX: Try to preserve the current family, or use the first one
+                  let targetFamilyId =
+                    localStorage.getItem("currentFamilyId") ||
+                    this.currentFamilyId;
+
+                  // If currentFamilyId is not valid or not in user's families, use first one
+                  if (!targetFamilyId || !this.families[targetFamilyId]) {
+                    targetFamilyId = familyKeys[0];
+                    console.log(
+                      "🎯 Setting initial currentFamilyId to:",
+                      targetFamilyId
+                    );
+                  } else {
+                    console.log(
+                      "💾 Preserving currentFamilyId:",
+                      targetFamilyId
+                    );
+                  }
+
+                  this.currentFamilyId = targetFamilyId;
 
                   const familyDocRef = doc(
                     db,
@@ -192,6 +207,23 @@ export const useAuthStore = defineStore("auth", {
                       "❌ Family document not found for ID:",
                       this.currentFamilyId
                     );
+                    // Fallback to first available family
+                    if (
+                      familyKeys.length > 0 &&
+                      familyKeys[0] !== this.currentFamilyId
+                    ) {
+                      this.currentFamilyId = familyKeys[0];
+                      const fallbackFamilyDoc = await getDoc(
+                        doc(db, "families", this.currentFamilyId)
+                      );
+                      if (fallbackFamilyDoc.exists()) {
+                        this.currentFamilyName = fallbackFamilyDoc.data().name;
+                        console.log(
+                          "🔄 Fallback to family:",
+                          this.currentFamilyName
+                        );
+                      }
+                    }
                   }
                 } else {
                   this.currentFamilyId = null;
@@ -301,6 +333,8 @@ export const useAuthStore = defineStore("auth", {
       console.log("🔄 setCurrentFamily called:", familyId);
       if (familyId in this.families) {
         this.currentFamilyId = familyId;
+        localStorage.setItem("currentFamilyId", familyId); // Persist to localStorage
+
         const { $firestore: db } = useNuxtApp();
         getDoc(doc(db, "families", familyId)).then((snap) => {
           if (snap.exists()) {
@@ -311,6 +345,12 @@ export const useAuthStore = defineStore("auth", {
         this.loadFamilyMembers();
       } else {
         console.log("❌ Family ID not found in user's families:", familyId);
+      }
+    },
+
+    persistCurrentFamily() {
+      if (this.currentFamilyId) {
+        localStorage.setItem("currentFamilyId", this.currentFamilyId);
       }
     },
   },
