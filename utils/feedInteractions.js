@@ -19,16 +19,20 @@ import { useAuthStore } from "~/stores/auth";
 
 // Like/Unlike a post
 export const toggleLike = async (postId, familyId) => {
-  if (!auth.currentUser) throw new Error("Not authenticated");
+  if (!auth.currentUser) {
+    console.error("Not authenticated");
+    throw new Error("Not authenticated");
+  }
 
   const userId = auth.currentUser.uid;
   const likeRef = doc(db, "posts", postId, "likes", userId);
   const postRef = doc(db, "posts", postId);
 
   try {
-    // Use transaction to ensure both operations succeed or both fail
-    await runTransaction(db, async (transaction) => {
+    const result = await runTransaction(db, async (transaction) => {
+      // Check if like exists
       const likeDoc = await transaction.get(likeRef);
+      const postDoc = await transaction.get(postRef);
 
       if (likeDoc.exists()) {
         transaction.delete(likeRef);
@@ -36,6 +40,7 @@ export const toggleLike = async (postId, familyId) => {
           likesCount: increment(-1),
           updatedAt: serverTimestamp(),
         });
+        return "unliked";
       } else {
         transaction.set(likeRef, {
           userId,
@@ -46,10 +51,11 @@ export const toggleLike = async (postId, familyId) => {
           likesCount: increment(1),
           updatedAt: serverTimestamp(),
         });
+        return "liked";
       }
     });
 
-    return { success: true };
+    return { success: true, action: result };
   } catch (error) {
     console.error("Toggle like error:", error);
     throw new Error("Failed to update like: " + error.message);

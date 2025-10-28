@@ -160,7 +160,7 @@ export const useAuthStore = defineStore("auth", {
                 this.birthday = userData.birthday || null;
                 this.status = userData.status || null;
                 this.familyRole = userData.familyRole || null;
-
+                await this.loadFamiliesData();
                 console.log("🏠 Families data loaded:", this.families);
                 console.log(
                   "🔢 Families count:",
@@ -351,6 +351,55 @@ export const useAuthStore = defineStore("auth", {
     persistCurrentFamily() {
       if (this.currentFamilyId) {
         localStorage.setItem("currentFamilyId", this.currentFamilyId);
+      }
+    },
+    async loadFamiliesData() {
+      console.log("🔄 loadFamiliesData called");
+      const { $firestore: db } = useNuxtApp();
+
+      const familyKeys = Object.keys(this.families);
+      if (familyKeys.length === 0) return;
+
+      try {
+        const familyPromises = familyKeys.map(async (familyId) => {
+          try {
+            const familyDocRef = doc(db, "families", familyId);
+            const familyDocSnap = await getDoc(familyDocRef);
+            if (familyDocSnap.exists()) {
+              const familyData = familyDocSnap.data();
+              return {
+                id: familyId,
+                ...this.families[familyId],
+                ...familyData,
+              };
+            }
+            return {
+              id: familyId,
+              ...this.families[familyId],
+              name: "Unknown Family",
+            };
+          } catch (error) {
+            console.error(`Error loading family ${familyId}:`, error);
+            return {
+              id: familyId,
+              ...this.families[familyId],
+              name: "Unknown Family",
+            };
+          }
+        });
+
+        const familiesWithData = await Promise.all(familyPromises);
+
+        const enrichedFamilies = {};
+        familiesWithData.forEach((family) => {
+          if (family) {
+            enrichedFamilies[family.id] = family;
+          }
+        });
+
+        this.families = enrichedFamilies;
+      } catch (error) {
+        console.error("❌ Error loading families data:", error);
       }
     },
   },

@@ -126,6 +126,7 @@
         class="flex items-center justify-between pt-4 border-t border-gray-200 px-6 pb-6"
       >
         <button
+          v-if="props.item.type === 'post'"
           @click="handleLike"
           :disabled="liking"
           class="flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-50"
@@ -145,10 +146,11 @@
                 : 'fa-heart'
             "
           ></i>
-          <span class="font-bold">{{ item.likescOUNT || 0 }}</span>
+          <span class="font-bold">{{ item.likesCount || 0 }}</span>
         </button>
 
         <button
+          v-if="props.item.type === 'post'"
           @click="showComments = true"
           class="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 hover:scale-105"
         >

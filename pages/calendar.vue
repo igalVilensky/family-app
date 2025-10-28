@@ -136,11 +136,17 @@ const selectedFamilyId = ref(routeFamilyId || authStore.currentFamilyId);
 // Computed properties for multi-family support
 const userFamilies = computed(() => {
   if (!authStore.families) return [];
-  return Object.keys(authStore.families).map((familyId) => ({
-    id: familyId,
-    name: authStore.families[familyId]?.name || "Unknown Family",
-    userRole: authStore.families[familyId]?.role || "member",
-  }));
+
+  return Object.keys(authStore.families).map((familyId) => {
+    const familyData = authStore.families[familyId];
+
+    return {
+      id: familyId,
+      name: familyData?.name || "Unknown Family", // Now this should work
+      userRole: familyData?.role || "member",
+      membershipType: familyData?.membershipType || "core",
+    };
+  });
 });
 
 const currentFamilyName = computed(() => {

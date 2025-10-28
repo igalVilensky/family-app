@@ -50,9 +50,8 @@ export const useFeed = () => {
       const postsData = await Promise.all(
         snapshot.docs.map(async (doc) => {
           const data = doc.data();
-          // Check if current user liked this post
-          const isLiked = await checkUserLike(doc.id);
 
+          const isLiked = await checkUserLike(doc.id);
           return {
             id: doc.id,
             ...data,

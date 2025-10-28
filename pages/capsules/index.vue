@@ -533,9 +533,17 @@ const filteredCapsules = computed(() => {
 
 // Methods
 const getFamilyName = (familyId) => {
+  const familyData = authStore.families[familyId];
+
+  if (familyData) {
+    return familyData.name || "Unknown Family";
+  }
+
+  // Fallback for current family
   if (familyId === authStore.currentFamilyId) {
     return authStore.currentFamilyName || "Family";
   }
+
   return "Family";
 };
 
