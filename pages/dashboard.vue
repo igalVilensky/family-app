@@ -1105,10 +1105,15 @@ const fetchJoinRequests = async () => {
   }
 };
 
-const approveRequest = async (requestId, userId, email) => {
+const approveRequest = async (requestId, userId, email, relationship) => {
   try {
     await updateDoc(doc(db, "families", authStore.currentFamilyId), {
-      members: arrayUnion({ userId, role: "member", email }),
+      members: arrayUnion({
+        userId,
+        role: "member",
+        email,
+        relationship: relationship,
+      }),
     });
 
     // Update user's families map

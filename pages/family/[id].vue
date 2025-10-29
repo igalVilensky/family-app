@@ -164,11 +164,48 @@
                   <p class="text-gray-600 font-medium">Your family circle</p>
                 </div>
               </div>
-              <span
-                class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-lg font-bold rounded-2xl shadow-lg"
-              >
-                {{ familyData?.members?.length || 0 }}
-              </span>
+              <div class="flex items-center gap-4">
+                <span
+                  class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-lg font-bold rounded-2xl shadow-lg"
+                >
+                  {{ familyData?.members?.length || 0 }}
+                </span>
+                <!-- Relationship Setup Progress -->
+                <div
+                  v-if="membersWithoutRelationships.length > 0"
+                  class="flex items-center gap-2 bg-amber-100 px-4 py-2 rounded-full border-2 border-amber-300"
+                >
+                  <i
+                    class="fas fa-exclamation-triangle text-amber-600 text-sm"
+                  ></i>
+                  <span class="text-sm font-bold text-amber-800">
+                    {{ membersWithoutRelationships.length }} need setup
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Relationship Setup Alert -->
+            <div
+              v-if="membersWithoutRelationships.length > 0"
+              class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 mb-6"
+            >
+              <div class="flex items-center gap-4">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-info-circle text-amber-600 text-2xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-amber-900 text-lg mb-1">
+                    Complete Family Setup
+                  </h4>
+                  <p class="text-amber-800 text-sm">
+                    {{ membersWithoutRelationships.length }} family member{{
+                      membersWithoutRelationships.length !== 1 ? "s" : ""
+                    }}
+                    need relationship setup for proper family tree display.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div class="space-y-4">
@@ -180,7 +217,8 @@
               >
                 <div class="relative">
                   <div
-                    class="w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200"
+                    class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200"
+                    :class="getRelationshipColor(member.relationship)"
                   >
                     <span class="text-white font-bold text-xl">
                       {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
@@ -211,6 +249,23 @@
                   <p class="text-gray-600 truncate text-base font-medium">
                     {{ member.email }}
                   </p>
+
+                  <!-- Relationship Display -->
+                  <div class="flex items-center gap-2 mt-2">
+                    <i
+                      class="text-sm"
+                      :class="getRelationshipIcon(member.relationship)"
+                    ></i>
+                    <span class="text-sm font-medium text-gray-700">
+                      {{ getRelationshipDisplay(member.relationship) }}
+                    </span>
+                    <span
+                      v-if="!member.relationship"
+                      class="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-medium"
+                    >
+                      Needs Setup
+                    </span>
+                  </div>
                 </div>
 
                 <div class="flex items-center gap-4 flex-shrink-0">
@@ -309,14 +364,14 @@
                 <i class="fas fa-rocket text-white text-2xl"></i>
               </div>
               <h3 class="text-3xl font-bold text-gray-900 mb-4">
-                More Features Coming Soon!
+                Family Tree Coming Soon!
               </h3>
               <p
                 class="text-gray-600 mb-8 max-w-2xl mx-auto text-lg font-medium"
               >
-                We're working on exciting features like shared photo albums,
-                family calendars, group chats, and memory timelines to make your
-                family experience even better.
+                We're building an interactive family tree that will visualize
+                your family relationships and connections in a beautiful,
+                easy-to-understand way.
               </p>
               <div
                 class="flex flex-wrap items-center justify-center gap-6 text-base"
@@ -324,8 +379,8 @@
                 <div
                   class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-blue-200"
                 >
-                  <i class="fas fa-images text-blue-500 text-xl"></i>
-                  <span class="font-bold text-gray-800">Photo Albums</span>
+                  <i class="fas fa-sitemap text-blue-500 text-xl"></i>
+                  <span class="font-bold text-gray-800">Family Tree</span>
                 </div>
                 <div
                   class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-emerald-200"
@@ -379,6 +434,7 @@
                 }}</span>
               </div>
 
+              <!-- NEW: Relationship Stats -->
               <div
                 class="flex items-center justify-between p-5 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200 hover:shadow-lg transition-all"
               >
@@ -386,13 +442,15 @@
                   <div
                     class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-md"
                   >
-                    <i class="fas fa-user-shield text-white"></i>
+                    <i class="fas fa-heart text-white"></i>
                   </div>
-                  <span class="font-bold text-gray-800">Admins</span>
+                  <span class="font-bold text-gray-800">Relationships Set</span>
                 </div>
-                <span class="text-2xl font-bold text-gray-900">{{
-                  getAdminCount()
-                }}</span>
+                <span class="text-2xl font-bold text-gray-900"
+                  >{{ membersWithRelationships.length }}/{{
+                    familyData?.members?.length || 0
+                  }}</span
+                >
               </div>
 
               <div
@@ -469,23 +527,26 @@
               </NuxtLink>
 
               <button
-                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl border-2 border-gray-300 transition-all duration-300 group opacity-60 cursor-not-allowed"
-                disabled
+                v-if="isAdmin && membersWithoutRelationships.length > 0"
+                @click="showRelationshipSetupHelp"
+                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 hover:border-amber-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
               >
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
                 >
-                  <i class="fas fa-photo-video text-white text-lg"></i>
+                  <i class="fas fa-users-cog text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-bold text-gray-400 text-lg">
-                    Share Memories
+                  <div class="font-bold text-gray-900 text-lg">
+                    Setup Relationships
                   </div>
-                  <div class="text-sm text-gray-400 font-medium">
-                    Coming soon
+                  <div class="text-sm text-gray-600 font-medium">
+                    Complete family setup
                   </div>
                 </div>
-                <i class="fas fa-lock text-gray-300 text-lg"></i>
+                <i
+                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-amber-500 transition-colors transform group-hover:translate-x-1"
+                ></i>
               </button>
 
               <button
@@ -495,10 +556,10 @@
                 <div
                   class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-comments text-white text-lg"></i>
+                  <i class="fas fa-sitemap text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
-                  <div class="font-bold text-gray-400 text-lg">Family Chat</div>
+                  <div class="font-bold text-gray-400 text-lg">Family Tree</div>
                   <div class="text-sm text-gray-400 font-medium">
                     Coming soon
                   </div>
@@ -654,6 +715,19 @@ const isAdmin = computed(() => {
   return userFamilyRole.value === "admin";
 });
 
+// NEW: Computed properties for relationship handling
+const membersWithRelationships = computed(() => {
+  return (
+    familyData.value?.members?.filter((member) => member.relationship) || []
+  );
+});
+
+const membersWithoutRelationships = computed(() => {
+  return (
+    familyData.value?.members?.filter((member) => !member.relationship) || []
+  );
+});
+
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
   toastType.value = type;
@@ -705,6 +779,39 @@ const getMemberDisplayName = (member) => {
   if (member.name) return member.name;
   if (member.email) return member.email.split("@")[0];
   return "Unknown Member";
+};
+
+// NEW: Relationship display functions
+const getRelationshipDisplay = (relationship) => {
+  const relationshipMap = {
+    parent_1: "Father",
+    parent_2: "Mother",
+    child: "Child",
+    spouse: "Spouse/Partner",
+  };
+  return relationshipMap[relationship] || "Relationship not set";
+};
+
+const getRelationshipIcon = (relationship) => {
+  const iconMap = {
+    parent_1: "fas fa-male text-blue-500",
+    parent_2: "fas fa-female text-pink-500",
+    child: "fas fa-child text-green-500",
+    spouse: "fas fa-heart text-purple-500",
+  };
+  return iconMap[relationship] || "fas fa-question-circle text-gray-400";
+};
+
+const getRelationshipColor = (relationship) => {
+  const colorMap = {
+    parent_1: "bg-gradient-to-br from-blue-500 to-indigo-600",
+    parent_2: "bg-gradient-to-br from-pink-500 to-rose-600",
+    child: "bg-gradient-to-br from-green-500 to-emerald-600",
+    spouse: "bg-gradient-to-br from-purple-500 to-violet-600",
+  };
+  return (
+    colorMap[relationship] || "bg-gradient-to-br from-gray-500 to-gray-600"
+  );
 };
 
 const getAdminCount = () => {
@@ -798,6 +905,13 @@ const editFamilyName = async () => {
     console.error("Error updating family name:", error);
     showToast("Failed to update family name", "error");
   }
+};
+
+const showRelationshipSetupHelp = () => {
+  showToast(
+    "To setup relationships, ask members to update their profiles or contact support for assistance.",
+    "info"
+  );
 };
 
 onMounted(async () => {

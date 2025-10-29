@@ -177,15 +177,12 @@
           <div class="space-y-4">
             <button
               v-if="!isAlreadyMember"
-              @click="acceptInvite"
+              @click="showRelationshipModal = true"
               class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               :disabled="joining || !authStore.userId"
             >
-              <i v-if="joining" class="fas fa-spinner fa-spin text-lg"></i>
-              <i v-else class="fas fa-check-circle text-lg"></i>
-              <span class="text-lg">
-                {{ joining ? "Accepting Invitation..." : "Accept Invitation" }}
-              </span>
+              <i class="fas fa-check-circle text-lg"></i>
+              <span class="text-lg">Accept Invitation</span>
             </button>
 
             <button
@@ -279,6 +276,151 @@
       </div>
     </main>
 
+    <!-- Relationship Selection Modal -->
+    <div
+      v-if="showRelationshipModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn"
+    >
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
+        <div class="text-center mb-6">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-users text-white text-xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">
+            Your Family Role
+          </h3>
+          <p class="text-gray-600">
+            How are you related to the
+            <strong>{{ invite?.familyName }}</strong> family?
+          </p>
+        </div>
+
+        <!-- Relationship Selection -->
+        <div class="space-y-3 mb-6">
+          <!-- Parent 1 (Father) -->
+          <button
+            @click="selectedRelationship = 'parent_1'"
+            :class="{
+              'border-blue-500 bg-blue-50 ring-2 ring-blue-200':
+                selectedRelationship === 'parent_1',
+              'border-gray-200 bg-white hover:bg-gray-50':
+                selectedRelationship !== 'parent_1',
+            }"
+            class="w-full p-4 border-2 rounded-xl text-left transition-all duration-200 group flex items-center gap-4"
+          >
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+            >
+              <i class="fas fa-male text-blue-600 text-lg"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900">Parent (Father)</div>
+              <div class="text-xs text-gray-500">
+                You are a father in this family
+              </div>
+            </div>
+          </button>
+
+          <!-- Parent 2 (Mother) -->
+          <button
+            @click="selectedRelationship = 'parent_2'"
+            :class="{
+              'border-pink-500 bg-pink-50 ring-2 ring-pink-200':
+                selectedRelationship === 'parent_2',
+              'border-gray-200 bg-white hover:bg-gray-50':
+                selectedRelationship !== 'parent_2',
+            }"
+            class="w-full p-4 border-2 rounded-xl text-left transition-all duration-200 group flex items-center gap-4"
+          >
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center"
+            >
+              <i class="fas fa-female text-pink-600 text-lg"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900">Parent (Mother)</div>
+              <div class="text-xs text-gray-500">
+                You are a mother in this family
+              </div>
+            </div>
+          </button>
+
+          <!-- Child -->
+          <button
+            @click="selectedRelationship = 'child'"
+            :class="{
+              'border-green-500 bg-green-50 ring-2 ring-green-200':
+                selectedRelationship === 'child',
+              'border-gray-200 bg-white hover:bg-gray-50':
+                selectedRelationship !== 'child',
+            }"
+            class="w-full p-4 border-2 rounded-xl text-left transition-all duration-200 group flex items-center gap-4"
+          >
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"
+            >
+              <i class="fas fa-child text-green-600 text-lg"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900">Child</div>
+              <div class="text-xs text-gray-500">
+                You are a son or daughter in this family
+              </div>
+            </div>
+          </button>
+
+          <!-- Spouse -->
+          <button
+            @click="selectedRelationship = 'spouse'"
+            :class="{
+              'border-purple-500 bg-purple-50 ring-2 ring-purple-200':
+                selectedRelationship === 'spouse',
+              'border-gray-200 bg-white hover:bg-gray-50':
+                selectedRelationship !== 'spouse',
+            }"
+            class="w-full p-4 border-2 rounded-xl text-left transition-all duration-200 group flex items-center gap-4"
+          >
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"
+            >
+              <i class="fas fa-heart text-purple-600 text-lg"></i>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900">Spouse/Partner</div>
+              <div class="text-xs text-gray-500">
+                You are married or partnered to a family member
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-3">
+          <button
+            @click="acceptInviteWithRelationship"
+            :disabled="!selectedRelationship || joining"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <i v-if="joining" class="fas fa-spinner fa-spin text-lg"></i>
+            <i v-else class="fas fa-user-plus text-lg"></i>
+            <span class="text-lg">
+              {{ joining ? "Accepting Invitation..." : "Accept Invitation" }}
+            </span>
+          </button>
+
+          <button
+            @click="cancelRelationshipSelection"
+            class="w-full px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+            :disabled="joining"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div
       v-if="showToastMessage"
@@ -339,6 +481,8 @@ const error = ref("");
 const toastMessage = ref("");
 const showToastMessage = ref(false);
 const toastType = ref("success");
+const showRelationshipModal = ref(false);
+const selectedRelationship = ref("");
 
 // Computed property to check if user is already a member
 const isAlreadyMember = computed(() => {
@@ -411,7 +555,12 @@ const formatExpiryDate = (timestamp) => {
   }
 };
 
-const acceptInvite = async () => {
+const acceptInviteWithRelationship = async () => {
+  if (!selectedRelationship.value) {
+    showToast("Please select your relationship to the family", "error");
+    return;
+  }
+
   if (!authStore.userId) {
     router.push(`/login?redirect=/join/${route.params.inviteId}`);
     return;
@@ -424,7 +573,7 @@ const acceptInvite = async () => {
 
   joining.value = true;
   try {
-    // Send join request to the family
+    // Send join request to the family with relationship
     await addDoc(collection(db, `families/${invite.value.familyId}/requests`), {
       userId: authStore.userId,
       email: authStore.email,
@@ -433,12 +582,16 @@ const acceptInvite = async () => {
       requestedAt: serverTimestamp(),
       viaInvite: true,
       inviteId: route.params.inviteId,
+      relationship: selectedRelationship.value,
     });
 
     showToast(
       "Invitation accepted! Your request has been sent to the family admin for approval.",
       "success"
     );
+
+    showRelationshipModal.value = false;
+    selectedRelationship.value = "";
 
     // Redirect to dashboard after a short delay
     setTimeout(() => {
@@ -460,6 +613,11 @@ const acceptInvite = async () => {
   } finally {
     joining.value = false;
   }
+};
+
+const cancelRelationshipSelection = () => {
+  showRelationshipModal.value = false;
+  selectedRelationship.value = "";
 };
 
 const goToFamily = () => {
@@ -522,6 +680,19 @@ useHead({
   }
   to {
     transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
     opacity: 1;
   }
 }

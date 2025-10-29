@@ -119,12 +119,18 @@ export const createProfile = async (userId, profileData) => {
   }
 };
 
-export const createFamily = async (userId, familyName, email, userName) => {
+export const createFamily = async (
+  userId,
+  familyName,
+  email,
+  userName,
+  relationship
+) => {
   try {
     const familyRef = doc(collection(db, "families"));
     const familyId = familyRef.id;
 
-    // Create family document
+    // Create family document with relationship
     await setDoc(familyRef, {
       adminId: userId,
       name: familyName,
@@ -133,8 +139,9 @@ export const createFamily = async (userId, familyName, email, userName) => {
         {
           userId,
           email,
-          name: userName, // USE THE USER'S NAME
+          name: userName,
           role: "admin",
+          relationship: relationship, // NEW: Add relationship field
         },
       ],
       linkedFamilies: [],
@@ -144,14 +151,14 @@ export const createFamily = async (userId, familyName, email, userName) => {
       },
     });
 
-    // Update user document with families map - CORRECT STRUCTURE
+    // Update user document with families map
     const userRef = doc(db, "users", userId);
     await updateDoc(userRef, {
       [`families.${familyId}`]: {
         membershipType: "core",
         role: "admin",
       },
-      status: "active", // User is now active with a family
+      status: "active",
       updatedAt: new Date(),
     });
 
@@ -879,10 +886,16 @@ export const sendJoinRequest = async (
   familyId,
   userId,
   userEmail,
-  userName
+  userName,
+  relationship
 ) => {
   try {
-    console.log("📨 Sending join request:", { familyId, userId, userEmail });
+    console.log("📨 Sending join request:", {
+      familyId,
+      userId,
+      userEmail,
+      relationship,
+    });
 
     const requestData = {
       userId,
@@ -890,6 +903,7 @@ export const sendJoinRequest = async (
       name: userName || userEmail.split("@")[0],
       requestedAt: serverTimestamp(),
       status: "pending",
+      relationship: relationship,
     };
 
     const requestRef = await addDoc(

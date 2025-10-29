@@ -257,41 +257,173 @@
 
                 <div>
                   <label
-                    for="familyRole"
+                    for="phone"
                     class="block text-sm font-semibold text-gray-700 mb-3"
                   >
-                    Primary Family Role *
+                    Phone Number
+                    <span class="text-gray-400 font-normal">(Optional)</span>
                   </label>
-                  <select
-                    id="familyRole"
-                    v-model="profileForm.familyRole"
+                  <input
+                    type="tel"
+                    id="phone"
+                    v-model="profileForm.phone"
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                    required
-                  >
-                    <option value="parent">Parent</option>
-                    <option value="child">Child</option>
-                    <option value="grandparent">Grandparent</option>
-                    <option value="sibling">Sibling</option>
-                    <option value="other">Other</option>
-                  </select>
+                    placeholder="Enter your phone number"
+                  />
                 </div>
               </div>
 
-              <div>
-                <label
-                  for="phone"
-                  class="block text-sm font-semibold text-gray-700 mb-3"
-                >
-                  Phone Number
-                  <span class="text-gray-400 font-normal">(Optional)</span>
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  v-model="profileForm.phone"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                  placeholder="Enter your phone number"
-                />
+              <!-- Family Relationships Section -->
+              <div
+                class="border-2 border-blue-200 rounded-xl p-5 bg-blue-50/50"
+              >
+                <div class="flex items-center gap-3 mb-4">
+                  <div
+                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                  >
+                    <i class="fas fa-users text-blue-600"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900">
+                      Family Relationships
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                      Set your role in each family
+                    </p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div
+                    v-for="family in userFamilies"
+                    :key="family.id"
+                    class="bg-white rounded-xl p-4 border border-gray-200"
+                  >
+                    <div class="flex items-center justify-between mb-3">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0"
+                        >
+                          <i class="fas fa-home text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <h5 class="font-semibold text-gray-900 text-sm">
+                            {{ family.name }}
+                          </h5>
+                          <p class="text-xs text-gray-600 capitalize">
+                            {{ family.userRole }}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        v-if="family.id === authStore.currentFamilyId"
+                        class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                      >
+                        Current
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        @click="setRelationship(family.id, 'parent_1')"
+                        :class="{
+                          'border-blue-500 bg-blue-50 ring-2 ring-blue-200':
+                            getCurrentRelationship(family.id) === 'parent_1',
+                          'border-gray-200 bg-white hover:bg-gray-50':
+                            getCurrentRelationship(family.id) !== 'parent_1',
+                        }"
+                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
+                      >
+                        <i class="fas fa-male text-blue-600 text-sm mb-1"></i>
+                        <div class="text-xs font-medium text-gray-900">
+                          Father
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        @click="setRelationship(family.id, 'parent_2')"
+                        :class="{
+                          'border-pink-500 bg-pink-50 ring-2 ring-pink-200':
+                            getCurrentRelationship(family.id) === 'parent_2',
+                          'border-gray-200 bg-white hover:bg-gray-50':
+                            getCurrentRelationship(family.id) !== 'parent_2',
+                        }"
+                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
+                      >
+                        <i class="fas fa-female text-pink-600 text-sm mb-1"></i>
+                        <div class="text-xs font-medium text-gray-900">
+                          Mother
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        @click="setRelationship(family.id, 'child')"
+                        :class="{
+                          'border-green-500 bg-green-50 ring-2 ring-green-200':
+                            getCurrentRelationship(family.id) === 'child',
+                          'border-gray-200 bg-white hover:bg-gray-50':
+                            getCurrentRelationship(family.id) !== 'child',
+                        }"
+                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
+                      >
+                        <i class="fas fa-child text-green-600 text-sm mb-1"></i>
+                        <div class="text-xs font-medium text-gray-900">
+                          Child
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        @click="setRelationship(family.id, 'spouse')"
+                        :class="{
+                          'border-purple-500 bg-purple-50 ring-2 ring-purple-200':
+                            getCurrentRelationship(family.id) === 'spouse',
+                          'border-gray-200 bg-white hover:bg-gray-50':
+                            getCurrentRelationship(family.id) !== 'spouse',
+                        }"
+                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
+                      >
+                        <i
+                          class="fas fa-heart text-purple-600 text-sm mb-1"
+                        ></i>
+                        <div class="text-xs font-medium text-gray-900">
+                          Spouse
+                        </div>
+                      </button>
+                    </div>
+
+                    <!-- Current Relationship Display -->
+                    <div class="mt-3 flex items-center gap-2">
+                      <i
+                        class="text-sm"
+                        :class="
+                          getRelationshipIcon(getCurrentRelationship(family.id))
+                        "
+                      ></i>
+                      <span class="text-xs font-medium text-gray-700">
+                        {{
+                          getRelationshipDisplay(
+                            getCurrentRelationship(family.id)
+                          )
+                        }}
+                      </span>
+                      <span
+                        v-if="!getCurrentRelationship(family.id)"
+                        class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium"
+                      >
+                        Not Set
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-3">
+                  This helps build accurate family trees for each family you
+                  belong to.
+                </p>
               </div>
 
               <div>
@@ -692,7 +824,13 @@ import {
   reauthenticateWithCredential,
   getAuth,
 } from "firebase/auth";
-import { doc, updateDoc, deleteDoc, arrayRemove } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  deleteDoc,
+  arrayRemove,
+  getDoc,
+} from "firebase/firestore";
 import { useNuxtApp } from "#app";
 import Avatar from "~/components/Avatar.vue";
 
@@ -705,13 +843,14 @@ const profileForm = ref({
   name: "",
   email: "",
   birthday: "",
-  familyRole: "",
+  phone: "",
+  bio: "",
   permissions: {
     privateMode: false,
   },
-  phone: "",
-  bio: "",
 });
+
+const familyRelationships = ref({});
 
 const passwordForm = ref({
   current: "",
@@ -759,14 +898,7 @@ const isProfileFormValid = computed(() => {
   const isValidBirthday =
     profileForm.value.birthday &&
     !isNaN(new Date(profileForm.value.birthday).getTime());
-  const isValidFamilyRole = [
-    "parent",
-    "child",
-    "grandparent",
-    "sibling",
-    "other",
-  ].includes(profileForm.value.familyRole);
-  return isValidName && isValidBirthday && isValidFamilyRole;
+  return isValidName && isValidBirthday;
 });
 
 const isPasswordFormValid = computed(() => {
@@ -778,6 +910,35 @@ const isPasswordFormValid = computed(() => {
     passwordForm.value.new === passwordForm.value.confirm
   );
 });
+
+// Relationship helper functions
+const getCurrentRelationship = (familyId) => {
+  return familyRelationships.value[familyId] || null;
+};
+
+const setRelationship = (familyId, relationship) => {
+  familyRelationships.value[familyId] = relationship;
+};
+
+const getRelationshipDisplay = (relationship) => {
+  const relationshipMap = {
+    parent_1: "Father",
+    parent_2: "Mother",
+    child: "Child",
+    spouse: "Spouse/Partner",
+  };
+  return relationshipMap[relationship] || "Select your role";
+};
+
+const getRelationshipIcon = (relationship) => {
+  const iconMap = {
+    parent_1: "fas fa-male text-blue-500",
+    parent_2: "fas fa-female text-pink-500",
+    child: "fas fa-child text-green-500",
+    spouse: "fas fa-heart text-purple-500",
+  };
+  return iconMap[relationship] || "fas fa-question-circle text-gray-400";
+};
 
 const calculateMinor = (birthday) => {
   if (!birthday) return false;
@@ -817,17 +978,38 @@ const showToast = (message, type = "success") => {
   }, 3000);
 };
 
+const loadCurrentRelationships = async () => {
+  for (const family of userFamilies.value) {
+    try {
+      const familyDoc = await getDoc(doc(db, "families", family.id));
+      if (familyDoc.exists()) {
+        const familyData = familyDoc.data();
+        const currentMember = familyData.members?.find(
+          (member) => member.userId === authStore.userId
+        );
+        if (currentMember?.relationship) {
+          familyRelationships.value[family.id] = currentMember.relationship;
+        }
+      }
+    } catch (error) {
+      console.error(
+        `Error loading relationship for family ${family.id}:`,
+        error
+      );
+    }
+  }
+};
+
 const initializeForm = () => {
   profileForm.value = {
     name: authStore.name || "",
     email: authStore.email || "",
     birthday: authStore.birthday || "",
-    familyRole: authStore.familyRole || "other",
+    phone: authStore.phone || "",
+    bio: authStore.bio || "",
     permissions: {
       privateMode: authStore.permissions.privateMode || false,
     },
-    phone: authStore.phone || "",
-    bio: authStore.bio || "",
   };
 };
 
@@ -854,9 +1036,8 @@ const updateProfile = async () => {
     const userDoc = {
       name: profileForm.value.name,
       birthday: profileForm.value.birthday,
-      familyRole: profileForm.value.familyRole,
       permissions: {
-        role: currentFamilyRole.value, // Use current family role
+        role: currentFamilyRole.value,
         minor: calculateMinor(profileForm.value.birthday),
         privateMode: profileForm.value.permissions.privateMode,
       },
@@ -867,10 +1048,44 @@ const updateProfile = async () => {
 
     await updateDoc(doc(db, "users", authStore.userId), userDoc);
 
+    // Update relationships in each family
+    const relationshipPromises = Object.keys(familyRelationships.value).map(
+      async (familyId) => {
+        const relationship = familyRelationships.value[familyId];
+        if (!relationship) return;
+
+        try {
+          const familyRef = doc(db, "families", familyId);
+          const familyDoc = await getDoc(familyRef);
+
+          if (familyDoc.exists()) {
+            const familyData = familyDoc.data();
+            const updatedMembers = familyData.members.map((member) =>
+              member.userId === authStore.userId
+                ? { ...member, relationship }
+                : member
+            );
+
+            await updateDoc(familyRef, {
+              members: updatedMembers,
+              updatedAt: new Date(),
+            });
+          }
+        } catch (error) {
+          console.error(
+            `Error updating relationship for family ${familyId}:`,
+            error
+          );
+          throw error;
+        }
+      }
+    );
+
+    await Promise.all(relationshipPromises);
+
     // Update auth store
     authStore.name = profileForm.value.name;
     authStore.birthday = profileForm.value.birthday;
-    authStore.familyRole = profileForm.value.familyRole;
     authStore.permissions = {
       ...authStore.permissions,
       minor: userDoc.permissions.minor,
@@ -879,7 +1094,7 @@ const updateProfile = async () => {
     authStore.phone = profileForm.value.phone;
     authStore.bio = profileForm.value.bio;
 
-    showToast("Profile updated successfully", "success");
+    showToast("Profile and relationships updated successfully", "success");
   } catch (error) {
     console.error("Error updating profile:", error);
     showToast("Failed to update profile: " + error.message, "error");
@@ -1109,6 +1324,7 @@ onMounted(async () => {
   }
 
   initializeForm();
+  await loadCurrentRelationships();
   isLoading.value = false;
 });
 

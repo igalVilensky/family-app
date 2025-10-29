@@ -57,7 +57,8 @@
               </div>
             </div>
 
-            <form @submit.prevent="createNewFamily" class="space-y-4">
+            <form @submit.prevent="createNewFamily" class="space-y-6">
+              <!-- Family Name Input -->
               <div>
                 <label
                   for="familyName"
@@ -74,10 +75,104 @@
                   required
                 />
               </div>
+
+              <!-- Relationship Selection -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                  Your Role in this Family *
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Parent 1 (Father) -->
+                  <button
+                    type="button"
+                    @click="selectedRelationship = 'parent_1'"
+                    :class="{
+                      'border-green-500 bg-green-50 ring-2 ring-green-200':
+                        selectedRelationship === 'parent_1',
+                      'border-gray-200 bg-white hover:bg-gray-50':
+                        selectedRelationship !== 'parent_1',
+                    }"
+                    class="p-4 border-2 rounded-xl text-center transition-all duration-200 group"
+                  >
+                    <i
+                      class="fas fa-male text-green-600 text-xl mb-2 group-hover:scale-110 transition-transform"
+                    ></i>
+                    <div class="font-medium text-gray-900">Parent</div>
+                    <div class="text-xs text-gray-500 mt-1">Father</div>
+                  </button>
+
+                  <!-- Parent 2 (Mother) -->
+                  <button
+                    type="button"
+                    @click="selectedRelationship = 'parent_2'"
+                    :class="{
+                      'border-pink-500 bg-pink-50 ring-2 ring-pink-200':
+                        selectedRelationship === 'parent_2',
+                      'border-gray-200 bg-white hover:bg-gray-50':
+                        selectedRelationship !== 'parent_2',
+                    }"
+                    class="p-4 border-2 rounded-xl text-center transition-all duration-200 group"
+                  >
+                    <i
+                      class="fas fa-female text-pink-600 text-xl mb-2 group-hover:scale-110 transition-transform"
+                    ></i>
+                    <div class="font-medium text-gray-900">Parent</div>
+                    <div class="text-xs text-gray-500 mt-1">Mother</div>
+                  </button>
+
+                  <!-- Child -->
+                  <button
+                    type="button"
+                    @click="selectedRelationship = 'child'"
+                    :class="{
+                      'border-blue-500 bg-blue-50 ring-2 ring-blue-200':
+                        selectedRelationship === 'child',
+                      'border-gray-200 bg-white hover:bg-gray-50':
+                        selectedRelationship !== 'child',
+                    }"
+                    class="p-4 border-2 rounded-xl text-center transition-all duration-200 group"
+                  >
+                    <i
+                      class="fas fa-child text-blue-600 text-xl mb-2 group-hover:scale-110 transition-transform"
+                    ></i>
+                    <div class="font-medium text-gray-900">Child</div>
+                    <div class="text-xs text-gray-500 mt-1">Son/Daughter</div>
+                  </button>
+
+                  <!-- Spouse -->
+                  <button
+                    type="button"
+                    @click="selectedRelationship = 'spouse'"
+                    :class="{
+                      'border-purple-500 bg-purple-50 ring-2 ring-purple-200':
+                        selectedRelationship === 'spouse',
+                      'border-gray-200 bg-white hover:bg-gray-50':
+                        selectedRelationship !== 'spouse',
+                    }"
+                    class="p-4 border-2 rounded-xl text-center transition-all duration-200 group"
+                  >
+                    <i
+                      class="fas fa-heart text-purple-600 text-xl mb-2 group-hover:scale-110 transition-transform"
+                    ></i>
+                    <div class="font-medium text-gray-900">Spouse</div>
+                    <div class="text-xs text-gray-500 mt-1">Partner</div>
+                  </button>
+                </div>
+
+                <!-- Relationship Help Text -->
+                <p class="text-xs text-gray-500 mt-3 text-center">
+                  This helps us build your family tree correctly
+                </p>
+              </div>
+
               <button
                 type="submit"
-                :disabled="!newFamilyName.trim() || creatingFamily"
-                class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all disabled:opacity-50"
+                :disabled="
+                  !newFamilyName.trim() ||
+                  !selectedRelationship ||
+                  creatingFamily
+                "
+                class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i v-if="creatingFamily" class="fas fa-spinner fa-spin"></i>
                 <i v-else class="fas fa-home"></i>
@@ -213,13 +308,14 @@ const authStore = useAuthStore();
 const router = useRouter();
 
 const newFamilyName = ref("");
+const selectedRelationship = ref("");
 const creatingFamily = ref(false);
 const showToast = ref(false);
 const toastMessage = ref("");
 const toastType = ref("success");
 
 const createNewFamily = async () => {
-  if (!newFamilyName.value.trim()) return;
+  if (!newFamilyName.value.trim() || !selectedRelationship.value) return;
 
   creatingFamily.value = true;
   try {
@@ -227,7 +323,8 @@ const createNewFamily = async () => {
       authStore.userId,
       newFamilyName.value.trim(),
       authStore.email,
-      authStore.name // PASS USER'S NAME
+      authStore.name,
+      selectedRelationship.value
     );
 
     // Update auth store with new family
