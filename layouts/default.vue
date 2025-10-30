@@ -126,8 +126,8 @@
                 <span class="text-sm">Logout</span>
               </button>
             </template>
-            <!-- Non-authenticated users - Hide on auth pages -->
-            <template v-else-if="!isAuthPage">
+            <!-- Non-authenticated users - Hide on auth pages and if authenticated -->
+            <template v-else-if="!isAuthPage && isAuthenticated">
               <NuxtLink
                 to="/login"
                 class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"

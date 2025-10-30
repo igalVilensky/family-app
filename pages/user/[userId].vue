@@ -36,7 +36,8 @@
           <div class="flex-shrink-0">
             <div class="relative">
               <div
-                class="w-28 h-28 md:w-36 md:h-36 rounded-3xl bg-gradient-to-br from-orange-100 to-rose-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-2xl"
+                class="w-28 h-28 md:w-36 md:h-36 rounded-3xl flex items-center justify-center overflow-hidden border-4 border-white shadow-2xl"
+                :class="getRelationshipColor(userRelationship)"
               >
                 <img
                   v-if="userProfile.avatarUrl"
@@ -44,10 +45,7 @@
                   :alt="userProfile.name"
                   class="w-full h-full object-cover"
                 />
-                <div
-                  v-else
-                  class="text-4xl md:text-5xl font-bold text-orange-600"
-                >
+                <div v-else class="text-4xl md:text-5xl font-bold text-white">
                   {{ userInitial }}
                 </div>
               </div>
@@ -72,6 +70,21 @@
                 <div
                   class="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-3 md:gap-6 text-gray-600 mb-6"
                 >
+                  <!-- Relationship Badge -->
+                  <div
+                    v-if="userRelationship"
+                    class="flex items-center gap-2 px-4 py-2 rounded-full border-2 shadow-md"
+                    :class="getRelationshipBadgeClass(userRelationship)"
+                  >
+                    <i
+                      :class="getRelationshipIcon(userRelationship)"
+                      class="text-sm text-white"
+                    ></i>
+                    <span class="font-bold text-white text-sm">
+                      {{ getRelationshipDisplay(userRelationship) }}
+                    </span>
+                  </div>
+
                   <div
                     class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full border-2 border-blue-200"
                   >
@@ -318,6 +331,27 @@
             </h3>
 
             <div class="space-y-4">
+              <!-- Relationship Information -->
+              <div
+                v-if="userRelationship"
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200"
+              >
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md"
+                >
+                  <i
+                    :class="getRelationshipIcon(userRelationship)"
+                    class="text-white"
+                  ></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-gray-600 font-bold">Family Relationship</p>
+                  <p class="font-bold text-gray-900 text-lg truncate">
+                    {{ getRelationshipDisplay(userRelationship) }}
+                  </p>
+                </div>
+              </div>
+
               <div
                 class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200"
               >
@@ -350,24 +384,6 @@
                   <p class="text-gray-600 font-bold">Phone</p>
                   <p class="font-bold text-gray-900 text-lg truncate">
                     {{ userProfile.phone || "Not provided" }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200"
-              >
-                <div
-                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md"
-                >
-                  <i class="fas fa-user-tag text-white"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p class="text-gray-600 font-bold">Family Role</p>
-                  <p
-                    class="font-bold text-gray-900 text-lg capitalize truncate"
-                  >
-                    {{ userProfile.familyRole || "Member" }}
                   </p>
                 </div>
               </div>
@@ -485,7 +501,8 @@
                 @click="goToUserProfile(member.userId)"
               >
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-md"
+                  class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md"
+                  :class="getRelationshipColor(member.relationship)"
                 >
                   <span class="text-white font-bold text-lg">
                     {{
@@ -497,9 +514,18 @@
                   <p class="font-bold text-gray-900 text-lg truncate">
                     {{ member.name || member.email }}
                   </p>
-                  <p class="text-gray-600 font-medium capitalize">
-                    {{ member.role }}
-                  </p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <i
+                      class="text-sm"
+                      :class="getRelationshipIcon(member.relationship)"
+                    ></i>
+                    <span class="text-gray-600 text-sm font-medium capitalize">
+                      {{
+                        getRelationshipDisplay(member.relationship) ||
+                        member.role
+                      }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -629,6 +655,7 @@ const toastType = ref("success");
 const showMessageModal = ref(false);
 const messageText = ref("");
 const isSendingMessage = ref(false);
+const userRelationship = ref(""); // NEW: Store user's relationship
 
 // Computed properties for multi-family support
 const userInitial = computed(() =>
@@ -696,6 +723,52 @@ const commonConnections = computed(() => {
     )
     .slice(0, 5);
 });
+
+// NEW: Relationship helper functions
+const getRelationshipDisplay = (relationship) => {
+  const relationshipMap = {
+    parent_1: "Father",
+    parent_2: "Mother",
+    child: "Child",
+    spouse: "Spouse/Partner",
+  };
+  return relationshipMap[relationship] || "Family Member";
+};
+
+const getRelationshipIcon = (relationship) => {
+  const iconMap = {
+    parent_1: "fas fa-male",
+    parent_2: "fas fa-female",
+    child: "fas fa-child",
+    spouse: "fas fa-heart",
+  };
+  return iconMap[relationship] || "fas fa-user text-gray-500";
+};
+
+const getRelationshipColor = (relationship) => {
+  const colorMap = {
+    parent_1: "bg-gradient-to-br from-blue-500 to-indigo-600",
+    parent_2: "bg-gradient-to-br from-pink-500 to-rose-600",
+    child: "bg-gradient-to-br from-green-500 to-emerald-600",
+    spouse: "bg-gradient-to-br from-purple-500 to-violet-600",
+  };
+  return (
+    colorMap[relationship] || "bg-gradient-to-br from-orange-500 to-rose-600"
+  );
+};
+
+const getRelationshipBadgeClass = (relationship) => {
+  const badgeMap = {
+    parent_1: "bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-300",
+    parent_2: "bg-gradient-to-r from-pink-500 to-rose-600 border-pink-300",
+    child: "bg-gradient-to-r from-green-500 to-emerald-600 border-green-300",
+    spouse: "bg-gradient-to-r from-purple-500 to-violet-600 border-purple-300",
+  };
+  return (
+    badgeMap[relationship] ||
+    "bg-gradient-to-r from-gray-500 to-gray-600 border-gray-300"
+  );
+};
 
 // Mock recent activities (you can replace with real data)
 const recentActivities = computed(() => [
@@ -818,6 +891,28 @@ const getActivityIconClass = (type) => {
   );
 };
 
+// NEW: Fetch user's relationship in current family
+const fetchUserRelationship = async () => {
+  if (!authStore.currentFamilyId) return;
+
+  try {
+    const familyDoc = await getDoc(
+      doc(db, "families", authStore.currentFamilyId)
+    );
+    if (familyDoc.exists()) {
+      const familyData = familyDoc.data();
+      const currentMember = familyData.members?.find(
+        (member) => member.userId === userId.value
+      );
+      if (currentMember?.relationship) {
+        userRelationship.value = currentMember.relationship;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching user relationship:", error);
+  }
+};
+
 // Basic messaging function
 const sendMessageToUser = async () => {
   if (!messageText.value || !messageText.value.trim()) {
@@ -837,9 +932,6 @@ const sendMessageToUser = async () => {
     showMessageModal.value = false;
     showToast(`Message sent to ${userProfile.value.name}`, "success");
     messageText.value = "";
-
-    // Don't redirect automatically, let user choose to go to messages
-    // Optional: You can add a button to go to conversation
   } catch (error) {
     console.error("Send message error:", error);
     showToast(error.message || "Failed to send message", "error");
@@ -940,7 +1032,10 @@ onMounted(async () => {
     return;
   }
 
-  await fetchUserEvents();
+  await Promise.all([
+    fetchUserEvents(),
+    fetchUserRelationship(), // NEW: Fetch relationship
+  ]);
   isLoading.value = false;
 });
 

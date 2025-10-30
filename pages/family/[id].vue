@@ -98,301 +98,291 @@
     </div>
 
     <!-- Main Content -->
-    <main v-else class="max-w-7xl mx-auto px-4 py-8 space-y-8 pb-24 md:pb-8">
-      <!-- Family Header Card -->
+    <main v-else class="max-w-7xl mx-auto px-4 py-6 space-y-6 pb-24 md:pb-8">
+      <!-- Compact Family Header Card -->
       <div
-        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-8 md:p-12 text-center"
+        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-6 md:p-8"
       >
-        <div
-          class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-500 to-rose-600 rounded-3xl mb-8 shadow-2xl hover:scale-105 transition-transform duration-200"
-        >
-          <i class="fas fa-home text-white text-4xl"></i>
-        </div>
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-          {{ familyData?.name || "Your Family" }}
-        </h1>
-        <p class="text-gray-600 mb-8 max-w-2xl mx-auto text-xl font-medium">
-          A private space for your family to connect and share memories
-        </p>
-        <div class="flex flex-wrap items-center justify-center gap-4 text-base">
+        <div class="flex items-center gap-4 mb-6">
           <div
-            class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-3 rounded-full shadow-sm border-2 border-blue-200"
+            class="w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0"
           >
-            <i class="fas fa-users text-blue-600"></i>
-            <span class="font-bold text-gray-800"
+            <i class="fas fa-home text-white text-2xl"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl md:text-4xl font-bold text-gray-900 truncate">
+              {{ familyData?.name || "Your Family" }}
+            </h1>
+            <p class="text-gray-600 text-sm md:text-base font-medium">
+              Private family space
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+          <div
+            class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 rounded-full shadow-sm border border-blue-200"
+          >
+            <i class="fas fa-users text-blue-600 text-xs"></i>
+            <span class="font-semibold text-gray-800 text-xs"
               >{{ familyData?.members?.length || 0 }} Members</span
             >
           </div>
           <div
-            class="flex items-center gap-3 bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3 rounded-full shadow-sm border-2 border-emerald-200"
+            class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-2 rounded-full shadow-sm border border-emerald-200"
           >
-            <i class="fas fa-calendar text-emerald-600"></i>
-            <span class="font-bold text-gray-800"
-              >Created {{ formatDate(familyData?.createdAt) }}</span
-            >
+            <i class="fas fa-calendar text-emerald-600 text-xs"></i>
+            <span class="font-semibold text-gray-800 text-xs">{{
+              formatDateCompact(familyData?.createdAt)
+            }}</span>
           </div>
           <div
             v-if="userFamilyRole"
-            class="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-violet-50 px-5 py-3 rounded-full shadow-sm border-2 border-purple-200"
+            class="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-violet-50 px-3 py-2 rounded-full shadow-sm border border-purple-200"
           >
-            <i class="fas fa-user-tag text-purple-600"></i>
-            <span class="font-bold text-gray-800 capitalize">{{
+            <i class="fas fa-user-tag text-purple-600 text-xs"></i>
+            <span class="font-semibold text-gray-800 text-xs capitalize">{{
               userFamilyRole
             }}</span>
           </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <!-- Left Column - Main Content -->
-        <div class="xl:col-span-2 space-y-8">
-          <!-- Family Members -->
+        <div class="xl:col-span-2 space-y-6">
+          <!-- Family Members - Mobile Optimized -->
+
           <div
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-4 md:p-6"
           >
-            <div class="flex items-center justify-between mb-8">
-              <div class="flex items-center gap-4">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
                 <div
-                  class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg"
+                  class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0"
                 >
-                  <i class="fas fa-users text-white text-2xl"></i>
+                  <i class="fas fa-users text-white text-lg md:text-xl"></i>
                 </div>
                 <div>
-                  <h3 class="text-2xl font-bold text-gray-900">
+                  <h3 class="text-xl md:text-2xl font-bold text-gray-900">
                     Family Members
                   </h3>
-                  <p class="text-gray-600 font-medium">Your family circle</p>
+                  <p class="text-gray-600 text-sm font-medium">
+                    Your family circle
+                  </p>
                 </div>
               </div>
-              <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
                 <span
-                  class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-lg font-bold rounded-2xl shadow-lg"
+                  class="px-3 py-2 md:px-4 md:py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-bold rounded-xl md:rounded-2xl shadow-md"
                 >
                   {{ familyData?.members?.length || 0 }}
                 </span>
-                <!-- Relationship Setup Progress -->
-                <div
-                  v-if="membersWithoutRelationships.length > 0"
-                  class="flex items-center gap-2 bg-amber-100 px-4 py-2 rounded-full border-2 border-amber-300"
-                >
-                  <i
-                    class="fas fa-exclamation-triangle text-amber-600 text-sm"
-                  ></i>
-                  <span class="text-sm font-bold text-amber-800">
-                    {{ membersWithoutRelationships.length }} need setup
-                  </span>
-                </div>
               </div>
             </div>
 
             <!-- Relationship Setup Alert -->
             <div
               v-if="membersWithoutRelationships.length > 0"
-              class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 mb-6"
+              class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 mb-4"
             >
-              <div class="flex items-center gap-4">
+              <div class="flex items-center gap-3">
                 <div class="flex-shrink-0">
-                  <i class="fas fa-info-circle text-amber-600 text-2xl"></i>
+                  <i class="fas fa-info-circle text-amber-600 text-lg"></i>
                 </div>
-                <div>
-                  <h4 class="font-bold text-amber-900 text-lg mb-1">
+                <div class="flex-1">
+                  <h4 class="font-bold text-amber-900 text-sm mb-1">
                     Complete Family Setup
                   </h4>
-                  <p class="text-amber-800 text-sm">
-                    {{ membersWithoutRelationships.length }} family member{{
+                  <p class="text-amber-800 text-xs">
+                    {{ membersWithoutRelationships.length }} member{{
                       membersWithoutRelationships.length !== 1 ? "s" : ""
                     }}
-                    need relationship setup for proper family tree display.
+                    need relationship setup.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <!-- Mobile Optimized Members Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div
                 v-for="member in familyData?.members"
                 :key="member.userId"
-                class="flex items-center gap-6 p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200 hover:border-orange-300 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 cursor-pointer group"
+                class="flex items-center gap-3 p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200 hover:border-orange-300 transition-all duration-300 hover:shadow-lg cursor-pointer group relative"
                 @click="goToUserProfile(member.userId)"
               >
+                <!-- Admin Badge - Top Right Corner -->
+                <div
+                  v-if="member.role === 'admin'"
+                  class="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full border-2 border-white flex items-center justify-center shadow-lg z-10"
+                >
+                  <i class="fas fa-crown text-white text-xs"></i>
+                </div>
+
+                <!-- Avatar with You Indicator -->
                 <div class="relative">
                   <div
-                    class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200"
+                    class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-200"
                     :class="getRelationshipColor(member.relationship)"
                   >
-                    <span class="text-white font-bold text-xl">
+                    <span class="text-white font-bold text-base">
                       {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
                     </span>
                   </div>
+                  <!-- You Indicator -->
                   <div
                     v-if="member.userId === authStore.userId"
-                    class="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full border-2 border-white flex items-center justify-center shadow-lg"
+                    class="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full border-2 border-white flex items-center justify-center shadow-md"
                   >
-                    <i class="fas fa-check text-white text-xs"></i>
+                    <i class="fas fa-check text-white text-[8px]"></i>
                   </div>
                 </div>
 
+                <!-- Member Info -->
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-3 flex-wrap mb-2">
+                  <div class="mb-1">
                     <h4
-                      class="font-bold text-gray-900 truncate text-xl group-hover:text-orange-600 transition-colors"
+                      class="font-bold text-gray-900 truncate text-sm group-hover:text-orange-600 transition-colors"
                     >
                       {{ getMemberDisplayName(member) }}
                     </h4>
-                    <span
-                      v-if="member.userId === authStore.userId"
-                      class="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm rounded-full font-bold shadow-sm"
-                    >
-                      You
-                    </span>
                   </div>
-                  <p class="text-gray-600 truncate text-base font-medium">
+
+                  <!-- Email -->
+                  <p class="text-gray-600 text-xs truncate font-medium mb-2">
                     {{ member.email }}
                   </p>
 
-                  <!-- Relationship Display -->
-                  <div class="flex items-center gap-2 mt-2">
+                  <!-- Relationship -->
+                  <div class="flex items-center gap-2">
                     <i
-                      class="text-sm"
+                      class="text-xs"
                       :class="getRelationshipIcon(member.relationship)"
                     ></i>
-                    <span class="text-sm font-medium text-gray-700">
+                    <span class="text-xs font-medium text-gray-700 truncate">
                       {{ getRelationshipDisplay(member.relationship) }}
                     </span>
                     <span
                       v-if="!member.relationship"
-                      class="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-medium"
+                      class="px-1.5 py-0.5 bg-gray-200 text-gray-600 text-xs rounded-full font-medium flex-shrink-0"
                     >
                       Needs Setup
                     </span>
                   </div>
                 </div>
 
-                <div class="flex items-center gap-4 flex-shrink-0">
-                  <span
-                    class="px-5 py-3 text-base font-bold rounded-2xl shadow-md"
-                    :class="{
-                      'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
-                        member.role === 'admin',
-                      'bg-gradient-to-r from-emerald-500 to-teal-600 text-white':
-                        member.role === 'member',
-                      'bg-gradient-to-r from-gray-500 to-gray-600 text-white':
-                        !member.role,
-                    }"
-                  >
-                    {{
-                      member.role
-                        ? member.role.charAt(0).toUpperCase() +
-                          member.role.slice(1)
-                        : "Member"
-                    }}
-                  </span>
+                <!-- Chevron - Centered on Right -->
+                <div class="flex-shrink-0">
                   <i
-                    class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-orange-500 transition-colors transform group-hover:translate-x-1"
+                    class="fas fa-chevron-right text-gray-400 text-sm group-hover:text-orange-500 transition-colors transform group-hover:translate-x-0.5"
                   ></i>
                 </div>
               </div>
             </div>
 
             <!-- Invite Section (Admins Only) -->
-            <div v-if="isAdmin" class="mt-8 pt-8 border-t-2 border-gray-200">
-              <div class="flex items-center gap-4 mb-6">
+            <div v-if="isAdmin" class="mt-6 pt-6 border-t-2 border-gray-200">
+              <div class="flex items-center gap-3 mb-4">
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
+                  class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
                 >
-                  <i class="fas fa-user-plus text-white text-xl"></i>
+                  <i
+                    class="fas fa-user-plus text-white text-sm md:text-base"
+                  ></i>
                 </div>
                 <div>
-                  <h4 class="text-xl font-bold text-gray-900">
+                  <h4 class="text-lg md:text-xl font-bold text-gray-900">
                     Invite Members
                   </h4>
-                  <p class="text-gray-600 font-medium">
-                    Share invite link with family
+                  <p class="text-gray-600 text-sm font-medium">
+                    Share invite link
                   </p>
                 </div>
               </div>
 
               <button
                 @click="generateInviteLink"
-                class="w-full flex items-center justify-center gap-4 px-8 py-5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+                class="w-full flex items-center justify-center gap-3 px-4 py-3 md:px-6 md:py-4 bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold rounded-xl md:rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 :disabled="generatingInvite"
               >
                 <i
-                  class="fas fa-link text-lg"
+                  class="fas fa-link text-sm"
                   :class="{ 'animate-spin': generatingInvite }"
                 ></i>
-                {{
-                  generatingInvite ? "Generating..." : "Generate Invite Link"
-                }}
+                <span class="text-sm md:text-base">
+                  {{
+                    generatingInvite ? "Generating..." : "Generate Invite Link"
+                  }}
+                </span>
               </button>
 
               <div
                 v-if="inviteLink"
-                class="mt-6 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl border-2 border-purple-300 shadow-lg"
+                class="mt-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl md:rounded-2xl border-2 border-purple-300 shadow-md"
               >
-                <label class="block text-lg font-bold text-purple-900 mb-4">
+                <label
+                  class="block text-sm md:text-base font-bold text-purple-900 mb-2"
+                >
                   Share this invite link:
                 </label>
-                <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col gap-2">
                   <input
                     type="text"
                     :value="inviteLink"
                     readonly
-                    class="flex-1 px-5 py-4 border-2 border-purple-300 rounded-2xl bg-white text-gray-900 text-base focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-medium"
+                    class="w-full px-3 py-2 md:px-4 md:py-3 border-2 border-purple-300 rounded-xl bg-white text-gray-900 text-xs md:text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 font-medium"
                     @click="$event.target.select()"
                   />
                   <button
                     @click="copyInviteLink"
-                    class="flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg transform hover:-translate-y-1 whitespace-nowrap"
+                    class="flex items-center justify-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-md"
                   >
-                    <i class="fas fa-copy"></i>
-                    {{ copyButtonText }}
+                    <i class="fas fa-copy text-xs"></i>
+                    <span class="text-sm">{{ copyButtonText }}</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Coming Soon Banner -->
+          <!-- Updated Coming Soon Banner -->
           <div
-            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-300 p-8 shadow-lg"
+            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-300 p-6 shadow-lg"
           >
             <div class="text-center">
               <div
-                class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl mb-6 shadow-2xl"
+                class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4 shadow-xl"
               >
-                <i class="fas fa-rocket text-white text-2xl"></i>
+                <i class="fas fa-rocket text-white text-xl"></i>
               </div>
-              <h3 class="text-3xl font-bold text-gray-900 mb-4">
-                Family Tree Coming Soon!
+              <h3 class="text-xl md:text-2xl font-bold text-gray-900 mb-3">
+                Family Timeline Coming Soon!
               </h3>
-              <p
-                class="text-gray-600 mb-8 max-w-2xl mx-auto text-lg font-medium"
-              >
-                We're building an interactive family tree that will visualize
-                your family relationships and connections in a beautiful,
-                easy-to-understand way.
+              <p class="text-gray-600 mb-6 text-sm md:text-base font-medium">
+                We're building a beautiful family timeline to capture and share
+                your most precious memories and milestones together.
               </p>
               <div
-                class="flex flex-wrap items-center justify-center gap-6 text-base"
+                class="flex flex-wrap items-center justify-center gap-3 text-sm"
               >
                 <div
-                  class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-blue-200"
+                  class="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-md border border-blue-200"
                 >
-                  <i class="fas fa-sitemap text-blue-500 text-xl"></i>
-                  <span class="font-bold text-gray-800">Family Tree</span>
+                  <i class="fas fa-sitemap text-blue-500"></i>
+                  <span class="font-semibold text-gray-800">Family Tree</span>
                 </div>
                 <div
-                  class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-emerald-200"
+                  class="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-md border border-emerald-200"
                 >
-                  <i class="fas fa-calendar-alt text-emerald-500 text-xl"></i>
-                  <span class="font-bold text-gray-800">Shared Calendar</span>
+                  <i class="fas fa-images text-emerald-500"></i>
+                  <span class="font-semibold text-gray-800">Memory Album</span>
                 </div>
                 <div
-                  class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border-2 border-purple-200"
+                  class="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-md border border-purple-200"
                 >
-                  <i class="fas fa-history text-purple-500 text-xl"></i>
-                  <span class="font-bold text-gray-800">Memory Timeline</span>
+                  <i class="fas fa-history text-purple-500"></i>
+                  <span class="font-semibold text-gray-800">Timeline</span>
                 </div>
               </div>
             </div>
@@ -400,53 +390,56 @@
         </div>
 
         <!-- Right Column - Sidebar -->
-        <div class="space-y-8">
+        <div class="space-y-6">
           <!-- Family Stats -->
           <div
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-blue-200 p-6 md:p-8"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-blue-200 p-4 md:p-6"
           >
-            <div class="flex items-center gap-4 mb-8">
+            <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
               >
-                <i class="fas fa-chart-bar text-white text-xl"></i>
+                <i class="fas fa-chart-bar text-white"></i>
               </div>
               <div>
-                <h3 class="text-2xl font-bold text-gray-900">Family Stats</h3>
-                <p class="text-gray-600 font-medium">Overview</p>
+                <h3 class="text-xl font-bold text-gray-900">Family Stats</h3>
+                <p class="text-gray-600 text-sm font-medium">Overview</p>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3">
               <div
-                class="flex items-center justify-between p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:shadow-lg transition-all"
+                class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:shadow-md transition-all"
               >
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                   <div
-                    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md"
+                    class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm"
                   >
-                    <i class="fas fa-users text-white"></i>
+                    <i class="fas fa-users text-white text-xs"></i>
                   </div>
-                  <span class="font-bold text-gray-800">Total Members</span>
+                  <span class="font-semibold text-gray-800 text-sm"
+                    >Total Members</span
+                  >
                 </div>
-                <span class="text-2xl font-bold text-gray-900">{{
+                <span class="text-lg font-bold text-gray-900">{{
                   familyData?.members?.length || 0
                 }}</span>
               </div>
 
-              <!-- NEW: Relationship Stats -->
               <div
-                class="flex items-center justify-between p-5 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200 hover:shadow-lg transition-all"
+                class="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl border border-purple-200 hover:shadow-md transition-all"
               >
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                   <div
-                    class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-md"
+                    class="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center shadow-sm"
                   >
-                    <i class="fas fa-heart text-white"></i>
+                    <i class="fas fa-heart text-white text-xs"></i>
                   </div>
-                  <span class="font-bold text-gray-800">Relationships Set</span>
+                  <span class="font-semibold text-gray-800 text-sm"
+                    >Relationships Set</span
+                  >
                 </div>
-                <span class="text-2xl font-bold text-gray-900"
+                <span class="text-lg font-bold text-gray-900"
                   >{{ membersWithRelationships.length }}/{{
                     familyData?.members?.length || 0
                   }}</span
@@ -454,34 +447,20 @@
               </div>
 
               <div
-                class="flex items-center justify-between p-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 hover:shadow-lg transition-all"
+                class="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:shadow-md transition-all"
               >
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
                   <div
-                    class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md"
+                    class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-sm"
                   >
-                    <i class="fas fa-user text-white"></i>
+                    <i class="fas fa-user text-white text-xs"></i>
                   </div>
-                  <span class="font-bold text-gray-800">Members</span>
-                </div>
-                <span class="text-2xl font-bold text-gray-900">{{
-                  getMemberCount()
-                }}</span>
-              </div>
-
-              <div
-                class="flex items-center justify-between p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 hover:shadow-lg transition-all"
-              >
-                <div class="flex items-center gap-4">
-                  <div
-                    class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md"
+                  <span class="font-semibold text-gray-800 text-sm"
+                    >Members</span
                   >
-                    <i class="fas fa-calendar text-white"></i>
-                  </div>
-                  <span class="font-bold text-gray-800">Created</span>
                 </div>
                 <span class="text-lg font-bold text-gray-900">{{
-                  formatDate(familyData?.createdAt)
+                  getMemberCount()
                 }}</span>
               </div>
             </div>
@@ -489,82 +468,84 @@
 
           <!-- Quick Actions -->
           <div
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-amber-200 p-6 md:p-8"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-amber-200 p-4 md:p-6"
           >
-            <div class="flex items-center gap-4 mb-8">
+            <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg"
+                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
               >
-                <i class="fas fa-bolt text-white text-xl"></i>
+                <i class="fas fa-bolt text-white"></i>
               </div>
               <div>
-                <h3 class="text-2xl font-bold text-gray-900">Quick Actions</h3>
-                <p class="text-gray-600 font-medium">Family tools</p>
+                <h3 class="text-xl font-bold text-gray-900">Quick Actions</h3>
+                <p class="text-gray-600 text-sm font-medium">Family tools</p>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3">
               <NuxtLink
                 to="/calendar"
-                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
+                class="w-full flex items-center gap-3 p-3 text-left bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
               >
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
+                  class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform flex-shrink-0"
                 >
-                  <i class="fas fa-calendar-alt text-white text-lg"></i>
+                  <i class="fas fa-calendar-alt text-white text-sm"></i>
                 </div>
-                <div class="flex-1">
-                  <div class="font-bold text-gray-900 text-lg">
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-900 text-sm">
                     View Calendar
                   </div>
-                  <div class="text-sm text-gray-600 font-medium">
+                  <div class="text-xs text-gray-600 font-medium">
                     See upcoming events
                   </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-blue-500 transition-colors transform group-hover:translate-x-1"
+                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-blue-500 transition-colors"
                 ></i>
               </NuxtLink>
 
               <button
                 v-if="isAdmin && membersWithoutRelationships.length > 0"
                 @click="showRelationshipSetupHelp"
-                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 hover:border-amber-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
+                class="w-full flex items-center gap-3 p-3 text-left bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 hover:border-amber-300 hover:shadow-md transition-all duration-200 group"
               >
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
+                  class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform flex-shrink-0"
                 >
-                  <i class="fas fa-users-cog text-white text-lg"></i>
+                  <i class="fas fa-users-cog text-white text-sm"></i>
                 </div>
-                <div class="flex-1">
-                  <div class="font-bold text-gray-900 text-lg">
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-900 text-sm">
                     Setup Relationships
                   </div>
-                  <div class="text-sm text-gray-600 font-medium">
+                  <div class="text-xs text-gray-600 font-medium">
                     Complete family setup
                   </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-amber-500 transition-colors transform group-hover:translate-x-1"
+                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-amber-500 transition-colors"
                 ></i>
               </button>
 
               <button
-                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl border-2 border-gray-300 transition-all duration-300 group opacity-60 cursor-not-allowed"
+                class="w-full flex items-center gap-3 p-3 text-left bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl border border-gray-300 transition-all duration-200 group opacity-60 cursor-not-allowed"
                 disabled
               >
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  class="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl flex items-center justify-center flex-shrink-0"
                 >
-                  <i class="fas fa-sitemap text-white text-lg"></i>
+                  <i class="fas fa-sitemap text-white text-sm"></i>
                 </div>
-                <div class="flex-1">
-                  <div class="font-bold text-gray-400 text-lg">Family Tree</div>
-                  <div class="text-sm text-gray-400 font-medium">
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-400 text-sm">
+                    Family Tree
+                  </div>
+                  <div class="text-xs text-gray-400 font-medium">
                     Coming soon
                   </div>
                 </div>
-                <i class="fas fa-lock text-gray-300 text-lg"></i>
+                <i class="fas fa-lock text-gray-300 text-xs"></i>
               </button>
             </div>
           </div>
@@ -572,64 +553,64 @@
           <!-- Settings (Admins Only) -->
           <div
             v-if="isAdmin"
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-rose-200 p-6 md:p-8"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-rose-200 p-4 md:p-6"
           >
-            <div class="flex items-center gap-4 mb-8">
+            <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg"
+                class="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
               >
-                <i class="fas fa-cog text-white text-xl"></i>
+                <i class="fas fa-cog text-white"></i>
               </div>
               <div>
-                <h3 class="text-2xl font-bold text-gray-900">
-                  Family Settings
-                </h3>
-                <p class="text-gray-600 font-medium">Manage your family</p>
+                <h3 class="text-xl font-bold text-gray-900">Family Settings</h3>
+                <p class="text-gray-600 text-sm font-medium">
+                  Manage your family
+                </p>
               </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3">
               <button
                 @click="editFamilyName"
-                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
+                class="w-full flex items-center gap-3 p-3 text-left bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
               >
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
+                  class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform flex-shrink-0"
                 >
-                  <i class="fas fa-edit text-white text-lg"></i>
+                  <i class="fas fa-edit text-white text-sm"></i>
                 </div>
-                <div class="flex-1">
-                  <div class="font-bold text-gray-900 text-lg">
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-900 text-sm">
                     Edit Family Name
                   </div>
-                  <div class="text-sm text-gray-600 font-medium">
-                    Update family display name
+                  <div class="text-xs text-gray-600 font-medium">
+                    Update display name
                   </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-blue-500 transition-colors transform group-hover:translate-x-1"
+                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-blue-500 transition-colors"
                 ></i>
               </button>
 
               <NuxtLink
                 :to="`/family/manage/${route.params.id}`"
-                class="w-full flex items-center gap-5 p-5 text-left bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-1"
+                class="w-full flex items-center gap-3 p-3 text-left bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 group"
               >
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform"
+                  class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform flex-shrink-0"
                 >
-                  <i class="fas fa-users-cog text-white text-lg"></i>
+                  <i class="fas fa-users-cog text-white text-sm"></i>
                 </div>
-                <div class="flex-1">
-                  <div class="font-bold text-gray-900 text-lg">
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-900 text-sm">
                     Manage Members
                   </div>
-                  <div class="text-sm text-gray-600 font-medium">
+                  <div class="text-xs text-gray-600 font-medium">
                     Add, remove, or change roles
                   </div>
                 </div>
                 <i
-                  class="fas fa-chevron-right text-gray-400 text-lg group-hover:text-emerald-500 transition-colors transform group-hover:translate-x-1"
+                  class="fas fa-chevron-right text-gray-400 text-xs group-hover:text-emerald-500 transition-colors"
                 ></i>
               </NuxtLink>
             </div>
@@ -644,7 +625,7 @@
       class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
     >
       <div
-        class="p-5 rounded-2xl shadow-xl border-2 backdrop-blur-sm"
+        class="p-4 rounded-2xl shadow-xl border-2 backdrop-blur-sm"
         :class="{
           'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-300':
             toastType === 'success',
@@ -652,20 +633,20 @@
             toastType === 'error',
         }"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <i
-            class="text-xl flex-shrink-0"
+            class="text-lg flex-shrink-0"
             :class="{
               'fas fa-check-circle text-green-500': toastType === 'success',
               'fas fa-exclamation-circle text-red-500': toastType === 'error',
             }"
           ></i>
-          <p class="font-bold flex-1 text-lg">{{ toastMessage }}</p>
+          <p class="font-semibold flex-1 text-sm">{{ toastMessage }}</p>
           <button
             @click="showToastMessage = false"
             class="flex-shrink-0 text-gray-400 hover:text-gray-600"
           >
-            <i class="fas fa-times text-lg"></i>
+            <i class="fas fa-times"></i>
           </button>
         </div>
       </div>
@@ -715,7 +696,6 @@ const isAdmin = computed(() => {
   return userFamilyRole.value === "admin";
 });
 
-// NEW: Computed properties for relationship handling
 const membersWithRelationships = computed(() => {
   return (
     familyData.value?.members?.filter((member) => member.relationship) || []
@@ -781,7 +761,7 @@ const getMemberDisplayName = (member) => {
   return "Unknown Member";
 };
 
-// NEW: Relationship display functions
+// Relationship display functions
 const getRelationshipDisplay = (relationship) => {
   const relationshipMap = {
     parent_1: "Father",
@@ -834,6 +814,28 @@ const formatDate = (timestamp) => {
       year: "numeric",
       month: "short",
       day: "numeric",
+    });
+  } catch {
+    return "Unknown";
+  }
+};
+
+// New compact date format for mobile
+const formatDateCompact = (timestamp) => {
+  if (!timestamp) return "Unknown";
+  try {
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
     });
   } catch {
     return "Unknown";
@@ -962,6 +964,14 @@ definePageMeta({
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* Improved mobile touch targets */
+@media (max-width: 640px) {
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
   }
 }
 </style>
