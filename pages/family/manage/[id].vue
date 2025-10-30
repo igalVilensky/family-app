@@ -355,6 +355,75 @@
               </div>
             </div>
           </div>
+
+          <!-- Bulk Relationship Management -->
+          <div
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6"
+          >
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
+                >
+                  <i class="fas fa-users-cog text-white text-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900">
+                    Relationship Management
+                  </h3>
+                  <p class="text-gray-600 text-sm font-medium">
+                    Set relationships for family members
+                  </p>
+                </div>
+              </div>
+              <button
+                @click="openBulkRelationshipModal"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-md"
+              >
+                <i class="fas fa-edit"></i>
+                Bulk Edit Relationships
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div
+                v-for="relationship in relationshipTypes"
+                :key="relationship.value"
+                class="p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200"
+              >
+                <div class="flex items-center gap-3 mb-2">
+                  <i :class="relationship.icon" class="text-lg"></i>
+                  <span class="font-semibold text-gray-900">{{
+                    relationship.label
+                  }}</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-900">
+                  {{ getRelationshipCount(relationship.value) }}
+                </div>
+                <div class="text-xs text-gray-600 mt-1">members</div>
+              </div>
+            </div>
+
+            <div
+              class="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-xl"
+              v-if="membersWithoutRelationships.length > 0"
+            >
+              <div class="flex items-center gap-3">
+                <i class="fas fa-info-circle text-amber-600"></i>
+                <div>
+                  <h4 class="font-bold text-amber-900 text-sm mb-1">
+                    Relationship Setup Needed
+                  </h4>
+                  <p class="text-amber-800 text-xs">
+                    {{ membersWithoutRelationships.length }} member{{
+                      membersWithoutRelationships.length !== 1 ? "s" : ""
+                    }}
+                    need relationship setup.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Right Column - Settings -->
@@ -530,6 +599,47 @@
       </div>
     </main>
 
+    <!-- Edit Family Name Modal -->
+    <div
+      v-if="showEditFamilyName"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl border-2 border-blue-300 max-w-md w-full p-6"
+      >
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Edit Family Name</h3>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Family Name
+          </label>
+          <input
+            type="text"
+            v-model="newFamilyName"
+            placeholder="Enter family name"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-medium"
+            @keyup.enter="updateFamilyName"
+          />
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            @click="showEditFamilyName = false"
+            class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            @click="updateFamilyName"
+            :disabled="!newFamilyName.trim()"
+            class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Update Name
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Transfer Ownership Modal -->
     <div
       v-if="showTransferOwnership"
@@ -647,6 +757,109 @@
       </div>
     </div>
 
+    <!-- Bulk Relationship Modal -->
+
+    <div
+      v-if="showBulkRelationship"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl border-2 border-purple-300 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+      >
+        <div class="p-6 border-b-2 border-gray-200">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">
+            Bulk Relationship Setup
+          </h3>
+          <p class="text-gray-600">
+            Set relationships for each family member. Click Save All when
+            finished.
+          </p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6">
+          <div class="space-y-4">
+            <div
+              v-for="member in familyData?.members"
+              :key="member.userId"
+              class="flex items-center gap-4 p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200"
+            >
+              <div class="relative">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
+                  :class="getRelationshipColor(member.relationship)"
+                >
+                  <span class="text-white font-bold text-sm">
+                    {{ getMemberDisplayName(member).charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <!-- You Indicator -->
+                <div
+                  v-if="member.userId === authStore.userId"
+                  class="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full border-2 border-white flex items-center justify-center shadow-md"
+                >
+                  <i class="fas fa-check text-white text-[8px]"></i>
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap mb-2">
+                  <h4 class="font-bold text-gray-900 truncate">
+                    {{ getMemberDisplayName(member) }}
+                  </h4>
+                  <span
+                    v-if="member.userId === authStore.userId"
+                    class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                  >
+                    You
+                  </span>
+                </div>
+                <p class="text-gray-600 truncate text-sm mb-2">
+                  {{ member.email }}
+                </p>
+                <div class="text-xs text-gray-500" v-if="member.relationship">
+                  Current: {{ getRelationshipDisplay(member.relationship) }}
+                </div>
+              </div>
+
+              <div class="flex-shrink-0">
+                <select
+                  v-model="bulkRelationships[member.userId]"
+                  class="px-3 py-2 border-2 border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 min-w-[140px]"
+                >
+                  <option value="">Select relationship...</option>
+                  <option
+                    v-for="rel in relationshipTypes"
+                    :key="rel.value"
+                    :value="rel.value"
+                  >
+                    {{ rel.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 border-t-2 border-gray-200 bg-gray-50">
+          <div class="flex gap-3">
+            <button
+              @click="closeBulkRelationshipModal"
+              class="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              @click="applyBulkRelationships"
+              :disabled="!hasRelationshipChanges"
+              class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Save All Relationships
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div
       v-if="showToastMessage"
@@ -718,6 +931,14 @@ const showDeleteFamily = ref(false);
 const selectedNewAdmin = ref(null);
 const confirmDelete = ref(false);
 
+// New UI State for bulk relationships and family name modal
+const showEditFamilyName = ref(false);
+const newFamilyName = ref("");
+const showBulkRelationship = ref(false);
+const bulkRelationship = ref("");
+const selectedMembers = ref([]);
+const bulkRelationships = ref({});
+
 // Computed properties
 const currentFamilyId = computed(() => route.params.id);
 const hasAccess = computed(() => {
@@ -733,6 +954,23 @@ const userFamilyRole = computed(() => {
 const isAdmin = computed(() => {
   return userFamilyRole.value === "admin";
 });
+
+const membersWithoutRelationships = computed(() => {
+  return (
+    familyData.value?.members?.filter((member) => !member.relationship) || []
+  );
+});
+
+const relationshipTypes = computed(() => [
+  { value: "parent_1", label: "Father", icon: "fas fa-male text-blue-500" },
+  { value: "parent_2", label: "Mother", icon: "fas fa-female text-pink-500" },
+  { value: "child", label: "Child", icon: "fas fa-child text-green-500" },
+  {
+    value: "spouse",
+    label: "Spouse/Partner",
+    icon: "fas fa-heart text-purple-500",
+  },
+]);
 
 const showToast = (message, type = "success") => {
   toastMessage.value = message;
@@ -834,6 +1072,13 @@ const getAdminCount = () => {
 const getMemberCount = () => {
   return (
     familyData.value?.members?.filter((m) => m.role === "member").length || 0
+  );
+};
+
+const getRelationshipCount = (relationship) => {
+  return (
+    familyData.value?.members?.filter((m) => m.relationship === relationship)
+      .length || 0
   );
 };
 
@@ -967,20 +1212,23 @@ const copyInviteLink = async () => {
   }
 };
 
-const editFamilyName = async () => {
-  const newName = prompt(
-    "Enter new family name:",
-    familyData.value?.name || ""
-  );
-  if (!newName || newName.trim() === "") return;
+const editFamilyName = () => {
+  newFamilyName.value = familyData.value?.name || "";
+  showEditFamilyName.value = true;
+};
+
+const updateFamilyName = async () => {
+  if (!newFamilyName.value.trim()) return;
 
   try {
     await updateDoc(doc(db, "families", currentFamilyId.value), {
-      name: newName.trim(),
+      name: newFamilyName.value.trim(),
       updatedAt: new Date(),
     });
 
-    familyData.value.name = newName.trim();
+    familyData.value.name = newFamilyName.value.trim();
+    showEditFamilyName.value = false;
+    newFamilyName.value = "";
     showToast("Family name updated successfully", "success");
   } catch (error) {
     console.error("Error updating family name:", error);
@@ -1033,6 +1281,72 @@ const transferOwnership = async () => {
   }
 };
 
+const openBulkRelationshipModal = () => {
+  // Initialize with current relationships
+  bulkRelationships.value = {};
+  familyData.value?.members?.forEach((member) => {
+    bulkRelationships.value[member.userId] = member.relationship || "";
+  });
+  showBulkRelationship.value = true;
+};
+
+const closeBulkRelationshipModal = () => {
+  showBulkRelationship.value = false;
+  bulkRelationships.value = {};
+};
+
+const hasRelationshipChanges = computed(() => {
+  if (!familyData.value?.members) return false;
+
+  return familyData.value.members.some((member) => {
+    const currentRelationship = member.relationship || "";
+    const newRelationship = bulkRelationships.value[member.userId] || "";
+    return currentRelationship !== newRelationship;
+  });
+});
+
+const applyBulkRelationships = async () => {
+  try {
+    const familyRef = doc(db, "families", currentFamilyId.value);
+
+    // Update members with new relationships
+    const updatedMembers = familyData.value.members.map((member) => {
+      const newRelationship = bulkRelationships.value[member.userId] || "";
+      return {
+        ...member,
+        relationship: newRelationship,
+      };
+    });
+
+    await updateDoc(familyRef, {
+      members: updatedMembers,
+    });
+
+    // Update user documents
+    const updatePromises = familyData.value.members.map(async (member) => {
+      const newRelationship = bulkRelationships.value[member.userId] || "";
+      const userRef = doc(db, "users", member.userId);
+      await updateDoc(userRef, {
+        [`families.${currentFamilyId.value}.relationship`]:
+          newRelationship || null,
+      });
+    });
+
+    await Promise.all(updatePromises);
+
+    // Update local data
+    familyData.value.members = updatedMembers;
+
+    showBulkRelationship.value = false;
+    bulkRelationships.value = {};
+
+    showToast("All relationships updated successfully", "success");
+  } catch (error) {
+    console.error("Error updating bulk relationships:", error);
+    showToast("Failed to update relationships", "error");
+  }
+};
+
 const deleteFamily = async () => {
   if (!confirmDelete.value) return;
 
@@ -1058,6 +1372,58 @@ const deleteFamily = async () => {
   } catch (error) {
     console.error("Error deleting family:", error);
     showToast("Failed to delete family", "error");
+  }
+};
+
+// Bulk relationship methods
+const toggleMemberSelection = (userId) => {
+  const index = selectedMembers.value.indexOf(userId);
+  if (index > -1) {
+    selectedMembers.value.splice(index, 1);
+  } else {
+    selectedMembers.value.push(userId);
+  }
+};
+
+const applyBulkRelationship = async () => {
+  if (!bulkRelationship.value || selectedMembers.value.length === 0) return;
+
+  try {
+    const familyRef = doc(db, "families", currentFamilyId.value);
+    const updatedMembers = familyData.value.members.map((member) => {
+      if (selectedMembers.value.includes(member.userId)) {
+        return { ...member, relationship: bulkRelationship.value };
+      }
+      return member;
+    });
+
+    await updateDoc(familyRef, {
+      members: updatedMembers,
+    });
+
+    // Update user documents
+    const updatePromises = selectedMembers.value.map(async (userId) => {
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, {
+        [`families.${currentFamilyId.value}.relationship`]:
+          bulkRelationship.value,
+      });
+    });
+
+    await Promise.all(updatePromises);
+
+    familyData.value.members = updatedMembers;
+    showBulkRelationship.value = false;
+    selectedMembers.value = [];
+    bulkRelationship.value = "";
+
+    showToast(
+      `Relationship updated for ${updatePromises.length} members`,
+      "success"
+    );
+  } catch (error) {
+    console.error("Error updating bulk relationships:", error);
+    showToast("Failed to update relationships", "error");
   }
 };
 
