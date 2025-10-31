@@ -147,7 +147,7 @@
     </header>
 
     <!-- Main Content -->
-    <main :class="isAuthenticated ? 'pt-16 pb-20 lg:pb-0' : 'pt-16'">
+    <main class="py-16 lg:pb-0">
       <div class="max-w-7xl mx-auto">
         <slot />
       </div>
