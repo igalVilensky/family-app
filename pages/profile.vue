@@ -1,47 +1,34 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <div class="space-y-6">
     <!-- Loading State -->
-    <div
-      v-if="isLoading"
-      class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center"
-    >
+    <div v-if="isLoading"
+      class="fixed inset-0 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <div class="text-center">
         <div class="relative w-20 h-20 mx-auto mb-4">
+          <div class="absolute inset-0 border-4 border-blue-200 dark:border-blue-700 rounded-full"></div>
           <div
-            class="absolute inset-0 border-4 border-blue-200 rounded-full"
-          ></div>
-          <div
-            class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"
-          ></div>
+            class="absolute inset-0 border-4 border-blue-600 dark:border-blue-400 rounded-full border-t-transparent animate-spin">
+          </div>
         </div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           Loading your profile...
         </h2>
-        <p class="text-gray-600">Please wait a moment</p>
+        <p class="text-gray-600 dark:text-gray-300">Please wait a moment</p>
       </div>
     </div>
 
     <!-- Main Content -->
-    <main
-      class="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 pb-24 md:pb-8"
-    >
+    <main class="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 pb-24 md:pb-8">
       <!-- Profile Header -->
       <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 sm:p-8"
-      >
+        class="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-gray-200/60 dark:border-stone-700 p-6 sm:p-8">
         <div class="flex flex-col items-center text-center gap-4 sm:gap-6">
           <div class="relative group">
-            <Avatar
-              :avatar-url="authStore.avatarUrl"
-              :user-initial="userInitial"
-              :size="96"
-              :no-upload="false"
+            <Avatar :avatar-url="authStore.avatarUrl" :user-initial="userInitial" :size="96" :no-upload="false"
               class="hover:ring-4 hover:ring-blue-100 transition-all duration-300 group-hover:scale-105 rounded-2xl"
-              @avatar-updated="handleAvatarUpdate"
-            />
+              @avatar-updated="handleAvatarUpdate" />
             <div
-              class="absolute -bottom-2 -right-2 w-7 h-7 bg-green-500 rounded-full border-4 border-white flex items-center justify-center"
-            >
+              class="absolute -bottom-2 -right-2 w-7 h-7 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
               <i class="fas fa-check text-white text-xs"></i>
             </div>
           </div>
@@ -55,55 +42,38 @@
             </p>
 
             <div class="flex flex-wrap items-center justify-center gap-3">
-              <div
-                v-if="currentFamilyRole"
-                class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full"
-              >
+              <div v-if="currentFamilyRole" class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-full">
                 <i class="fas fa-users text-blue-600 text-sm"></i>
                 <span class="font-medium text-gray-700 capitalize">
                   {{ currentFamilyRole }}
                 </span>
               </div>
-              <div
-                v-if="currentFamilyName"
-                class="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full"
-              >
+              <div v-if="currentFamilyName" class="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full">
                 <i class="fas fa-home text-green-600 text-sm"></i>
                 <span class="font-medium text-gray-700">{{
                   currentFamilyName
                 }}</span>
               </div>
-              <div
-                v-if="authStore.permissions.minor"
-                class="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-full"
-              >
+              <div v-if="authStore.permissions.minor"
+                class="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-full">
                 <i class="fas fa-child text-amber-600 text-sm"></i>
                 <span class="font-medium text-gray-700">Minor</span>
               </div>
-              <div
-                v-if="userFamilies.length > 1"
-                class="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full"
-              >
+              <div v-if="userFamilies.length > 1" class="flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-full">
                 <i class="fas fa-layer-group text-purple-600 text-sm"></i>
-                <span class="font-medium text-gray-700"
-                  >{{ userFamilies.length }} Families</span
-                >
+                <span class="font-medium text-gray-700">{{ userFamilies.length }} Families</span>
               </div>
             </div>
           </div>
 
           <div class="flex flex-wrap justify-center gap-3">
-            <NuxtLink
-              :to="`/user/${authStore.userId}`"
-              class="inline-flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium border border-blue-200"
-            >
+            <NuxtLink :to="`/user/${authStore.userId}`"
+              class="inline-flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium border border-blue-200">
               <i class="fas fa-eye text-sm"></i>
               View Public Profile
             </NuxtLink>
-            <NuxtLink
-              to="/dashboard"
-              class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all duration-200 font-medium border border-gray-200"
-            >
+            <NuxtLink to="/dashboard"
+              class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-xl transition-all duration-200 font-medium border border-gray-200">
               <i class="fas fa-arrow-left text-sm"></i>
               Back to Dashboard
             </NuxtLink>
@@ -112,14 +82,11 @@
       </div>
 
       <!-- Family Selection (if user has multiple families) -->
-      <div
-        v-if="userFamilies.length > 1"
-        class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
-      >
+      <div v-if="userFamilies.length > 1"
+        class="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-gray-200/60 dark:border-stone-700 p-6 md:p-8">
         <div class="flex items-center gap-3 mb-6">
           <div
-            class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0"
-          >
+            class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
             <i class="fas fa-layer-group text-white text-lg"></i>
           </div>
           <div>
@@ -133,21 +100,14 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div
-            v-for="family in userFamilies"
-            :key="family.id"
-            class="border-2 rounded-xl p-4 transition-all duration-200 cursor-pointer hover:shadow-lg"
-            :class="
-              family.id === authStore.currentFamilyId
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300'
-            "
-            @click="switchFamily(family.id)"
-          >
+          <div v-for="family in userFamilies" :key="family.id"
+            class="border-2 rounded-xl p-4 transition-all duration-200 cursor-pointer hover:shadow-lg" :class="family.id === authStore.currentFamilyId
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-gray-200 hover:border-gray-300'
+              " @click="switchFamily(family.id)">
             <div class="flex items-center gap-3 mb-3">
               <div
-                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0"
-              >
+                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-home text-white"></i>
               </div>
               <div class="flex-1 min-w-0">
@@ -159,14 +119,10 @@
                 </p>
               </div>
             </div>
-            <div
-              class="flex items-center justify-between text-xs text-gray-500"
-            >
+            <div class="flex items-center justify-between text-xs text-gray-500">
               <span>{{ family.memberCount }} members</span>
-              <span
-                v-if="family.id === authStore.currentFamilyId"
-                class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium"
-              >
+              <span v-if="family.id === authStore.currentFamilyId"
+                class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
                 Current
               </span>
             </div>
@@ -179,13 +135,10 @@
         <!-- Left Column - Personal Information -->
         <div class="xl:col-span-2 space-y-6 md:space-y-8">
           <!-- Personal Information -->
-          <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
-          >
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8">
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-user text-white text-lg"></i>
               </div>
               <div>
@@ -201,37 +154,21 @@
             <form @submit.prevent="updateProfile" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
-                  <label
-                    for="name"
-                    class="block text-sm font-semibold text-gray-700 mb-3"
-                  >
+                  <label for="name" class="block text-sm font-semibold text-gray-700 mb-3">
                     Full Name *
                   </label>
-                  <input
-                    type="text"
-                    id="name"
-                    v-model="profileForm.name"
+                  <input type="text" id="name" v-model="profileForm.name"
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                    placeholder="Enter your full name"
-                    required
-                  />
+                    placeholder="Enter your full name" required />
                 </div>
 
                 <div>
-                  <label
-                    for="email"
-                    class="block text-sm font-semibold text-gray-700 mb-3"
-                  >
+                  <label for="email" class="block text-sm font-semibold text-gray-700 mb-3">
                     Email Address
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    v-model="profileForm.email"
+                  <input type="email" id="email" v-model="profileForm.email"
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
-                    disabled
-                    readonly
-                  />
+                    disabled readonly />
                   <p class="text-xs text-gray-500 mt-2">
                     Email cannot be changed
                   </p>
@@ -240,47 +177,29 @@
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
-                  <label
-                    for="birthday"
-                    class="block text-sm font-semibold text-gray-700 mb-3"
-                  >
+                  <label for="birthday" class="block text-sm font-semibold text-gray-700 mb-3">
                     Date of Birth *
                   </label>
-                  <input
-                    type="date"
-                    id="birthday"
-                    v-model="profileForm.birthday"
+                  <input type="date" id="birthday" v-model="profileForm.birthday"
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                    required
-                  />
+                    required />
                 </div>
 
                 <div>
-                  <label
-                    for="phone"
-                    class="block text-sm font-semibold text-gray-700 mb-3"
-                  >
+                  <label for="phone" class="block text-sm font-semibold text-gray-700 mb-3">
                     Phone Number
                     <span class="text-gray-400 font-normal">(Optional)</span>
                   </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    v-model="profileForm.phone"
+                  <input type="tel" id="phone" v-model="profileForm.phone"
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                    placeholder="Enter your phone number"
-                  />
+                    placeholder="Enter your phone number" />
                 </div>
               </div>
 
               <!-- Family Relationships Section -->
-              <div
-                class="border-2 border-blue-200 rounded-xl p-5 bg-blue-50/50"
-              >
+              <div class="border-2 border-blue-200 rounded-xl p-5 bg-blue-50/50">
                 <div class="flex items-center gap-3 mb-4">
-                  <div
-                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
-                  >
+                  <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-users text-blue-600"></i>
                   </div>
                   <div>
@@ -294,16 +213,12 @@
                 </div>
 
                 <div class="space-y-4">
-                  <div
-                    v-for="family in userFamilies"
-                    :key="family.id"
-                    class="bg-white rounded-xl p-4 border border-gray-200"
-                  >
+                  <div v-for="family in userFamilies" :key="family.id"
+                    class="bg-white rounded-xl p-4 border border-gray-200">
                     <div class="flex items-center justify-between mb-3">
                       <div class="flex items-center gap-3">
                         <div
-                          class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0"
-                        >
+                          class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0">
                           <i class="fas fa-home text-white text-sm"></i>
                         </div>
                         <div>
@@ -315,80 +230,56 @@
                           </p>
                         </div>
                       </div>
-                      <span
-                        v-if="family.id === authStore.currentFamilyId"
-                        class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
-                      >
+                      <span v-if="family.id === authStore.currentFamilyId"
+                        class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
                         Current
                       </span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        @click="setRelationship(family.id, 'parent_1')"
-                        :class="{
-                          'border-blue-500 bg-blue-50 ring-2 ring-blue-200':
-                            getCurrentRelationship(family.id) === 'parent_1',
-                          'border-gray-200 bg-white hover:bg-gray-50':
-                            getCurrentRelationship(family.id) !== 'parent_1',
-                        }"
-                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
-                      >
+                      <button type="button" @click="setRelationship(family.id, 'parent_1')" :class="{
+                        'border-blue-500 bg-blue-50 ring-2 ring-blue-200':
+                          getCurrentRelationship(family.id) === 'parent_1',
+                        'border-gray-200 bg-white hover:bg-gray-50':
+                          getCurrentRelationship(family.id) !== 'parent_1',
+                      }" class="p-3 border-2 rounded-lg text-center transition-all duration-200 group">
                         <i class="fas fa-male text-blue-600 text-sm mb-1"></i>
                         <div class="text-xs font-medium text-gray-900">
                           Father
                         </div>
                       </button>
 
-                      <button
-                        type="button"
-                        @click="setRelationship(family.id, 'parent_2')"
-                        :class="{
-                          'border-pink-500 bg-pink-50 ring-2 ring-pink-200':
-                            getCurrentRelationship(family.id) === 'parent_2',
-                          'border-gray-200 bg-white hover:bg-gray-50':
-                            getCurrentRelationship(family.id) !== 'parent_2',
-                        }"
-                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
-                      >
+                      <button type="button" @click="setRelationship(family.id, 'parent_2')" :class="{
+                        'border-pink-500 bg-pink-50 ring-2 ring-pink-200':
+                          getCurrentRelationship(family.id) === 'parent_2',
+                        'border-gray-200 bg-white hover:bg-gray-50':
+                          getCurrentRelationship(family.id) !== 'parent_2',
+                      }" class="p-3 border-2 rounded-lg text-center transition-all duration-200 group">
                         <i class="fas fa-female text-pink-600 text-sm mb-1"></i>
                         <div class="text-xs font-medium text-gray-900">
                           Mother
                         </div>
                       </button>
 
-                      <button
-                        type="button"
-                        @click="setRelationship(family.id, 'child')"
-                        :class="{
-                          'border-green-500 bg-green-50 ring-2 ring-green-200':
-                            getCurrentRelationship(family.id) === 'child',
-                          'border-gray-200 bg-white hover:bg-gray-50':
-                            getCurrentRelationship(family.id) !== 'child',
-                        }"
-                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
-                      >
+                      <button type="button" @click="setRelationship(family.id, 'child')" :class="{
+                        'border-green-500 bg-green-50 ring-2 ring-green-200':
+                          getCurrentRelationship(family.id) === 'child',
+                        'border-gray-200 bg-white hover:bg-gray-50':
+                          getCurrentRelationship(family.id) !== 'child',
+                      }" class="p-3 border-2 rounded-lg text-center transition-all duration-200 group">
                         <i class="fas fa-child text-green-600 text-sm mb-1"></i>
                         <div class="text-xs font-medium text-gray-900">
                           Child
                         </div>
                       </button>
 
-                      <button
-                        type="button"
-                        @click="setRelationship(family.id, 'spouse')"
-                        :class="{
-                          'border-purple-500 bg-purple-50 ring-2 ring-purple-200':
-                            getCurrentRelationship(family.id) === 'spouse',
-                          'border-gray-200 bg-white hover:bg-gray-50':
-                            getCurrentRelationship(family.id) !== 'spouse',
-                        }"
-                        class="p-3 border-2 rounded-lg text-center transition-all duration-200 group"
-                      >
-                        <i
-                          class="fas fa-heart text-purple-600 text-sm mb-1"
-                        ></i>
+                      <button type="button" @click="setRelationship(family.id, 'spouse')" :class="{
+                        'border-purple-500 bg-purple-50 ring-2 ring-purple-200':
+                          getCurrentRelationship(family.id) === 'spouse',
+                        'border-gray-200 bg-white hover:bg-gray-50':
+                          getCurrentRelationship(family.id) !== 'spouse',
+                      }" class="p-3 border-2 rounded-lg text-center transition-all duration-200 group">
+                        <i class="fas fa-heart text-purple-600 text-sm mb-1"></i>
                         <div class="text-xs font-medium text-gray-900">
                           Spouse
                         </div>
@@ -397,12 +288,8 @@
 
                     <!-- Current Relationship Display -->
                     <div class="mt-3 flex items-center gap-2">
-                      <i
-                        class="text-sm"
-                        :class="
-                          getRelationshipIcon(getCurrentRelationship(family.id))
-                        "
-                      ></i>
+                      <i class="text-sm" :class="getRelationshipIcon(getCurrentRelationship(family.id))
+                        "></i>
                       <span class="text-xs font-medium text-gray-700">
                         {{
                           getRelationshipDisplay(
@@ -410,10 +297,8 @@
                           )
                         }}
                       </span>
-                      <span
-                        v-if="!getCurrentRelationship(family.id)"
-                        class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium"
-                      >
+                      <span v-if="!getCurrentRelationship(family.id)"
+                        class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">
                         Not Set
                       </span>
                     </div>
@@ -427,20 +312,12 @@
               </div>
 
               <div>
-                <label
-                  for="bio"
-                  class="block text-sm font-semibold text-gray-700 mb-3"
-                >
+                <label for="bio" class="block text-sm font-semibold text-gray-700 mb-3">
                   Bio <span class="text-gray-400 font-normal">(Optional)</span>
                 </label>
-                <textarea
-                  id="bio"
-                  v-model="profileForm.bio"
-                  rows="4"
+                <textarea id="bio" v-model="profileForm.bio" rows="4"
                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white resize-none"
-                  placeholder="Tell us a bit about yourself..."
-                  maxlength="200"
-                ></textarea>
+                  placeholder="Tell us a bit about yourself..." maxlength="200"></textarea>
                 <div class="flex justify-between items-center mt-2">
                   <p class="text-xs text-gray-500">
                     Share your interests, hobbies, or a fun fact about yourself
@@ -451,15 +328,10 @@
                 </div>
               </div>
 
-              <button
-                type="submit"
+              <button type="submit"
                 class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                :disabled="saving || !isProfileFormValid"
-              >
-                <i
-                  class="fas fa-save text-sm"
-                  :class="{ 'animate-spin': saving }"
-                ></i>
+                :disabled="saving || !isProfileFormValid">
+                <i class="fas fa-save text-sm" :class="{ 'animate-spin': saving }"></i>
                 {{ saving ? "Saving Changes..." : "Save Changes" }}
               </button>
             </form>
@@ -469,13 +341,10 @@
         <!-- Right Column - Security & Settings -->
         <div class="space-y-6 md:space-y-8">
           <!-- Security & Privacy -->
-          <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
-          >
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8">
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-shield-alt text-white text-lg"></i>
               </div>
               <div>
@@ -493,9 +362,7 @@
               <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center gap-3">
-                    <div
-                      class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"
-                    >
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <i class="fas fa-key text-green-600"></i>
                     </div>
                     <div>
@@ -505,88 +372,51 @@
                       </p>
                     </div>
                   </div>
-                  <button
-                    @click="showPasswordForm = !showPasswordForm"
-                    class="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium flex-shrink-0"
-                  >
+                  <button @click="showPasswordForm = !showPasswordForm"
+                    class="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium flex-shrink-0">
                     <i class="fas fa-edit text-sm"></i>
                     {{ showPasswordForm ? "Cancel" : "Change" }}
                   </button>
                 </div>
 
-                <form
-                  v-if="showPasswordForm"
-                  @submit.prevent="updatePassword"
-                  class="mt-4 space-y-4 p-4 bg-white rounded-lg border border-gray-200"
-                >
+                <form v-if="showPasswordForm" @submit.prevent="updatePassword"
+                  class="mt-4 space-y-4 p-4 bg-white rounded-lg border border-gray-200">
                   <div>
-                    <label
-                      for="current-password"
-                      class="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label for="current-password" class="block text-sm font-medium text-gray-700 mb-2">
                       Current Password
                     </label>
-                    <input
-                      type="password"
-                      id="current-password"
-                      v-model="passwordForm.current"
+                    <input type="password" id="current-password" v-model="passwordForm.current"
                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                      placeholder="Enter current password"
-                      required
-                    />
+                      placeholder="Enter current password" required />
                   </div>
                   <div>
-                    <label
-                      for="new-password"
-                      class="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label for="new-password" class="block text-sm font-medium text-gray-700 mb-2">
                       New Password
                     </label>
-                    <input
-                      type="password"
-                      id="new-password"
-                      v-model="passwordForm.new"
+                    <input type="password" id="new-password" v-model="passwordForm.new"
                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                      placeholder="Enter new password"
-                      required
-                    />
+                      placeholder="Enter new password" required />
                     <p class="text-xs text-gray-500 mt-2">
                       Minimum 6 characters
                     </p>
                   </div>
                   <div>
-                    <label
-                      for="confirm-password"
-                      class="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                    <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-2">
                       Confirm New Password
                     </label>
-                    <input
-                      type="password"
-                      id="confirm-password"
-                      v-model="passwordForm.confirm"
+                    <input type="password" id="confirm-password" v-model="passwordForm.confirm"
                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                      placeholder="Confirm new password"
-                      required
-                    />
+                      placeholder="Confirm new password" required />
                   </div>
                   <div class="flex gap-3">
-                    <button
-                      type="submit"
+                    <button type="submit"
                       class="flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex-1"
-                      :disabled="updatingPassword || !isPasswordFormValid"
-                    >
-                      <i
-                        class="fas fa-check text-sm"
-                        :class="{ 'animate-spin': updatingPassword }"
-                      ></i>
+                      :disabled="updatingPassword || !isPasswordFormValid">
+                      <i class="fas fa-check text-sm" :class="{ 'animate-spin': updatingPassword }"></i>
                       {{ updatingPassword ? "Updating..." : "Update" }}
                     </button>
-                    <button
-                      type="button"
-                      @click="cancelPasswordUpdate"
-                      class="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-all duration-200 font-medium"
-                    >
+                    <button type="button" @click="cancelPasswordUpdate"
+                      class="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-all duration-200 font-medium">
                       Cancel
                     </button>
                   </div>
@@ -596,9 +426,7 @@
               <!-- Privacy Settings -->
               <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
                 <div class="flex items-center gap-3 mb-4">
-                  <div
-                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
-                  >
+                  <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-eye text-purple-600"></i>
                   </div>
                   <div class="flex-1">
@@ -607,18 +435,12 @@
                       Make profile visible only to family
                     </p>
                   </div>
-                  <label
-                    class="relative inline-flex items-center cursor-pointer flex-shrink-0"
-                  >
-                    <input
-                      type="checkbox"
-                      v-model="profileForm.permissions.privateMode"
-                      class="sr-only peer"
-                      @change="updatePrivacyMode"
-                    />
+                  <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input type="checkbox" v-model="profileForm.permissions.privateMode" class="sr-only peer"
+                      @change="updatePrivacyMode" />
                     <div
-                      class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"
-                    ></div>
+                      class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
+                    </div>
                   </label>
                 </div>
               </div>
@@ -626,9 +448,7 @@
               <!-- Account Role -->
               <div class="border border-gray-200 rounded-xl p-5 bg-gray-50/50">
                 <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
-                  >
+                  <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-user-tag text-blue-600"></i>
                   </div>
                   <div class="flex-1">
@@ -637,15 +457,12 @@
                       Your primary family permissions
                     </p>
                   </div>
-                  <span
-                    class="px-4 py-2 text-sm font-semibold rounded-xl capitalize flex-shrink-0"
-                    :class="{
-                      'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
-                        currentFamilyRole === 'admin',
-                      'bg-green-100 text-green-700':
-                        currentFamilyRole === 'member',
-                    }"
-                  >
+                  <span class="px-4 py-2 text-sm font-semibold rounded-xl capitalize flex-shrink-0" :class="{
+                    'bg-gradient-to-r from-purple-500 to-indigo-600 text-white':
+                      currentFamilyRole === 'admin',
+                    'bg-green-100 text-green-700':
+                      currentFamilyRole === 'member',
+                  }">
                     {{ currentFamilyRole || "member" }}
                   </span>
                 </div>
@@ -654,13 +471,10 @@
           </div>
 
           <!-- Account Status -->
-          <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8"
-          >
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-6 md:p-8">
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0"
-              >
+                class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-info-circle text-white text-lg"></i>
               </div>
               <div>
@@ -672,25 +486,19 @@
             </div>
 
             <div class="space-y-4">
-              <div
-                class="flex items-center justify-between p-3 bg-blue-50 rounded-xl"
-              >
+              <div class="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
                 <span class="font-medium text-gray-700">Member Since</span>
                 <span class="font-semibold text-gray-900">{{
                   formatJoinDate(authStore.createdAt)
                 }}</span>
               </div>
-              <div
-                class="flex items-center justify-between p-3 bg-green-50 rounded-xl"
-              >
+              <div class="flex items-center justify-between p-3 bg-green-50 rounded-xl">
                 <span class="font-medium text-gray-700">Family Count</span>
                 <span class="font-semibold text-gray-900">{{
                   userFamilies.length
                 }}</span>
               </div>
-              <div
-                class="flex items-center justify-between p-3 bg-purple-50 rounded-xl"
-              >
+              <div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
                 <span class="font-medium text-gray-700">Last Updated</span>
                 <span class="font-semibold text-gray-900 text-sm">{{
                   formatJoinDate(authStore.updatedAt)
@@ -703,12 +511,10 @@
 
       <!-- Danger Zone -->
       <div
-        class="bg-white rounded-2xl shadow-sm border border-red-200 p-6 md:p-8"
-      >
+        class="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-red-200 dark:border-red-700 p-6 md:p-8">
         <div class="flex items-center gap-3 mb-6">
           <div
-            class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0"
-          >
+            class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
             <i class="fas fa-exclamation-triangle text-white text-lg"></i>
           </div>
           <div>
@@ -722,9 +528,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div class="border border-red-200 rounded-xl p-5 bg-red-50/50">
             <div class="flex items-center gap-3 mb-3">
-              <div
-                class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0"
-              >
+              <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-sign-out-alt text-red-600"></i>
               </div>
               <div>
@@ -737,24 +541,17 @@
                 </p>
               </div>
             </div>
-            <button
-              @click="leaveCurrentFamily"
+            <button @click="leaveCurrentFamily"
               class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              :disabled="leaving"
-            >
-              <i
-                class="fas fa-sign-out-alt text-sm"
-                :class="{ 'animate-spin': leaving }"
-              ></i>
+              :disabled="leaving">
+              <i class="fas fa-sign-out-alt text-sm" :class="{ 'animate-spin': leaving }"></i>
               {{ leaving ? "Leaving..." : "Leave Family" }}
             </button>
           </div>
 
           <div class="border border-red-200 rounded-xl p-5 bg-red-50/50">
             <div class="flex items-center gap-3 mb-3">
-              <div
-                class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0"
-              >
+              <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-trash text-red-600"></i>
               </div>
               <div>
@@ -764,15 +561,10 @@
                 </p>
               </div>
             </div>
-            <button
-              @click="deleteAccount"
+            <button @click="deleteAccount"
               class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              :disabled="deleting"
-            >
-              <i
-                class="fas fa-trash text-sm"
-                :class="{ 'animate-spin': deleting }"
-              ></i>
+              :disabled="deleting">
+              <i class="fas fa-trash text-sm" :class="{ 'animate-spin': deleting }"></i>
               {{ deleting ? "Deleting..." : "Delete Account" }}
             </button>
           </div>
@@ -781,31 +573,19 @@
     </main>
 
     <!-- Toast Notification -->
-    <div
-      v-if="showToastMessage"
-      class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
-    >
-      <div
-        class="p-4 rounded-xl shadow-lg border backdrop-blur-sm"
-        :class="{
-          'bg-green-50/95 text-green-800 border-green-200':
-            toastType === 'success',
-          'bg-red-50/95 text-red-800 border-red-200': toastType === 'error',
-        }"
-      >
+    <div v-if="showToastMessage" class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn">
+      <div class="p-4 rounded-xl shadow-lg border backdrop-blur-sm" :class="{
+        'bg-green-50/95 text-green-800 border-green-200':
+          toastType === 'success',
+        'bg-red-50/95 text-red-800 border-red-200': toastType === 'error',
+      }">
         <div class="flex items-center gap-3">
-          <i
-            class="text-lg flex-shrink-0"
-            :class="{
-              'fas fa-check-circle text-green-500': toastType === 'success',
-              'fas fa-exclamation-circle text-red-500': toastType === 'error',
-            }"
-          ></i>
+          <i class="text-lg flex-shrink-0" :class="{
+            'fas fa-check-circle text-green-500': toastType === 'success',
+            'fas fa-exclamation-circle text-red-500': toastType === 'error',
+          }"></i>
           <p class="font-medium flex-1">{{ toastMessage }}</p>
-          <button
-            @click="showToastMessage = false"
-            class="flex-shrink-0 text-gray-400 hover:text-gray-600"
-          >
+          <button @click="showToastMessage = false" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -1346,6 +1126,7 @@ definePageMeta({
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -1360,6 +1141,7 @@ definePageMeta({
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;

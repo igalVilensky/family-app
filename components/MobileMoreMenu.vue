@@ -56,6 +56,13 @@ const menuItems = [
         textClass: 'text-indigo-600'
     },
     {
+        label: 'Chores',
+        path: '/chores',
+        icon: 'fa-broom',
+        bgClass: 'bg-amber-100',
+        textClass: 'text-amber-600'
+    },
+    {
         label: 'Capsules',
         path: '/capsules',
         icon: 'fa-clock',

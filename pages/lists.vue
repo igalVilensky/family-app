@@ -1,13 +1,13 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 pb-24 md:pb-8">
-        <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <div class="space-y-8 pb-24 md:pb-8">
+        <div class="max-w-7xl mx-auto space-y-8">
             <!-- Header -->
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 <div>
-                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
                         Shared Lists
                     </h1>
-                    <p class="text-gray-600 mt-2 text-lg font-medium">
+                    <p class="text-gray-600 dark:text-gray-300 mt-2 text-lg font-medium">
                         Manage shopping, to-dos, and more together.
                     </p>
                 </div>
@@ -31,16 +31,17 @@
 
             <!-- Empty State -->
             <div v-else
-                class="text-center py-16 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-gray-300">
+                class="text-center py-16 bg-white/50 dark:bg-stone-800/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-gray-300 dark:border-stone-600">
                 <div
-                    class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500 text-3xl">
+                    class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500 dark:text-blue-400 text-3xl">
                     <i class="fas fa-clipboard-check"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">No lists yet</h3>
-                <p class="text-gray-500 mb-8 max-w-md mx-auto">Create your first shared list to start organizing tasks
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No lists yet</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">Create your first shared list to start
+                    organizing tasks
                     and shopping items with your family.</p>
                 <button @click="showCreateModal = true"
-                    class="px-6 py-3 bg-white border-2 border-blue-200 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-colors">
+                    class="px-6 py-3 bg-white dark:bg-stone-700 border-2 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 font-bold rounded-xl hover:bg-blue-50 dark:hover:bg-stone-600 transition-colors">
                     Create First List
                 </button>
             </div>
@@ -59,8 +60,9 @@
         <div v-if="showCreateModal"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
             @click.self="showCreateModal = false">
-            <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md animate-in fade-in zoom-in duration-200">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Create New List</h2>
+            <div
+                class="bg-white dark:bg-stone-800 rounded-3xl shadow-2xl p-8 w-full max-w-md animate-in fade-in zoom-in duration-200">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Create New List</h2>
 
                 <div class="space-y-6">
                     <div>

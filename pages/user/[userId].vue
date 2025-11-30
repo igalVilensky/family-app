@@ -1,20 +1,13 @@
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50"
-  >
+  <div class="space-y-6">
     <!-- Loading State -->
-    <div
-      v-if="isLoading"
-      class="fixed inset-0 bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 z-50 flex items-center justify-center"
-    >
+    <div v-if="isLoading"
+      class="fixed inset-0 bg-gradient-to-br from-orange-50 via-rose-50 to-purple-50 dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 z-50 flex items-center justify-center">
       <div class="text-center">
         <div class="relative w-20 h-20 mx-auto mb-6">
-          <div
-            class="absolute inset-0 border-4 border-orange-200 rounded-full"
-          ></div>
-          <div
-            class="absolute inset-0 border-4 border-orange-600 rounded-full border-t-transparent animate-spin"
-          ></div>
+          <div class="absolute inset-0 border-4 border-orange-200 dark:border-orange-700 rounded-full">
+            ></div>
+          <div class="absolute inset-0 border-4 border-orange-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
         <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-2">
           Loading Profile
@@ -26,33 +19,22 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 space-y-8 pb-24 md:pb-8">
       <!-- Profile Header -->
-      <div
-        class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-6 md:p-8"
-      >
-        <div
-          class="flex flex-col lg:flex-row items-center lg:items-start gap-6 md:gap-8"
-        >
+      <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border-2 border-orange-200 p-6 md:p-8">
+        <div class="flex flex-col lg:flex-row items-center lg:items-start gap-6 md:gap-8">
           <!-- Avatar -->
           <div class="flex-shrink-0">
             <div class="relative">
               <div
                 class="w-28 h-28 md:w-36 md:h-36 rounded-3xl flex items-center justify-center overflow-hidden border-4 border-white shadow-2xl"
-                :class="getRelationshipColor(userRelationship)"
-              >
-                <img
-                  v-if="userProfile.avatarUrl"
-                  :src="userProfile.avatarUrl"
-                  :alt="userProfile.name"
-                  class="w-full h-full object-cover"
-                />
+                :class="getRelationshipColor(userRelationship)">
+                <img v-if="userProfile.avatarUrl" :src="userProfile.avatarUrl" :alt="userProfile.name"
+                  class="w-full h-full object-cover" />
                 <div v-else class="text-4xl md:text-5xl font-bold text-white">
                   {{ userInitial }}
                 </div>
               </div>
-              <div
-                v-if="isOnline"
-                class="absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full border-4 border-white flex items-center justify-center shadow-lg"
-              >
+              <div v-if="isOnline"
+                class="absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full border-4 border-white flex items-center justify-center shadow-lg">
                 <i class="fas fa-check text-white text-xs"></i>
               </div>
             </div>
@@ -60,92 +42,62 @@
 
           <!-- Profile Info -->
           <div class="flex-1 text-center lg:text-left w-full">
-            <div
-              class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4"
-            >
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
               <div class="w-full lg:w-auto">
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
                   {{ userProfile.name }}
                 </h1>
                 <div
-                  class="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-3 md:gap-6 text-gray-600 mb-6"
-                >
+                  class="flex flex-col md:flex-row items-center justify-center lg:justify-start gap-3 md:gap-6 text-gray-600 mb-6">
                   <!-- Relationship Badge -->
-                  <div
-                    v-if="userRelationship"
-                    class="flex items-center gap-2 px-4 py-2 rounded-full border-2 shadow-md"
-                    :class="getRelationshipBadgeClass(userRelationship)"
-                  >
-                    <i
-                      :class="getRelationshipIcon(userRelationship)"
-                      class="text-sm text-white"
-                    ></i>
+                  <div v-if="userRelationship" class="flex items-center gap-2 px-4 py-2 rounded-full border-2 shadow-md"
+                    :class="getRelationshipBadgeClass(userRelationship)">
+                    <i :class="getRelationshipIcon(userRelationship)" class="text-sm text-white"></i>
                     <span class="font-bold text-white text-sm">
                       {{ getRelationshipDisplay(userRelationship) }}
                     </span>
                   </div>
 
                   <div
-                    class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full border-2 border-blue-200"
-                  >
+                    class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full border-2 border-blue-200">
                     <i class="fas fa-users text-blue-600"></i>
                     <span class="font-bold text-gray-800 capitalize">
                       {{ userProfile.familyRole || "Member" }}
                     </span>
                   </div>
                   <div
-                    class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2 rounded-full border-2 border-emerald-200"
-                  >
+                    class="flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2 rounded-full border-2 border-emerald-200">
                     <i class="fas fa-envelope text-emerald-600"></i>
                     <span class="font-bold text-gray-800 break-all">{{
                       userProfile.email
-                    }}</span>
+                      }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- Action Buttons -->
-              <div
-                v-if="authStore.userId !== userId"
-                class="flex gap-4 justify-center lg:justify-start w-full lg:w-auto"
-              >
-                <button
-                  v-if="canSendMessage"
-                  @click="showMessageModal = true"
-                  :disabled="isSendingMessage"
-                  class="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  <i
-                    class="fas fa-envelope"
-                    :class="{ 'animate-spin': isSendingMessage }"
-                  ></i>
+              <div v-if="authStore.userId !== userId"
+                class="flex gap-4 justify-center lg:justify-start w-full lg:w-auto">
+                <button v-if="canSendMessage" @click="showMessageModal = true" :disabled="isSendingMessage"
+                  class="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                  <i class="fas fa-envelope" :class="{ 'animate-spin': isSendingMessage }"></i>
                   <span>{{ isSendingMessage ? "Sending..." : "Message" }}</span>
                 </button>
-                <button
-                  @click="toggleFavorite"
-                  class="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
-                >
-                  <i
-                    class="fas text-lg"
-                    :class="
-                      isFavorited
-                        ? 'fa-heart text-rose-500'
-                        : 'fa-heart text-gray-400'
-                    "
-                  ></i>
+                <button @click="toggleFavorite"
+                  class="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md">
+                  <i class="fas text-lg" :class="isFavorited
+                      ? 'fa-heart text-rose-500'
+                      : 'fa-heart text-gray-400'
+                    "></i>
                   <span>{{ isFavorited ? "Favorited" : "Favorite" }}</span>
                 </button>
               </div>
             </div>
 
             <!-- Bio -->
-            <div
-              v-if="userProfile.bio"
-              class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 md:p-6 mb-6 border-2 border-gray-200"
-            >
-              <p
-                class="text-gray-700 text-lg leading-relaxed font-medium italic"
-              >
+            <div v-if="userProfile.bio"
+              class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 md:p-6 mb-6 border-2 border-gray-200">
+              <p class="text-gray-700 text-lg leading-relaxed font-medium italic">
                 "{{ userProfile.bio }}"
               </p>
             </div>
@@ -153,32 +105,28 @@
             <!-- Quick Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div
-                class="text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 p-4 hover:shadow-lg transition-all"
-              >
+                class="text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 p-4 hover:shadow-lg transition-all">
                 <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ userEvents.length }}
                 </div>
                 <div class="text-gray-600 font-bold">Events</div>
               </div>
               <div
-                class="text-center bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 p-4 hover:shadow-lg transition-all"
-              >
+                class="text-center bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 p-4 hover:shadow-lg transition-all">
                 <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ upcomingEventsCount }}
                 </div>
                 <div class="text-gray-600 font-bold">Upcoming</div>
               </div>
               <div
-                class="text-center bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 p-4 hover:shadow-lg transition-all"
-              >
+                class="text-center bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 p-4 hover:shadow-lg transition-all">
                 <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ confirmedEventsCount }}
                 </div>
                 <div class="text-gray-600 font-bold">Confirmed</div>
               </div>
               <div
-                class="text-center bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200 p-4 hover:shadow-lg transition-all"
-              >
+                class="text-center bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200 p-4 hover:shadow-lg transition-all">
                 <div class="text-2xl md:text-3xl font-bold text-gray-900">
                   {{ familyMembershipDuration }}
                 </div>
@@ -193,14 +141,11 @@
         <!-- Left Column - Events & Activity -->
         <div class="lg:col-span-2 space-y-8">
           <!-- Upcoming Events -->
-          <div
-            v-if="upcomingEvents.length > 0"
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8"
-          >
+          <div v-if="upcomingEvents.length > 0"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8">
             <div class="flex items-center gap-4 mb-6">
               <div
-                class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg"
-              >
+                class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <i class="fas fa-calendar-alt text-white text-xl"></i>
               </div>
               <div>
@@ -214,23 +159,16 @@
             </div>
 
             <div class="space-y-4">
-              <div
-                v-for="event in upcomingEvents"
-                :key="event.id"
+              <div v-for="event in upcomingEvents" :key="event.id"
                 class="flex items-center gap-4 p-5 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
-                @click="viewEvent(event)"
-              >
-                <div
-                  class="w-3 h-12 rounded-full flex-shrink-0 shadow-md"
-                  :style="`background: ${getEventColor(event)}`"
-                ></div>
+                @click="viewEvent(event)">
+                <div class="w-3 h-12 rounded-full flex-shrink-0 shadow-md"
+                  :style="`background: ${getEventColor(event)}`"></div>
                 <div class="flex-1 min-w-0">
                   <p class="font-bold text-gray-900 truncate text-lg">
                     {{ event.title }}
                   </p>
-                  <p
-                    class="text-gray-600 flex flex-wrap items-center gap-3 font-medium"
-                  >
+                  <p class="text-gray-600 flex flex-wrap items-center gap-3 font-medium">
                     <span class="flex items-center gap-2">
                       <i class="fas fa-clock text-emerald-600"></i>
                       {{ formatEventDate(event.startDate) }}
@@ -239,16 +177,13 @@
                       <i class="fas fa-map-marker-alt text-rose-600"></i>
                       <span class="truncate max-w-[120px] md:max-w-none">{{
                         event.location
-                      }}</span>
+                        }}</span>
                     </span>
                   </p>
                 </div>
-                <div
-                  v-if="event.rsvps && event.rsvps[userId]"
-                  :class="`px-4 py-2 rounded-2xl text-sm font-bold whitespace-nowrap shadow-md ${getRSVPBadgeClass(
-                    event.rsvps[userId]
-                  )}`"
-                >
+                <div v-if="event.rsvps && event.rsvps[userId]" :class="`px-4 py-2 rounded-2xl text-sm font-bold whitespace-nowrap shadow-md ${getRSVPBadgeClass(
+                  event.rsvps[userId]
+                )}`">
                   {{
                     event.rsvps[userId].charAt(0).toUpperCase() +
                     event.rsvps[userId].slice(1)
@@ -257,22 +192,17 @@
               </div>
             </div>
 
-            <NuxtLink
-              to="/calendar"
-              class="block text-center mt-6 py-4 text-orange-600 hover:text-orange-700 font-bold border-2 border-dashed border-gray-300 rounded-2xl hover:border-orange-300 transition-all duration-200 text-lg hover:bg-orange-50"
-            >
+            <NuxtLink to="/calendar"
+              class="block text-center mt-6 py-4 text-orange-600 hover:text-orange-700 font-bold border-2 border-dashed border-gray-300 rounded-2xl hover:border-orange-300 transition-all duration-200 text-lg hover:bg-orange-50">
               View Full Calendar
             </NuxtLink>
           </div>
 
           <!-- Recent Activity -->
-          <div
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6 md:p-8"
-          >
+          <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6 md:p-8">
             <div class="flex items-center gap-4 mb-6">
               <div
-                class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg"
-              >
+                class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <i class="fas fa-history text-white text-xl"></i>
               </div>
               <div>
@@ -284,19 +214,11 @@
             </div>
 
             <div class="space-y-4">
-              <div
-                v-for="activity in recentActivities"
-                :key="activity.id"
-                class="flex items-start gap-4 p-5 bg-gradient-to-r from-gray-50 to-purple-50 rounded-2xl border-2 border-gray-200 hover:shadow-lg transition-all"
-              >
-                <div
-                  class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md"
-                  :class="getActivityIconClass(activity.type)"
-                >
-                  <i
-                    :class="getActivityIcon(activity.type)"
-                    class="text-lg"
-                  ></i>
+              <div v-for="activity in recentActivities" :key="activity.id"
+                class="flex items-start gap-4 p-5 bg-gradient-to-r from-gray-50 to-purple-50 rounded-2xl border-2 border-gray-200 hover:shadow-lg transition-all">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md"
+                  :class="getActivityIconClass(activity.type)">
+                  <i :class="getActivityIcon(activity.type)" class="text-lg"></i>
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-gray-900 font-bold text-lg">
@@ -308,10 +230,7 @@
                 </div>
               </div>
 
-              <div
-                v-if="recentActivities.length === 0"
-                class="text-center py-12 text-gray-500"
-              >
+              <div v-if="recentActivities.length === 0" class="text-center py-12 text-gray-500">
                 <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
                 <p class="font-bold text-xl">No recent activity</p>
                 <p class="text-lg font-medium">Activity will appear here</p>
@@ -323,26 +242,18 @@
         <!-- Right Column - Personal Details -->
         <div class="space-y-8">
           <!-- Personal Information -->
-          <div
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-blue-200 p-6 md:p-8"
-          >
+          <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-blue-200 p-6 md:p-8">
             <h3 class="text-xl font-bold text-gray-900 mb-6">
               Personal Information
             </h3>
 
             <div class="space-y-4">
               <!-- Relationship Information -->
-              <div
-                v-if="userRelationship"
-                class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200"
-              >
+              <div v-if="userRelationship"
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md"
-                >
-                  <i
-                    :class="getRelationshipIcon(userRelationship)"
-                    class="text-white"
-                  ></i>
+                  class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md">
+                  <i :class="getRelationshipIcon(userRelationship)" class="text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-gray-600 font-bold">Family Relationship</p>
@@ -353,11 +264,9 @@
               </div>
 
               <div
-                class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200"
-              >
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md"
-                >
+                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md">
                   <i class="fas fa-birthday-cake text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
@@ -373,11 +282,9 @@
               </div>
 
               <div
-                class="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200"
-              >
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-md"
-                >
+                  class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-md">
                   <i class="fas fa-phone text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
@@ -389,11 +296,9 @@
               </div>
 
               <div
-                class="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200"
-              >
+                class="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-md"
-                >
+                  class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-md">
                   <i class="fas fa-calendar-plus text-white"></i>
                 </div>
                 <div class="min-w-0 flex-1">
@@ -407,103 +312,80 @@
           </div>
 
           <!-- Event Participation -->
-          <div
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8"
-          >
+          <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-emerald-200 p-6 md:p-8">
             <h3 class="text-xl font-bold text-gray-900 mb-6">
               Event Participation
             </h3>
 
             <div class="space-y-4">
               <div
-                class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200"
-              >
+                class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-200">
                 <span class="text-gray-700 font-bold">Total Events</span>
                 <span class="font-bold text-gray-900 text-xl">{{
                   userEvents.length
-                }}</span>
+                  }}</span>
               </div>
 
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-gray-700 font-bold flex items-center gap-3">
-                    <div
-                      class="w-3 h-3 bg-green-500 rounded-full shadow-sm"
-                    ></div>
+                    <div class="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
                     Confirmed
                   </span>
                   <span class="font-bold text-gray-900 text-xl">{{
                     confirmedEventsCount
-                  }}</span>
+                    }}</span>
                 </div>
 
                 <div class="flex justify-between items-center">
                   <span class="text-gray-700 font-bold flex items-center gap-3">
-                    <div
-                      class="w-3 h-3 bg-yellow-500 rounded-full shadow-sm"
-                    ></div>
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full shadow-sm"></div>
                     Maybe
                   </span>
                   <span class="font-bold text-gray-900 text-xl">{{
                     maybeEventsCount
-                  }}</span>
+                    }}</span>
                 </div>
 
                 <div class="flex justify-between items-center">
                   <span class="text-gray-700 font-bold flex items-center gap-3">
-                    <div
-                      class="w-3 h-3 bg-red-500 rounded-full shadow-sm"
-                    ></div>
+                    <div class="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
                     Declined
                   </span>
                   <span class="font-bold text-gray-900 text-xl">{{
                     declinedEventsCount
-                  }}</span>
+                    }}</span>
                 </div>
               </div>
 
               <!-- Participation Chart -->
-              <div
-                class="mt-6 bg-gradient-to-r from-gray-50 to-emerald-50 rounded-2xl p-4 border-2 border-emerald-200"
-              >
+              <div class="mt-6 bg-gradient-to-r from-gray-50 to-emerald-50 rounded-2xl p-4 border-2 border-emerald-200">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="font-bold text-gray-700"
-                    >Participation Rate</span
-                  >
-                  <span class="font-bold text-gray-900 text-xl"
-                    >{{ participationRate }}%</span
-                  >
+                  <span class="font-bold text-gray-700">Participation Rate</span>
+                  <span class="font-bold text-gray-900 text-xl">{{ participationRate }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                   <div
                     class="bg-gradient-to-r from-emerald-500 to-teal-600 h-3 rounded-full transition-all duration-500 shadow-lg"
-                    :style="{ width: `${participationRate}%` }"
-                  ></div>
+                    :style="{ width: `${participationRate}%` }"></div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Common Connections -->
-          <div
-            v-if="commonConnections.length > 0"
-            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6 md:p-8"
-          >
+          <div v-if="commonConnections.length > 0"
+            class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border-2 border-purple-200 p-6 md:p-8">
             <h3 class="text-xl font-bold text-gray-900 mb-6">
               Common Connections
             </h3>
 
             <div class="space-y-3">
-              <div
-                v-for="member in commonConnections"
-                :key="member.userId"
+              <div v-for="member in commonConnections" :key="member.userId"
                 class="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-2xl border-2 border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer"
-                @click="goToUserProfile(member.userId)"
-              >
-                <div
-                  class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md"
-                  :class="getRelationshipColor(member.relationship)"
-                >
+                @click="goToUserProfile(member.userId)">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md"
+                  :class="getRelationshipColor(member.relationship)">
                   <span class="text-white font-bold text-lg">
                     {{
                       member.name ? member.name.charAt(0).toUpperCase() : "?"
@@ -515,10 +397,7 @@
                     {{ member.name || member.email }}
                   </p>
                   <div class="flex items-center gap-2 mt-1">
-                    <i
-                      class="text-sm"
-                      :class="getRelationshipIcon(member.relationship)"
-                    ></i>
+                    <i class="text-sm" :class="getRelationshipIcon(member.relationship)"></i>
                     <span class="text-gray-600 text-sm font-medium capitalize">
                       {{
                         getRelationshipDisplay(member.relationship) ||
@@ -535,18 +414,14 @@
     </main>
 
     <!-- Message Modal -->
-    <div
-      v-if="showMessageModal"
+    <div v-if="showMessageModal"
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      @click.self="showMessageModal = false"
-    >
+      @click.self="showMessageModal = false">
       <div
-        class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full p-8 animate-scaleIn border-2 border-orange-200"
-      >
+        class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full p-8 animate-scaleIn border-2 border-orange-200">
         <div class="flex items-center gap-4 mb-6">
           <div
-            class="w-14 h-14 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg"
-          >
+            class="w-14 h-14 bg-gradient-to-br from-orange-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg">
             <i class="fas fa-envelope text-white text-xl"></i>
           </div>
           <h3 class="text-2xl font-bold text-gray-900">Send Message</h3>
@@ -556,25 +431,16 @@
           Send a message to <strong>{{ userProfile.name }}</strong>
         </p>
 
-        <textarea
-          v-model="messageText"
-          placeholder="Type your message..."
-          rows="4"
-          class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-6 resize-none font-medium text-lg hover:border-gray-300 transition-all"
-        ></textarea>
+        <textarea v-model="messageText" placeholder="Type your message..." rows="4"
+          class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-6 resize-none font-medium text-lg hover:border-gray-300 transition-all"></textarea>
 
         <div class="flex gap-4">
-          <button
-            @click="showMessageModal = false"
-            class="flex-1 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md"
-          >
+          <button @click="showMessageModal = false"
+            class="flex-1 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 transform hover:-translate-y-1 shadow-md">
             Cancel
           </button>
-          <button
-            @click="sendMessageToUser"
-            :disabled="isSendingMessage || !messageText.trim()"
-            class="flex-1 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
+          <button @click="sendMessageToUser" :disabled="isSendingMessage || !messageText.trim()"
+            class="flex-1 px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-rose-700 transition-all duration-200 hover:shadow-2xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
             {{ isSendingMessage ? "Sending..." : "Send" }}
           </button>
         </div>
@@ -582,32 +448,20 @@
     </div>
 
     <!-- Toast Notification -->
-    <div
-      v-if="showToastMessage"
-      class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn"
-    >
-      <div
-        class="p-5 rounded-2xl shadow-xl border-2 backdrop-blur-sm"
-        :class="{
-          'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-300':
-            toastType === 'success',
-          'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-red-300':
-            toastType === 'error',
-        }"
-      >
+    <div v-if="showToastMessage" class="fixed top-4 right-4 z-50 max-w-sm w-full px-4 animate-slideIn">
+      <div class="p-5 rounded-2xl shadow-xl border-2 backdrop-blur-sm" :class="{
+        'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-300':
+          toastType === 'success',
+        'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-red-300':
+          toastType === 'error',
+      }">
         <div class="flex items-center gap-4">
-          <i
-            class="text-xl flex-shrink-0"
-            :class="{
-              'fas fa-check-circle text-green-500': toastType === 'success',
-              'fas fa-exclamation-circle text-red-500': toastType === 'error',
-            }"
-          ></i>
+          <i class="text-xl flex-shrink-0" :class="{
+            'fas fa-check-circle text-green-500': toastType === 'success',
+            'fas fa-exclamation-circle text-red-500': toastType === 'error',
+          }"></i>
           <p class="font-bold flex-1 text-lg">{{ toastMessage }}</p>
-          <button
-            @click="showToastMessage = false"
-            class="flex-shrink-0 text-gray-400 hover:text-gray-600"
-          >
+          <button @click="showToastMessage = false" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
             <i class="fas fa-times text-lg"></i>
           </button>
         </div>
@@ -1061,6 +915,7 @@ definePageMeta({
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -1075,6 +930,7 @@ definePageMeta({
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -1090,6 +946,7 @@ definePageMeta({
     transform: scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
